@@ -41,4 +41,5 @@ VoodooHDA.xcodeproj/user.pbxuser -text
 /VoodooHDAUserClient.h -text
 /getdump.c -text
 /helper.sh -text
+/iSubTypes.h -text
 /version.plist -text
