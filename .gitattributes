@@ -1,4 +1,7 @@
 * text=auto !eol
+/AppleAudioClip.cpp -text
+/AppleAudioClip.h -text
+/AppleAudioCommon.h -text
 /AudioClip.cpp -text
 /Common.h -text
 English.lproj/InfoPlist.strings -text
@@ -17,6 +20,8 @@ English.lproj/InfoPlist.strings -text
 /Shared.h -text
 /Tables.c -text
 /Tables.h -text
+/TigerAdditionals.cpp -text
+/TigerAdditionals.h -text
 /Verbs.h -text
 VoodooHDA.xcodeproj/TemplateIcon.tiff -text
 VoodooHDA.xcodeproj/dima.mode1v3 -text
