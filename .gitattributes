@@ -39,7 +39,13 @@ VoodooHDA.xcodeproj/user.pbxuser -text
 /VoodooHDAEngine.h -text
 /VoodooHDAUserClient.cpp -text
 /VoodooHDAUserClient.h -text
+/emmintrin.h -text
+/float.h -text
 /getdump.c -text
 /helper.sh -text
 /iSubTypes.h -text
+/mm3dnow.h -text
+/mm_malloc.h -text
+/mmintrin.h -text
 /version.plist -text
+/xmmintrin.h -text
