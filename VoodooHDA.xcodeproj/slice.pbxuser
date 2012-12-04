@@ -77,8 +77,8 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 366033151;
-			PBXWorkspaceStateSaveDate = 366033151;
+			PBXPerProjectTemplateStateSaveDate = 312560245;
+			PBXWorkspaceStateSaveDate = 312560245;
 		};
 		perUserProjectItems = {
 			1218A2E113CADFAE006DD3A3 /* PBXTextBookmark */ = 1218A2E113CADFAE006DD3A3 /* PBXTextBookmark */;
@@ -333,17 +333,17 @@
 	};
 	CE5D398A0EF4784000140715 /* Parser.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {848, 61399}}";
-			sepNavSelRange = "{75085, 7}";
-			sepNavVisRange = "{24149, 850}";
+			sepNavIntBoundsRect = "{{0, 0}, {691, 61295}}";
+			sepNavSelRange = "{7496, 8}";
+			sepNavVisRange = "{7194, 1066}";
 			sepNavWindowFrame = "{{61, 273}, {750, 558}}";
 		};
 	};
 	CE6725A00EF078B100FAFBED /* VoodooHDADevice.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {848, 38974}}";
-			sepNavSelRange = "{55405, 15}";
-			sepNavVisRange = "{54818, 1047}";
+			sepNavIntBoundsRect = "{{0, 0}, {691, 37934}}";
+			sepNavSelRange = "{13942, 47}";
+			sepNavVisRange = "{11871, 1180}";
 			sepNavVisRect = "{{0, 5144}, {734, 195}}";
 			sepNavWindowFrame = "{{84, 252}, {750, 558}}";
 		};

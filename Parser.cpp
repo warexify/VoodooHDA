@@ -759,6 +759,22 @@ void VoodooHDADevice::vendorPatchParse(FunctionGroup *funcGroup)
 			widget->enable = 0;
 		break;
 	}
+  if (id == HDA_CODEC_ALC269) {
+    if (subid == 0x16e31043 || subid == 0x831a1043 ||
+        subid == 0x834a1043 || subid == 0x83981043 ||
+         subid == 0x83ce1043) {
+       /*
+        * The digital mics on some Asus laptops produce
+        * differential signals instead of expected stereo.
+        * That results in silence if downmix it to mono.
+        * To workaround, make codec to handle signal as mono.
+        */
+      hda_command(dev, HDA_CMD_SET_COEFF_INDEX(0, 0x20, 0x07));
+      val = hda_command(dev, HDA_CMD_GET_PROCESSING_COEFF(0, 0x20));
+      hda_command(dev, HDA_CMD_SET_COEFF_INDEX(0, 0x20, 0x07));
+      hda_command(dev, HDA_CMD_SET_PROCESSING_COEFF(0, 0x20, val|0x80));
+    }
+  }
 #endif	
 }
 
@@ -1863,7 +1879,12 @@ int VoodooHDADevice::audioCtlSourceAmp(FunctionGroup *funcGroup, nid_t nid, int 
 	Widget *widget;
 	int conns = 0, rneed;
 	char buf[64];
-	
+
+	if(depth == 0 && (nid == 35 || nid == 11 || nid == 12))
+		if(mVerbose > 1) {
+			dumpMsg("nid %d in audioCtlSourceAmp\n", nid);
+		}
+		
 	if(mVerbose > 1) dumpMsg(" %*strace source, nid %d\n", depth + 1, " ", nid);
 	
 	if (depth > HDA_PARSE_MAXDEPTH)
@@ -1959,6 +1980,11 @@ void VoodooHDADevice::audioCtlDestAmp(FunctionGroup *funcGroup, nid_t nid, int i
 	AudioAssoc *assocs = funcGroup->audio.assocs;
 	Widget *widget;
 	char buf[64];
+	if(depth == 0 && (nid == 35 || nid == 11 || nid == 12))
+		if(mVerbose > 1) {
+			dumpMsg("nid %d is audioCtlDestAmp\n", nid);
+		}
+	
 
 	if(mVerbose > 1) dumpMsg(" %*strace dest nid %d\n", depth + 1, " ", nid);
 	
@@ -2613,8 +2639,9 @@ void VoodooHDADevice::dumpDstNid(PcmDevice *pcmDevice, nid_t nid, int depth)
 			dumpMsg("\n");
 			return;
 		}
-		if (widget->ossmask != 0) 
+		if (widget->ossmask != 0) {
 			dumpMsg(" [src: %s]", audioCtlMixerMaskToString(widget->ossmask, buf, sizeof (buf)));
+		}
 		dumpMsg(" bindSeq=%08lx", (long unsigned int)widget->bindSeqMask);
 		//if (widget->ossdev >= 0) {
 		if (widget->ossmask != 0) {

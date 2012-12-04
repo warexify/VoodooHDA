@@ -6,6 +6,7 @@
 
 const ControllerListItem gControllerList[] = {
 	{ HDA_INTEL_CPT,			"Intel Cougar Point"},
+  { HDA_INTEL_PATSBURG, "Intel Patsburg"},
   { HDA_INTEL_SCPT,			"Intel Panther Point"},
 	{ HDA_INTEL_82801F,			"Intel 82801F" },
 	{ HDA_INTEL_63XXESB,		"Intel 631x/632xESB" },
@@ -15,6 +16,7 @@ const ControllerListItem gControllerList[] = {
 	{ HDA_INTEL_82801JI,		"Intel 82801J" },
 	{ HDA_INTEL_82801JD,		"Intel 82801JD"},
 	{ HDA_INTEL_PCH,			"Intel PCH" },
+  { HDA_INTEL_PCH2,     "Intel 5 Series/3400 Series"},
 	{ HDA_INTEL_SCH,			"Intel SCH" },
 	{ HDA_NVIDIA_MCP51,			"NVidia MCP51" },
 	{ HDA_NVIDIA_MCP55,			"NVidia MCP55" },
@@ -53,6 +55,10 @@ const ControllerListItem gControllerList[] = {
 	{ HDA_ATI_RV730,			"ATI RV730" },
 	{ HDA_ATI_RV740,			"ATI RV740" },
 	{ HDA_ATI_RV770,			"ATI RV770" },
+  { HDA_ATI_REDWOOD,		"AMD REDWOOD" },
+  { HDA_ATI_BARTS,				"AMD BARTS" },
+  { HDA_ATI_TURKS,				"AMD TURKS" },
+
 	{ HDA_VIA_VT82XX,			"VIA VT8251/8237A" },
 	{ HDA_SIS_966,				"SiS 966" },
 	{ HDA_ULI_M5461,			"ULI M5461" },

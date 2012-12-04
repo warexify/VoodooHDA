@@ -528,9 +528,10 @@ IOAudioStreamDirection VoodooHDAEngine::getEngineDirection()
 	} else if (mChannel->direction == PCMDIR_REC) {
 		ASSERT(mChannel->pcmDevice->recChanId >= 0);
 		direction = kIOAudioStreamDirectionInput;
-	} else
+	} else {
 		BUG("invalid direction");
-
+	}
+	
 	if (mStream)
 		ASSERT(mStream->getDirection() == direction);
 
