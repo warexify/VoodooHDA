@@ -362,6 +362,7 @@
 				GCC_VERSION = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_PREPROCESS = YES;
 				INSTALL_GROUP = wheel;
 				INSTALL_OWNER = root;
 				MODULE_VERSION = 2.7.5;
@@ -371,7 +372,9 @@
 					"-DMULTICHANNEL",
 				);
 				PREBINDING = NO;
+				PRODUCT_NAME = VoodooHDA;
 				SDKROOT = "";
+				STRINGS_FILE_OUTPUT_ENCODING = "UTF-8";
 				VALID_ARCHS = "i386 x86_64";
 			};
 			name = "Release Multichannel";

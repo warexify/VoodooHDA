@@ -1885,7 +1885,7 @@ int VoodooHDADevice::audioCtlSourceAmp(FunctionGroup *funcGroup, nid_t nid, int 
 			dumpMsg("nid %d in audioCtlSourceAmp\n", nid);
 		}
 		
-	if(mVerbose > 1) dumpMsg(" %*strace source, nid %d\n", depth + 1, " ", nid);
+//	if(mVerbose > 1) dumpMsg(" %*strace source, nid %d\n", depth + 1, " ", nid);
 	
 	if (depth > HDA_PARSE_MAXDEPTH)
 		return need;
@@ -1986,7 +1986,7 @@ void VoodooHDADevice::audioCtlDestAmp(FunctionGroup *funcGroup, nid_t nid, int i
 		}
 	
 
-	if(mVerbose > 1) dumpMsg(" %*strace dest nid %d\n", depth + 1, " ", nid);
+//	if(mVerbose > 1) dumpMsg(" %*strace dest nid %d\n", depth + 1, " ", nid);
 	
 	if (depth > HDA_PARSE_MAXDEPTH)
 		return;

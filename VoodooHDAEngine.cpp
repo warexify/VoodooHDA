@@ -382,9 +382,9 @@ bool VoodooHDAEngine::createAudioStream()
 //		logMsg("%ld ", mChannel->pcmRates[n]);
 //	logMsg("(min: %ld, max: %ld)\n", mChannel->caps.minSpeed, mChannel->caps.maxSpeed);
 
-	ASSERT(mChannel->caps.minSpeed);
-	ASSERT(mChannel->caps.maxSpeed);
-	ASSERT(mChannel->caps.minSpeed <= mChannel->caps.maxSpeed);
+//	ASSERT(mChannel->caps.minSpeed);
+//	ASSERT(mChannel->caps.maxSpeed);
+//	ASSERT(mChannel->caps.minSpeed <= mChannel->caps.maxSpeed);
 
 	minSampleRate.whole = mChannel->caps.minSpeed;
 	minSampleRate.fraction = 0;
