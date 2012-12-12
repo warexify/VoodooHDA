@@ -3,7 +3,8 @@
 #ifndef _COMMON_H
 #define _COMMON_H
 
-#undef panic(...)
+//#undef panic(...)
+#undef panic
 void panic(const char *str, ...) __attribute__((__noreturn__));
 
 #define ASSERT(expr) do { if (!(expr)) panic("%s: failed assertion '%s'", __FUNCTION__, #expr); } while (0)

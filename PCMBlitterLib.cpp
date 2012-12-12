@@ -5,6 +5,13 @@
 /*
 	This file contains portable int<->float blitters.
 */
+#ifdef __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__
+#define TARGET_OS_MAC 1
+#endif
+#if defined(__i386__) || defined(__x86_64__)
+#define TARGET_CPU_X86 1
+#define TARGET_RT_LITTLE_ENDIAN 0
+#endif
 
 #if !TARGET_OS_MAC
 // we have optimized versions of most of these for Mac OS
