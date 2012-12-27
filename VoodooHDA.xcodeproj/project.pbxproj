@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 45;
+	objectVersion = 46;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -205,8 +205,11 @@
 /* Begin PBXProject section */
 		089C1669FE841209C02AAC07 /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0430;
+			};
 			buildConfigurationList = 1DEB91DD08733DB10010E9CD /* Build configuration list for PBXProject "VoodooHDA" */;
-			compatibilityVersion = "Xcode 3.1";
+			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
@@ -297,11 +300,11 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INSTALL_GROUP = wheel;
 				INSTALL_OWNER = root;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				MODULE_VERSION = 2.7.2;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "";
-				PREBINDING = NO;
-				SDKROOT = macosx10.4;
+				SDKROOT = macosx;
 				VALID_ARCHS = i386;
 			};
 			name = Release_Leo;
@@ -321,6 +324,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_MODEL_TUNING = "";
 				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GENERATE_PKGINFO_FILE = YES;
 				INFOPLIST_FILE = Info.plist;
 				INFOPLIST_PREPROCESS = YES;
@@ -333,8 +337,8 @@
 				MODULE_NAME = org.voodoo.driver.VoodooHDA;
 				MODULE_VERSION = 2.7.2;
 				ONLY_ACTIVE_ARCH = YES;
-				PREBINDING = YES;
 				PRODUCT_NAME = VoodooHDA;
+				SDKROOT = macosx;
 				VALID_ARCHS = "i386 x86_64";
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -365,13 +369,13 @@
 				INFOPLIST_PREPROCESS = YES;
 				INSTALL_GROUP = wheel;
 				INSTALL_OWNER = root;
-				MODULE_VERSION = 2.7.5;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MODULE_VERSION = 2.7.6;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
 					"-fno-strict-aliasing",
 					"-DMULTICHANNEL",
 				);
-				PREBINDING = NO;
 				PRODUCT_NAME = VoodooHDA;
 				SDKROOT = "";
 				STRINGS_FILE_OUTPUT_ENCODING = "UTF-8";
@@ -392,6 +396,7 @@
 				GCC_ENABLE_OBJC_GC = unsupported;
 				GCC_MODEL_TUNING = "";
 				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GENERATE_PKGINFO_FILE = YES;
 				INFOPLIST_FILE = Info.plist;
 				INFOPLIST_PREPROCESS = YES;
@@ -402,11 +407,10 @@
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\\\"$(SRCROOT)/build/Release\\\"";
 				MODULE_NAME = org.voodoo.driver.VoodooHDA;
-				MODULE_VERSION = 2.7.4;
+				MODULE_VERSION = 2.7.6;
 				ONLY_ACTIVE_ARCH = NO;
-				PREBINDING = YES;
 				PRODUCT_NAME = VoodooHDA;
-				SDKROOT = "";
+				SDKROOT = macosx;
 				VALID_ARCHS = "i386 x86_64";
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -436,11 +440,11 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INSTALL_GROUP = wheel;
 				INSTALL_OWNER = root;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				MODULE_VERSION = 2.7.2;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "-DMULTICHANNEL";
-				PREBINDING = NO;
-				SDKROOT = macosx10.5;
+				SDKROOT = macosx;
 				VALID_ARCHS = i386;
 			};
 			name = "Release_Leo Multi";
@@ -457,6 +461,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_MODEL_TUNING = "";
 				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GENERATE_PKGINFO_FILE = YES;
 				INFOPLIST_FILE = Info.plist;
 				INFOPLIST_PREPROCESS = YES;
@@ -469,8 +474,8 @@
 				MODULE_NAME = org.voodoo.driver.VoodooHDA;
 				MODULE_VERSION = 2.7.2;
 				ONLY_ACTIVE_ARCH = YES;
-				PREBINDING = YES;
 				PRODUCT_NAME = VoodooHDA;
+				SDKROOT = macosx;
 				VALID_ARCHS = "i386 x86_64";
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -497,14 +502,14 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INSTALL_GROUP = wheel;
 				INSTALL_OWNER = root;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				MODULE_VERSION = 2.7.2;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
 					"-DTIGER",
 					"-DMULTICHANNEL",
 				);
-				PREBINDING = YES;
-				SDKROOT = macosx10.4;
+				SDKROOT = macosx;
 				VALID_ARCHS = "ppc i386";
 			};
 			name = "Release_Tiger Multi";
@@ -521,6 +526,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_MODEL_TUNING = "";
 				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GENERATE_PKGINFO_FILE = YES;
 				INFOPLIST_FILE = Info.plist;
 				INFOPLIST_PREPROCESS = YES;
@@ -533,9 +539,8 @@
 				MODULE_NAME = org.voodoo.driver.VoodooHDA;
 				MODULE_VERSION = 2.7.2;
 				ONLY_ACTIVE_ARCH = YES;
-				PREBINDING = YES;
 				PRODUCT_NAME = VoodooHDA;
-				SDKROOT = macosx10.4;
+				SDKROOT = macosx;
 				VALID_ARCHS = "ppc i386";
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -557,6 +562,7 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = "";
 				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GENERATE_PKGINFO_FILE = YES;
 				INFOPLIST_FILE = Info.plist;
 				INFOPLIST_PREPROCESS = YES;
@@ -568,8 +574,8 @@
 				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\\\"$(SRCROOT)/build/Release\\\"";
 				MODULE_NAME = org.voodoo.driver.VoodooHDA;
 				MODULE_VERSION = 2.7.2;
-				PREBINDING = YES;
 				PRODUCT_NAME = VoodooHDA;
+				SDKROOT = macosx;
 				WARNING_CFLAGS = (
 					"-Wall",
 					"-Wextra",
@@ -590,6 +596,7 @@
 				GCC_ENABLE_OBJC_GC = unsupported;
 				GCC_MODEL_TUNING = "";
 				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GENERATE_PKGINFO_FILE = YES;
 				INFOPLIST_FILE = Info.plist;
 				INFOPLIST_PREPROCESS = YES;
@@ -602,8 +609,8 @@
 				MODULE_NAME = org.voodoo.driver.VoodooHDA;
 				MODULE_VERSION = 2.7.4;
 				ONLY_ACTIVE_ARCH = NO;
-				PREBINDING = YES;
 				PRODUCT_NAME = VoodooHDA;
+				SDKROOT = macosx;
 				VALID_ARCHS = "i386 x86_64";
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -630,10 +637,10 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INSTALL_GROUP = wheel;
 				INSTALL_OWNER = root;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				MODULE_VERSION = 2.7.2;
 				ONLY_ACTIVE_ARCH = YES;
-				PREBINDING = NO;
-				SDKROOT = macosx10.4;
+				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = YES;
 				VALID_ARCHS = i386;
 			};
@@ -659,11 +666,11 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INSTALL_GROUP = wheel;
 				INSTALL_OWNER = root;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				MODULE_VERSION = 2.7.4;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "";
-				PREBINDING = NO;
-				SDKROOT = macosx10.4;
+				SDKROOT = macosx;
 				VALID_ARCHS = "i386 x86_64";
 			};
 			name = Release;
@@ -682,7 +689,7 @@
 				12CC7DB41258F78700CD813E /* Release_Tiger Multi */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = "Release Multichannel";
 		};
 		1DEB91DD08733DB10010E9CD /* Build configuration list for PBXProject "VoodooHDA" */ = {
 			isa = XCConfigurationList;
@@ -695,7 +702,7 @@
 				12CC7DB31258F78700CD813E /* Release_Tiger Multi */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = "Release Multichannel";
 		};
 /* End XCConfigurationList section */
 	};

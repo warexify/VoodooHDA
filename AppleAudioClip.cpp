@@ -3944,7 +3944,7 @@ IOReturn VoodooHDAEngine::convertInputSamples(const void *sampleBuf, void *destB
 	if ((streamFormat->fSampleFormat == kIOAudioStreamSampleFormatLinearPCM) && streamFormat->fIsMixable) {
 		// it's linear PCM, which means the target is Float32 and we will be calling a blitter, which
 		// works in samples not frames
-		Float32 *floatDestBuf = (Float32 *) destBuf;
+//		Float32 *floatDestBuf = (Float32 *) destBuf;
 		
 		if (streamFormat->fNumericRepresentation == kIOAudioStreamNumericRepresentationSignedInt) {
 			// it's some kind of signed integer, which we handle as some kind of even byte length

@@ -941,9 +941,7 @@ void VoodooHDADevice::audioAssociationParse(FunctionGroup *funcGroup)
 
 	/* Scan associations skipping as=0. */
 	for (int j = 1, cnt = 0; j < 16; j++) {  //assocs
-		int first, hpredir;
-		first = 16;
-		hpredir = 0;
+		int first = 16;
 		for (int i = funcGroup->startNode; i < funcGroup->endNode; i++) { //nodes in assocs[cnt]
 			Widget *widget;
 			int type, dir, assoc, seq;
@@ -956,8 +954,10 @@ void VoodooHDADevice::audioAssociationParse(FunctionGroup *funcGroup)
 			seq = HDA_CONFIG_DEFAULTCONF_SEQUENCE(widget->pin.config);
 			if (assoc != j)
 				continue;
-			if (!(cnt < max))
+			if (cnt >= max) {
 				errorMsg("associations overflow"); // xxx
+				goto double_break;
+			}
 			type = widget->pin.config & HDA_CONFIG_DEFAULTCONF_DEVICE_MASK;
 			/* Get pin direction. */
 			if ((type == HDA_CONFIG_DEFAULTCONF_DEVICE_LINE_OUT) ||
@@ -1013,7 +1013,7 @@ void VoodooHDADevice::audioAssociationParse(FunctionGroup *funcGroup)
 			if (j == 15)
 				cnt++;
 		}
-		if ((j != 15) && (assocs[cnt].pincnt > 0)) {
+		if ((j != 15) && cnt < max && (assocs[cnt].pincnt > 0)) {
 			if ((assocs[cnt].jackPin >= 0) && (assocs[cnt].pincnt > 1))
 				assocs[cnt].hpredir = first;  //Slice - dunno if it needed
 			if (assocs[cnt].defaultPin < 0) // && (assocs[cnt].pincnt > 1))
@@ -1021,6 +1021,7 @@ void VoodooHDADevice::audioAssociationParse(FunctionGroup *funcGroup)
 			cnt++;
 		}		
 	}
+double_break:
 
 	dumpMsg("%d associations found:\n", max);
 	for (int i = 0; i < max; i++) {
