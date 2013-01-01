@@ -654,8 +654,9 @@ void VoodooHDADevice::free()
 	
 	FREE(mExtMsgBuffer);
 	FREE_LOCK(mExtMessageLock);
-	
-	freePrefPanelMemoryBuf();
+
+	FREE(mPrefPanelMemoryBuf);
+	FREE_LOCK(mPrefPanelMemoryBufLock);
 
 	FREE_LOCK(mLock);
 
