@@ -3,13 +3,12 @@
 //  VoodooHDA
 //
 //  Created by fassl on 15.04.09.
-//  Copyright (c) 2009 Voodoo. All rights reserved.
+//  Copyright (c) 2009-2013 Voodoo. All rights reserved.
 //
 
 
 #import <PreferencePanes/PreferencePanes.h>
 
-#include <IOKit/IOKitLib.h>
 #define kVoodooHDAClassName	"VoodooHDADevice"
 #define MAX_SLIDER_TAB_NAME_LENGTH 32
 #define SOUND_MIXER_NRDEVICES 25
@@ -38,7 +37,7 @@ typedef struct _ChannelInfo {
 	UInt8 numChannels;
 	bool vectorize;
 	bool useStereo;
-    UInt8 noiseLevel;	
+    UInt8 noiseLevel;
 	UInt8 StereoBase;
 	UInt8 empty[3];
 } ChannelInfo;
@@ -58,7 +57,7 @@ enum {
 	kVoodooHDAActionSetMath = 0x60
 };
 
-@interface VoodooHDAPref : NSPreferencePane 
+@interface VoodooHDAPref : NSPreferencePane
 {
     IBOutlet NSTextField *versionText;
     IBOutlet NSSlider *sliderAltPCM;
@@ -89,17 +88,17 @@ enum {
     IBOutlet NSSlider *sliderNoise;
     IBOutlet NSSlider *sliderVolume;
 	IBOutlet NSSlider *sliderStereo;
-    
+
     IBOutlet NSButton *soundVector;
 	IBOutlet NSButton *stereoEnhance;
 
-    IBOutlet NSPopUpButton *selector;
- 	
+	IBOutlet NSPopUpButton *selector;
+	IBOutlet NSPopUpButton *HDAselector;
+
+	NSArray* services;
+	NSInteger currentService;
 	UInt8 currentChannel;
 	ChannelInfo *chInfo;
-	io_service_t service;
-	io_connect_t connect;
-
 }
 //- (bool) updateChannelInfo;
 - (bool) updateMath;
@@ -107,6 +106,10 @@ enum {
 - (void) awakeFromNib;
 - (void) didUnselect;
 - (bool) saveSettings;
+- (void) willSelect;
+- (void) dealloc;
+- (bool) populateHDASelector;
+- (bool) populateSelector;
 - (IBAction)sliderMoved:(NSSlider *)sender;
 - (IBAction)selectorChanged:(NSPopUpButton *)sender;
 //- (IBAction)enableAllSLiders:(NSButton *)sender;
