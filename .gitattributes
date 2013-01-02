@@ -23,16 +23,6 @@ English.lproj/InfoPlist.strings -text
 /TigerAdditionals.cpp -text
 /TigerAdditionals.h -text
 /Verbs.h -text
-VoodooHDA.xcodeproj/TemplateIcon.tiff -text
-VoodooHDA.xcodeproj/dima.mode1v3 -text
-VoodooHDA.xcodeproj/dima.pbxuser -text
-VoodooHDA.xcodeproj/project.pbxproj -text
-VoodooHDA.xcodeproj/sergey.mode1v3 -text
-VoodooHDA.xcodeproj/sergey.pbxuser -text
-VoodooHDA.xcodeproj/slice.mode1v3 -text
-VoodooHDA.xcodeproj/slice.pbxuser -text
-VoodooHDA.xcodeproj/user.mode1v3 -text
-VoodooHDA.xcodeproj/user.pbxuser -text
 /VoodooHDADevice.cpp -text
 /VoodooHDADevice.h -text
 /VoodooHDAEngine.cpp -text
