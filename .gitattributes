@@ -2,11 +2,6 @@
 English.lproj/InfoPlist.strings -text
 English.lproj/VoodooHDAPref.xib -text
 /Info.plist -text
-VoodooHDA.xcodeproj/fassl.mode1v3 -text
-VoodooHDA.xcodeproj/fassl.pbxuser -text
-VoodooHDA.xcodeproj/project.pbxproj -text
-VoodooHDA.xcodeproj/slice.mode1v3 -text
-VoodooHDA.xcodeproj/slice.pbxuser -text
 /VoodooHDAPref.h -text
 /VoodooHDAPref.m -text
 /VoodooHDAPref.tiff -text
