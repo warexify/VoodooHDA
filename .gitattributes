@@ -1,12 +1,4 @@
 * text=auto !eol
-VoodooHdaSettingsLoader.xcodeproj/project.pbxproj -text
-VoodooHdaSettingsLoader.xcodeproj/project.xcworkspace/contents.xcworkspacedata -text
-VoodooHdaSettingsLoader.xcodeproj/project.xcworkspace/xcuserdata/Ben.xcuserdatad/UserInterfaceState.xcuserstate -text
-VoodooHdaSettingsLoader.xcodeproj/project.xcworkspace/xcuserdata/Ben.xcuserdatad/WorkspaceSettings.xcsettings -text
-VoodooHdaSettingsLoader.xcodeproj/slice.mode1v3 -text
-VoodooHdaSettingsLoader.xcodeproj/slice.pbxuser -text
-VoodooHdaSettingsLoader.xcodeproj/xcuserdata/Ben.xcuserdatad/xcschemes/VoodooHdaSettingsLoader.xcscheme -text
-VoodooHdaSettingsLoader.xcodeproj/xcuserdata/Ben.xcuserdatad/xcschemes/xcschememanagement.plist -text
 VoodooHdaSettingsLoader/AppDelegate.h -text
 VoodooHdaSettingsLoader/AppDelegate.m -text
 VoodooHdaSettingsLoader/VoodooHdaSettingsLoader-Info.plist -text
