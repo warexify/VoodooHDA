@@ -3,7 +3,7 @@
 //  VoodooHdaSettingsLoader
 //
 //  Created by Ben on 10/11/11.
-//  Copyright (c) 2011 VoodooHDA. All rights reserved.
+//  Copyright (c) 2011-2013 VoodooHDA. All rights reserved.
 //
 
 #import <CoreFoundation/CoreFoundation.h>
@@ -37,7 +37,7 @@ typedef struct _ChannelInfo {
 	UInt8 numChannels;
 	bool vectorize;
 	bool useStereo;
-    UInt8 noiseLevel;	
+    UInt8 noiseLevel;
 	UInt8 StereoBase;
 	UInt8 empty[3];
 } ChannelInfo;
@@ -57,9 +57,10 @@ enum {
 	kVoodooHDAActionSetMath = 0x60
 };
 
-
 @interface VoodooHdaSettingsLoader : NSObject {
 }
 - (void) load;
+- (bool) loadSettings;
+- (bool) tryImportOldSettings;
 
 @end
