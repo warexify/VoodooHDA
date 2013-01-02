@@ -4,6 +4,7 @@
 #include "Models.h"
 #include "OssCompat.h"
 
+__attribute__((visibility("hidden")))
 const ControllerListItem gControllerList[] = {
 	{ HDA_INTEL_CPT,			"Intel Cougar Point"},
   { HDA_INTEL_PATSBURG, "Intel Patsburg"},
@@ -72,6 +73,7 @@ const ControllerListItem gControllerList[] = {
 	{ 0,                        NULL }
 };
 
+__attribute__((visibility("hidden")))
 const CodecListItem gCodecList[] = {
 	{ HDA_CODEC_CS4206,			"Cirrus Logic CS4206" },
 	{ HDA_CODEC_CS4207,			"Cirrus Logic CS4207" },
@@ -254,6 +256,7 @@ const CodecListItem gCodecList[] = {
 	{ 0,						NULL }
 };
 
+__attribute__((visibility("hidden")))
 const RateTableItem gRateTable[] = {
 	{   8000, 1, 0x0000, 0x0000, 0x0500 },	/* (48000 * 1) / 6 */
 	{   9600, 0, 0x0000, 0x0000, 0x0400 },	/* (48000 * 1) / 5 */
@@ -293,6 +296,7 @@ const RateTableItem gRateTable[] = {
 	{      0, 0,      0,      0,      0 }
 };
 
+__attribute__((visibility("hidden")))
 const QuirkType gQuirkTypes[] = {
 	{ "gpio0",			HDA_QUIRK_GPIO0 },
 	{ "gpio1",			HDA_QUIRK_GPIO1 },
@@ -321,6 +325,7 @@ const QuirkType gQuirkTypes[] = {
 	{ NULL,				0 }
 };
 
+__attribute__((visibility("hidden")))
 const QuirkListItem gQuirkList[] = {
 	/*
 	 * XXX Force stereo quirk. Monoural recording / playback
@@ -354,8 +359,7 @@ const QuirkListItem gQuirkList[] = {
 	{ 0, 0, 0, 0 }
 };
 
-UInt16 gMixerDefaults[SOUND_MIXER_NRDEVICES];
-
+__attribute__((visibility("hidden")))
 const MixerValueName MixerValueNamesBind[SOUND_MIXER_NRDEVICES] = {
 {"Main",	SOUND_MIXER_VOLUME, 80},		// SOUND_MIXER_VOLUME
 {"Bass",	SOUND_MIXER_BASS, 50},		// SOUND_MIXER_BASS

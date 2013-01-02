@@ -166,7 +166,10 @@ public:
     // VertexBZ: flags to enable/disable Mic and Mute fixes (loaded from plist)
 	bool mEnableHalfMicVolumeFix;
 	bool mEnableMuteFix;
-	
+
+	// Zenith432
+	UInt16 mMixerDefaults[SOUND_MIXER_NRDEVICES];
+
 	/**************/
 
 	bool resetController(bool wakeup);

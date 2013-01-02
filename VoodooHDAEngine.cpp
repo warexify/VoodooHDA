@@ -25,13 +25,13 @@ OSDefineMetaClassAndStructors(VoodooHDAEngine, IOAudioEngine)
 #define SAMPLE_OFFSET		64	// note: these values definitely need to be tweaked
 #define SAMPLE_LATENCY		32
 
-extern const char *gDeviceTypes[], *gConnTypes[];
+extern const char * const gDeviceTypes[], * const gConnTypes[];
 
 #define kVoodooHDAPortSubTypeBase		'voo\x40'
 #define VOODOO_OSS_TO_SUBTYPE(type)		(kVoodooHDAPortSubTypeBase + 1 + type)
 #define VOODOO_SUBTYPE_TO_OSS(type)		(type - 1 - kVoodooHDAPortSubTypeBase)
 
-const char *gOssDeviceTypes[SOUND_MIXER_NRDEVICES] = {
+const char * const gOssDeviceTypes[SOUND_MIXER_NRDEVICES] = {
 	"Master", "Bass", "Treble", "Synthesizer", "PCM", "Speaker", "Line-in", "Microphone",
 	"CD", "Input mix", "Alternate PCM", "Recording level", "Input gain", "Output gain",
 	"Line #1", "Line #2", "Line #3", "Digital #1", "Digital #2", "Digital #3",
@@ -722,7 +722,7 @@ bool VoodooHDAEngine::createAudioControls()
 	
 	/* Create Volume controls */
 	/* Left channel */
-	control = IOAudioLevelControl::createVolumeControl(gMixerDefaults[initOssDev],
+	control = IOAudioLevelControl::createVolumeControl(mDevice->mMixerDefaults[initOssDev],
 													   0,	
 													   100,	
 													   minDb,
@@ -741,7 +741,7 @@ bool VoodooHDAEngine::createAudioControls()
     control->release();
     
 	/* Right channel */
-	control = IOAudioLevelControl::createVolumeControl(gMixerDefaults[initOssDev],
+	control = IOAudioLevelControl::createVolumeControl(mDevice->mMixerDefaults[initOssDev],
 													   0,	
 													   100,	
 													   minDb,

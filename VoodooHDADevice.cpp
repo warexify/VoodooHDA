@@ -211,7 +211,7 @@ void VoodooHDADevice::initMixerDefaultValues(void)
 		
 		index = MixerValueNamesBind[i].index;
 		if(index >= 0 && index < SOUND_MIXER_NRDEVICES) 
-			gMixerDefaults[index] = tmpUI16;
+			mMixerDefaults[index] = tmpUI16;
 	}
 }
 
@@ -1311,7 +1311,7 @@ ChannelInfo *VoodooHDADevice::getChannelInfo() {
 		pName = engine->getPortName();
 		snprintf(info[i].name, strlen(pName)+1, "%s", pName);
 		info[i].numChannels = mNumChannels;
-		
+
 		// initialise
 		// We dont want to control Master Volume in our PrefPane -> we start at ossDev=1
 		for(ossDev = 1 ; ossDev < SOUND_MIXER_NRDEVICES ; ossDev++) {
@@ -1331,12 +1331,12 @@ ChannelInfo *VoodooHDADevice::getChannelInfo() {
 			
 			info[i].mixerValues[ossDev-1].mixId = ossDev;
 			info[i].mixerValues[ossDev-1].enabled = true;
-			info[i].mixerValues[ossDev-1].value = engine->mChannel->pcmDevice->left[ossDev];// gMixerDefaults[ossDev];
+			info[i].mixerValues[ossDev-1].value = engine->mChannel->pcmDevice->left[ossDev];// mMixerDefaults[ossDev];
 			snprintf(info[i].mixerValues[ossDev-1].name, strlen(name)+1, "%s", name);
 		}
 		info[i].mixerValues[24].mixId = 0;
 		info[i].mixerValues[24].enabled = true;
-		info[i].mixerValues[24].value = engine->mChannel->pcmDevice->left[0];// gMixerDefaults[ossDev];
+		info[i].mixerValues[24].value = engine->mChannel->pcmDevice->left[0];// mMixerDefaults[ossDev];
 		info[i].vectorize = engine->mChannel->vectorize;
 		info[i].noiseLevel = engine->mChannel->noiseLevel;
 		info[i].useStereo = engine->mChannel->useStereo;
@@ -2349,7 +2349,7 @@ void VoodooHDADevice::mixerSetDefaults(PcmDevice *pcmDevice)
 {
 	//IOLog("VoodooHDADevice::mixerSetDefaults\n");
 	for (int n = 0; n < SOUND_MIXER_NRDEVICES; n++) {
-		audioCtlOssMixerSet(pcmDevice, n, gMixerDefaults[n], gMixerDefaults[n]);
+		audioCtlOssMixerSet(pcmDevice, n, mMixerDefaults[n], mMixerDefaults[n]);
 	}
 //Slice - attention!	
 	if (audioCtlOssMixerSetRecSrc(pcmDevice, SOUND_MASK_INPUT) == 0)

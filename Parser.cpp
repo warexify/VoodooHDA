@@ -12,18 +12,20 @@
 #include "TigerAdditionals.h"
 #endif
 
-const char *gColorTypes[16] = { "Unknown", "Black", "Grey", "Blue", "Green", "Red",
-		"Orange", "Yellow", "Purple", "Pink", "Res.A", "Res.B", "Res.C", "Res.D",
-		"White", "Other" };
+const char * const gColorTypes[16] = { "Unknown", "Black", "Grey", "Blue", "Green", "Red",
+	"Orange", "Yellow", "Purple", "Pink", "Res.A", "Res.B", "Res.C", "Res.D",
+	"White", "Other" };
 
-const char *gDeviceTypes[16] = { "Line-out", "Speaker", "Headphones", "CD",
-		"SPDIF-out", "Digital-out", "Modem-line", "Modem-handset", "Line-in",
-		"AUX", "Microphone", "Telephony", "SPDIF-in", "Digital-in", "Res.E", "Other" };
+extern __attribute__((visibility("hidden")))
+const char * const gDeviceTypes[16] = { "Line-out", "Speaker", "Headphones", "CD",
+	"SPDIF-out", "Digital-out", "Modem-line", "Modem-handset", "Line-in",
+	"AUX", "Microphone", "Telephony", "SPDIF-in", "Digital-in", "Res.E", "Other" };
 
-const char *gConnTypes[4] = { "Jack", "None", "Fixed", "Both" };
+extern __attribute__((visibility("hidden")))
+const char * const gConnTypes[4] = { "Jack", "None", "Fixed", "Both" };
 
-const char *gJacks[11] = {"Unknown", "1/8", "1/4", "ATAPI", "RCA", "Optic", "Digital", "Analog",
-		"Multi", "XLR", "RJ-11"};
+const char * const gJacks[11] = {"Unknown", "1/8", "1/4", "ATAPI", "RCA", "Optic", "Digital", "Analog",
+	"Multi", "XLR", "RJ-11"};
 
 const ChannelCaps gDefaultChanCaps = { 48000, 48000, (UInt32 []) { AFMT_STEREO | AFMT_S16_LE, 0 }, 0, 2};
 
