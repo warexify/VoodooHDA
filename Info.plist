@@ -50,7 +50,11 @@
 			<true/>
 			<key>Vectorize</key>
 			<false/>
+			<key>AllowMSI</key>
+			<true/>
 			<key>Noise</key>
+			<integer>0</integer>
+			<key>Boost</key>
 			<integer>0</integer>
 			<key>VoodooHDAVerboseLevel</key>
 			<integer>0</integer>

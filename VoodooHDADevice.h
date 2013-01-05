@@ -169,6 +169,7 @@ public:
 
 	// Zenith432
 	UInt16 mMixerDefaults[SOUND_MIXER_NRDEVICES];
+	bool mAllowMSI;
 
 	/**************/
 
@@ -218,6 +219,7 @@ public:
 	static bool interruptFilter(OSObject *owner, IOFilterInterruptEventSource *source);
 	static void interruptHandler(OSObject *owner, IOInterruptEventSource *source, int count);
 	void handleInterrupt();
+	static int findInterruptIndex(IOService*, bool);
 
 	bool setupWorkloop();
 

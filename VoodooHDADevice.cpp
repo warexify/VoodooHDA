@@ -43,6 +43,7 @@ OSDefineMetaClassAndStructors(VoodooHDADevice, IOAudioDevice)
 // VertexBZ: added to allow for the Mic and Mute fixes to be controlled from the plist
 #define kVoodooHDAEnableHalfMicVolumeFixKey "VoodooHDAEnableHalfMicVolumeFix"
 #define kVoodooHDAEnableMuteFixKey "VoodooHDAEnableMuteFix"
+#define kVoodooHDAAllowMSI "AllowMSI"
 
 bool VoodooHDADevice::init(OSDictionary *dict)
 {
@@ -126,7 +127,9 @@ bool VoodooHDADevice::init(OSDictionary *dict)
 		Boost = verboseLevelNum->unsigned32BitValue();
 	else
 		Boost = 0;
-	
+
+	osBool = OSDynamicCast(OSBoolean, dict->getObject(kVoodooHDAAllowMSI));
+	mAllowMSI = (osBool ? osBool->isTrue() : false);
 
 	mLock = IOLockAlloc();
 
@@ -1368,10 +1371,11 @@ bool VoodooHDADevice::setupWorkloop()
 	}
 	mTimerSource->setTimeoutMS(5000);
 
+	IOService* _provider = getProvider();
 	mInterruptSource = IOFilterInterruptEventSource::filterInterruptEventSource(this,
 			(IOInterruptEventAction) &VoodooHDADevice::interruptHandler,
 			(IOFilterInterruptEventSource::Filter) &VoodooHDADevice::interruptFilter,
-			getProvider(), 0);
+			_provider, findInterruptIndex(_provider, mAllowMSI));
 	if (!mInterruptSource) {
 		errorMsg("error: couldn't allocate interrupt event source\n");
 		return false;
@@ -1383,6 +1387,28 @@ bool VoodooHDADevice::setupWorkloop()
 	}
 
 	return true;
+}
+
+__attribute__((noinline, visibility("hidden")))
+int VoodooHDADevice::findInterruptIndex(IOService* target, bool allowMSI)
+{
+	int source, interruptType, pinInterruptToUse, msgInterruptToUse;
+	bool isMsgInterruptFound;
+
+	isMsgInterruptFound = false;
+	pinInterruptToUse = 0;
+	msgInterruptToUse = 0;
+	for (interruptType = 0, source = 0;
+		 target->getInterruptType(source, &interruptType) == kIOReturnSuccess;
+		 ++source)
+		if (interruptType & kIOInterruptTypePCIMessaged) {
+			if (!isMsgInterruptFound) {
+				isMsgInterruptFound = true;
+				msgInterruptToUse = source;
+			}
+		} else
+			pinInterruptToUse = source;
+	return (isMsgInterruptFound && allowMSI) ? msgInterruptToUse : pinInterruptToUse;
 }
 
 void VoodooHDADevice::enableEventSources()
