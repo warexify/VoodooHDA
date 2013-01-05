@@ -2622,6 +2622,8 @@ void VoodooHDADevice::streamSetup(Channel *channel)
 		sendCommand(HDA_CMD_SET_CONV_CHAN_COUNT(cad, channel->io[i], 1), cad);
 		sendCommand(HDA_CMD_SET_HDMI_CHAN_SLOT(cad, channel->io[i], 0x00), cad);
 		sendCommand(HDA_CMD_SET_HDMI_CHAN_SLOT(cad, channel->io[i], 0x11), cad);
+#else
+#warning not MULTICHANNEL
 #endif
 		
 		chn += HDA_PARAM_AUDIO_WIDGET_CAP_CC(widget->params.widgetCap) + 1;

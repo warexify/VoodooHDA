@@ -935,9 +935,9 @@ IOReturn VoodooHDAEngine::muteChanged(IOAudioControl *muteControl, SInt32 oldVal
 	if (newValue) {
         // VertexBZ: Mute fix
         if(mEnableMuteFix){
-            mDevice->audioCtlOssMixerSet(pcmDevice, SOUND_MIXER_PCM, 0, 0);
+          mDevice->audioCtlOssMixerSet(pcmDevice, SOUND_MIXER_PCM, 0, 0);
         } else {
-		mDevice->audioCtlOssMixerSet(pcmDevice, ossDev, 0, 0);
+          mDevice->audioCtlOssMixerSet(pcmDevice, ossDev, 0, 0);
         }
 	} else {
         // VertexBZ: Mute fix
@@ -947,7 +947,7 @@ IOReturn VoodooHDAEngine::muteChanged(IOAudioControl *muteControl, SInt32 oldVal
                                          (ossDev == SOUND_MIXER_VOLUME) ? oldOutVolumeRight: oldInputGain);
         } else {
             
-		mDevice->audioCtlOssMixerSet(pcmDevice, ossDev,
+          mDevice->audioCtlOssMixerSet(pcmDevice, ossDev,
 									   (ossDev == SOUND_MIXER_VOLUME) ? oldOutVolumeLeft : oldInputGain,
 									   (ossDev == SOUND_MIXER_VOLUME) ? oldOutVolumeRight: oldInputGain);
 		}

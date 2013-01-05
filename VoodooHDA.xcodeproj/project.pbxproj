@@ -245,7 +245,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 2.7.6;
+				CURRENT_PROJECT_VERSION = 2.8.0;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEPLOYMENT_POSTPROCESSING = YES;
 				DYLIB_COMPATIBILITY_VERSION = "$(CURRENT_PROJECT_VERSION)";
@@ -272,7 +272,7 @@
 					"-Xlinker",
 					"-no_data_in_code_info",
 				);
-				SDKROOT = macosx;
+				SDKROOT = "";
 				STRIPFLAGS = "-no_uuid";
 			};
 			name = Release;

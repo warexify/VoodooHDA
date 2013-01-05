@@ -144,9 +144,9 @@ IOReturn VoodooHDAUserClient::actionMethod(UInt32 *dataIn, UInt32 *dataOut, IOBy
 		IOByteCount *outputSize)
 {
 	IOReturn result;
-	UInt32 action;
+	UInt32 action, dataSize;
 	void *data;
-	UInt32 dataSize, outputMax;
+	UInt64 outputMax;
 
 	//logMsg("VoodooHDAUserClient[%p]::actionMethod(%ld, %ld)\n", this, inputSize, *outputSize);
 

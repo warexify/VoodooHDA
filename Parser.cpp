@@ -808,10 +808,10 @@ void VoodooHDADevice::audioDisableUseless(FunctionGroup *funcGroup)
 			if ((widget->pin.config & HDA_CONFIG_DEFAULTCONF_CONNECTIVITY_MASK) ==
 			    	HDA_CONFIG_DEFAULTCONF_CONNECTIVITY_NONE) {
 				widget->enable = 0;
-				dumpMsg(" Disabling pin nid %d due to None connectivity.\n", widget->nid);
+//				dumpMsg(" Disabling pin nid %d due to None connectivity.\n", widget->nid);
 			} else if ((widget->pin.config & HDA_CONFIG_DEFAULTCONF_ASSOCIATION_MASK) == 0) {
 				widget->enable = 0;
-				dumpMsg(" Disabling unassociated pin nid %d.\n", widget->nid);
+//				dumpMsg(" Disabling unassociated pin nid %d.\n", widget->nid);
 			}
 		}
 	}
@@ -842,6 +842,7 @@ void VoodooHDADevice::audioDisableUseless(FunctionGroup *funcGroup)
 			widget = widgetGet(funcGroup, i);
 			if (!widget || widget->enable == 0)
 				continue;
+//      dumpMsg(" widget %d is type=%x ossdev=%x \n", widget->nid, widget->type, widget->ossdev);
 			/* Disable inputs with disabled child widgets. */
 			for (int j = 0; j < widget->nconns; j++) {
 				if (widget->connsenable[j]) {
@@ -856,6 +857,22 @@ void VoodooHDADevice::audioDisableUseless(FunctionGroup *funcGroup)
 			if ((widget->type != HDA_PARAM_AUDIO_WIDGET_CAP_TYPE_AUDIO_SELECTOR) &&
 			    	(widget->type != HDA_PARAM_AUDIO_WIDGET_CAP_TYPE_AUDIO_MIXER))
 				continue;
+      // Disable connections from InputMonitor to Input Mixer
+ /*     if (widget->ossdev == SOUND_MIXER_IMIX) {
+        dumpMsg(" widget %d is input mixer\n", i);
+        for (int j = 0; j < widget->nconns; j++) {
+          if (widget->connsenable[j]) {
+            Widget *childWidget = widgetGet(funcGroup, widget->conns[j]);
+            dumpMsg(" childWidget %d has flag 0x%lx\n", widget->conns[j], childWidget->pflags);
+            if (childWidget && ((childWidget->pflags & HDA_ADC_MONITOR) != 0)) {
+              widget->connsenable[j] = 0;
+              widget->connsenabled--;
+              dumpMsg(" Disabling nid %d connection %d due to input monitor child widget.\n", i, j);
+            }
+          }
+        }
+      }
+*/      
 			/* Disable mixers and selectors without inputs. */
 /*			found = 0;
 			for (int j = 0; j < widget->nconns; j++) {
@@ -1084,7 +1101,7 @@ void VoodooHDADevice::audioDisableUnassociated(FunctionGroup *funcGroup)
 			continue;
 		if (widget->bindAssoc == -1) {
 			widget->enable = 0;
-				dumpMsg(" Disabling unassociated nid %d.\n", widget->nid);
+//				dumpMsg(" Disabling unassociated nid %d.\n", widget->nid);
 		}
 	}
 	/* Disable input connections on input pin and output on output. */
@@ -1103,7 +1120,7 @@ void VoodooHDADevice::audioDisableUnassociated(FunctionGroup *funcGroup)
 					continue;
 				widget->connsenable[j] = 0;
 				widget->connsenabled--;
-				dumpMsg(" Disabling connection to input pin nid %d conn %d.\n", i, j);
+//				dumpMsg(" Disabling connection to input pin nid %d conn %d.\n", i, j);
 			}
 			control = audioCtlAmpGet(funcGroup, widget->nid, HDA_CTL_IN, -1, 1);
 			if (control && control->enable) {
@@ -1130,7 +1147,7 @@ void VoodooHDADevice::audioDisableUnassociated(FunctionGroup *funcGroup)
 					if (childWidget->connsenable[j] && (childWidget->conns[j] == i)) {
 						childWidget->connsenable[j] = 0;
 						childWidget->connsenabled--;
-						dumpMsg(" Disabling connection from output pin nid %d conn %d cnid %d.\n", k, j, i);
+//						dumpMsg(" Disabling connection from output pin nid %d conn %d cnid %d.\n", k, j, i);
 						if ((childWidget->type == HDA_PARAM_AUDIO_WIDGET_CAP_TYPE_PIN_COMPLEX) &&
 						    	(childWidget->nconns > 1))
 							continue;
@@ -1173,7 +1190,7 @@ void VoodooHDADevice::audioDisableNonSelected(FunctionGroup *funcGroup)
 				continue;
 			widget->connsenable[j] = 0;
 			k--;
-			dumpMsg(" Disabling unselected connection nid %d conn %d.\n", i, j);
+//			dumpMsg(" Disabling unselected connection nid %d conn %d.\n", i, j);
 		}
 		widget->connsenabled = k;
 	}
@@ -1192,8 +1209,24 @@ void VoodooHDADevice::audioDisableCrossAssociations(FunctionGroup *funcGroup)
 			continue;
 		if (widget->nconns <= 1)
 			continue;
-		if (widget->type == HDA_PARAM_AUDIO_WIDGET_CAP_TYPE_AUDIO_MIXER)
+		if (widget->type == HDA_PARAM_AUDIO_WIDGET_CAP_TYPE_AUDIO_MIXER) {
+      for (int j = 0; j < widget->nconns; j++) {
+        Widget *childWidget;
+        if (widget->connsenable[j] == 0)
+          continue;
+        childWidget = widgetGet(funcGroup, widget->conns[j]);
+        if (!childWidget || (childWidget->enable == 0))
+          continue;
+        if (((childWidget->pflags & HDA_ADC_MONITOR) &&
+             (assocs[widget->bindAssoc].dir == HDA_CTL_IN))) {
+          widget->connsenable[j] = 0;
+          widget->connsenabled--;
+          dumpMsg(" Disabling connection input mixer nid %d conn %d to monitor %d.\n", i, j,
+        					childWidget->nid);
+        }
+      }
 			continue;
+    }
 		if (widget->bindAssoc == -2)
 			continue;
 		for (int j = 0; j < widget->nconns; j++) {
@@ -1201,7 +1234,7 @@ void VoodooHDADevice::audioDisableCrossAssociations(FunctionGroup *funcGroup)
 			if (widget->connsenable[j] == 0)
 				continue;
 			childWidget = widgetGet(funcGroup, widget->conns[j]);
-			if (!childWidget || (widget->enable == 0))
+			if (!childWidget || (childWidget->enable == 0))
 				continue;
 			if ((childWidget->bindAssoc == -2) ||
 				((widget->pflags & HDA_ADC_MONITOR) &&
@@ -1212,8 +1245,8 @@ void VoodooHDADevice::audioDisableCrossAssociations(FunctionGroup *funcGroup)
 					((widget->bindSeqMask & childWidget->bindSeqMask) != 0))
 				continue;
 			widget->connsenable[j] = 0;
-			dumpMsg(" Disabling crossassociated connection nid %d conn %d cnid %d.\n", i, j,
-					childWidget->nid);
+//			dumpMsg(" Disabling crossassociated connection nid %d conn %d cnid %d.\n", i, j,
+//					childWidget->nid);
 		}
 		int k = 0;
 		for (int j = 0; j < widget->nconns; j++) {
@@ -1244,8 +1277,8 @@ void VoodooHDADevice::audioDisableCrossAssociations(FunctionGroup *funcGroup)
 			control->enable = 0;
 			if (control->ndir == HDA_CTL_IN)
 				control->widget->connsenable[control->index] = 0;
-			dumpMsg(" Disabling crossassociated connection control %d nid %d cnid %d.\n", i,
-					control->widget->nid, control->childWidget->nid);
+//			dumpMsg(" Disabling crossassociated connection control %d nid %d cnid %d.\n", i,
+//					control->widget->nid, control->childWidget->nid);
 		}
 	}
 
@@ -2637,8 +2670,8 @@ void VoodooHDADevice::dumpDstNid(PcmDevice *pcmDevice, nid_t nid, int depth)
 
 	if (depth > 0) {
 		char buf[64];
-		if (widget->ossmask == 0) {
-		//if(widget->bindAssoc < 0 ) {
+	//	if (widget->ossmask == 0) {
+		if(widget->bindAssoc < 0 ) {
 			dumpMsg("\n");
 			return;
 		}
@@ -3872,6 +3905,7 @@ int VoodooHDADevice::pcmChannelSetup(Channel *channel)
 	return ret;
 }
 #else
+#warning not multichannel
 int VoodooHDADevice::pcmChannelSetup(Channel *channel)
 {
 	FunctionGroup *funcGroup = channel->funcGroup;
