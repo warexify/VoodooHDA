@@ -158,14 +158,10 @@ done:
 
 const char *VoodooHDAEngine::getDescription()
 {
-	static char buffer[32];
-	if (!mDescription) {
-		PcmDevice *pcmDevice = mChannel->pcmDevice;
-		snprintf(buffer, sizeof (buffer), "%s PCM #%d", (pcmDevice->digital ? "Digital" : "Analog"),
-				pcmDevice->index);
-		mDescription = buffer;
-	}
-	return mDescription;
+	PcmDevice *pcmDevice = mChannel->pcmDevice;
+	snprintf(&mDescription[0], sizeof mDescription, "%s PCM #%d", (pcmDevice->digital ? "Digital" : "Analog"),
+			 pcmDevice->index);
+	return &mDescription[0];
 }
 
 void VoodooHDAEngine::identifyPaths()

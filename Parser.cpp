@@ -220,14 +220,13 @@ void VoodooHDADevice::probeFunction(Codec *codec, nid_t nid)
 //	dumpMsg("HP switch init...\n");
 //	switchInit(funcGroup);  //Slice - move below
 
-	static bool dmaPosMemAllocated = false; // xxx
-	if ((funcGroup->audio.quirks & HDA_QUIRK_DMAPOS) && !dmaPosMemAllocated) {
+	if ((funcGroup->audio.quirks & HDA_QUIRK_DMAPOS) && !mDmaPosMemAllocated) {
 		errorMsg("XXX\nXXX dma pos quirk untested\nXXX\n");
 		mDmaPosMem = allocateDmaMemory((mInStreamsSup + mOutStreamsSup + mBiStreamsSup) * 8, "dmaPosMem");
 		if (!mDmaPosMem)
 			errorMsg("error: failed to allocate DMA pos buffer (non-fatal)\n");
 		else
-			dmaPosMemAllocated = true;
+			mDmaPosMemAllocated = true;
 	}
 
 	dumpMsg("Creating PCM devices...\n");
@@ -2538,7 +2537,7 @@ void VoodooHDADevice::dumpAmp(UInt32 cap, const char *banner)
 
 void VoodooHDADevice::dumpNodes(FunctionGroup *funcGroup)
 {
-	static const char *ossname[] = SOUND_DEVICE_NAMES;
+	static const char * const ossname[] = SOUND_DEVICE_NAMES;
 
 	dumpMsg("\n");
 	dumpMsg("Default Parameter\n");
@@ -3482,7 +3481,7 @@ Widget *VoodooHDADevice::widgetGet(FunctionGroup *funcGroup, nid_t nid)
 char *VoodooHDADevice::audioCtlMixerMaskToString(UInt32 mask, char *buf, size_t len)
 {
 	//Slice - I change (char*) to (const char*) because of warning
-	static const char *ossname[] = SOUND_DEVICE_NAMES;
+	static const char * const ossname[] = SOUND_DEVICE_NAMES;
 
 	bzero(buf, len);
 	for (int i = 0, first = 1; i < SOUND_MIXER_NRDEVICES; i++) {
@@ -4578,7 +4577,7 @@ void VoodooHDADevice::extDumpAmp(UInt32 cap, const char *banner)
 
 void VoodooHDADevice::extDumpNodes(FunctionGroup *funcGroup)
 {
-	static const char *ossname[] = SOUND_DEVICE_NAMES;
+	static const char * const ossname[] = SOUND_DEVICE_NAMES;
 	
 	dumpExtMsg("\n");
 	dumpExtMsg("Default Parameter\n");

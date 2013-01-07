@@ -42,7 +42,7 @@ public:
 	const char *mName;
 	IOAudioPort *mPort;
 
-	const char *mDescription;
+	char mDescription[32];
 
 	int mActiveOssDev;
 

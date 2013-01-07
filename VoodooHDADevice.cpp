@@ -1171,8 +1171,12 @@ void VoodooHDADevice::messageHandler(UInt32 type, const char *format, va_list ar
 		vprintf(format, args);
 		break;
 	case kVoodooHDAMessageTypeDump:
-		if (mVerbose >= 2)
-			vprintf(format, args);
+		if (mVerbose >= 2) {
+			va_list args2;
+			va_copy(args2, args);
+			vprintf(format, args2);
+			va_end(args2);
+		}
 		if (lockExists && mMsgBufferEnabled) {
 			//ASSERT(mMsgBufferPos < (mMsgBufferSize - 1));
 			if(mMsgBufferPos > (mMsgBufferSize - 255)) break;
@@ -2825,39 +2829,44 @@ int VoodooHDADevice::pcmAttach(PcmDevice *pcmDevice)
 //Создаем разделяемую область памяти, откуда будет брать информацию PrefPanel
 void VoodooHDADevice::createPrefPanelMemoryBuf(FunctionGroup *funcGroup)
 {
-	
+
 	//logMsg("VoodooHDADevice::createPrefPanelMemoryBuf\n");
-	
+
 	createPrefPanelStruct(funcGroup);
-	
+
 	//logMsg("VoodooHDADevice::createPrefPanelMemoryBuf mPrefPanelMemoryBuf = 0x%08X\n", mPrefPanelMemoryBuf);
-	
+
 	if(mPrefPanelMemoryBuf == 0) {
 		//logMsg("VoodooHDADevice::createPrefPanelMemoryBuf allocate memory\n");
 		//mPrefPanelMemoryBufSize = nSliderTabsCount*sizeof(sliders);
 		mPrefPanelMemoryBufSize = SOUND_MIXER_NRDEVICES*sizeof(ChannelInfo);
 		mPrefPanelMemoryBuf = (ChannelInfo*)allocMem(mPrefPanelMemoryBufSize);
 		bzero(mPrefPanelMemoryBuf, mPrefPanelMemoryBufSize); 
-	
+
 		mPrefPanelMemoryBufLock = IOLockAlloc();
 		mPrefPanelMemoryBufEnabled = false;
 	}
-	
+
 	for(int i = 0; i < nSliderTabsCount; i++) {
 		strlcpy(mPrefPanelMemoryBuf[i].name, sliderTabs[i].name, MAX_SLIDER_TAB_NAME_LENGTH);
 		mPrefPanelMemoryBuf[i].numChannels = nSliderTabsCount;
 		for(int j = 1; j < 25; j++) {
 			if(sliderTabs[i].volSliders[j].enabled == 0) 
 				continue;
-				
+
 			mPrefPanelMemoryBuf[i].mixerValues[j - 1].mixId = j;
 			strlcpy(mPrefPanelMemoryBuf[i].mixerValues[j - 1].name, sliderTabs[i].volSliders[j].name, 32);
 			mPrefPanelMemoryBuf[i].mixerValues[j - 1].enabled = 1;
-			mPrefPanelMemoryBuf[i].mixerValues[j - 1].value = 20;
+			mPrefPanelMemoryBuf[i].mixerValues[j - 1].value = mMixerDefaults[j];
 		}
-		
+		mPrefPanelMemoryBuf[i].mixerValues[24].mixId = 0;
+		mPrefPanelMemoryBuf[i].mixerValues[24].enabled = true;
+		mPrefPanelMemoryBuf[i].mixerValues[24].value = mMixerDefaults[0];
+		mPrefPanelMemoryBuf[i].vectorize = vectorize;
+		mPrefPanelMemoryBuf[i].noiseLevel = noiseLevel;
+		mPrefPanelMemoryBuf[i].useStereo = useStereo;
+		mPrefPanelMemoryBuf[i].StereoBase = StereoBase;
 	}
-		
 }
 
 //AutumnRain
@@ -2933,17 +2942,18 @@ void VoodooHDADevice::updatePrefPanelMemoryBuf(void)
 {
 
 	//logMsg("VoodooHDADevice::updatePrefPanelMemoryBuf\n");
-	
+
 	for(int i = 0; i < nSliderTabsCount; i++) {
-		
+
 		if(sliderTabs[i].pcmDevice == 0) continue;
-	
+
 		for(int j = 1; j < 25; j++) {
-			if(sliderTabs[i].volSliders[j].enabled == 0) 
+			if(sliderTabs[i].volSliders[j].enabled == 0)
 				continue;
-			
+
 			mPrefPanelMemoryBuf[i].mixerValues[j - 1].value = sliderTabs[i].pcmDevice->left[j];
 		}
+		mPrefPanelMemoryBuf[i].mixerValues[24].value = sliderTabs[i].pcmDevice->left[0];// mMixerDefaults[0];
 	}
 }
 

@@ -170,6 +170,7 @@ public:
 	// Zenith432
 	UInt16 mMixerDefaults[SOUND_MIXER_NRDEVICES];
 	bool mAllowMSI;
+	bool mDmaPosMemAllocated;
 
 	/**************/
 
