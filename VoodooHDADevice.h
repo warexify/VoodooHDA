@@ -343,6 +343,7 @@ public:
 	UInt32 audioCtlOssMixerSetRecSrc(PcmDevice *pcmDevice, UInt32 src);
 	int audioCtlOssMixerGet(PcmDevice *pcmDevice, UInt32 dev, UInt32* left, UInt32* right);
 	void mixerSetDefaults(PcmDevice *pcmDevice);
+	void mixerResume(PcmDevice *pcmDevice);
 
 	Channel *channelInit(PcmDevice *pcmDevice, int direction);
 	int channelSetFormat(Channel *channel, UInt32 format);

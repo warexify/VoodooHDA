@@ -364,14 +364,9 @@ IOService *VoodooHDADevice::probe(IOService *provider, SInt32 *score)
 		errorMsg("error: couldn't cast provider to IOPCIDevice\n");
 		return NULL;
 	}
-	//TODO - retain may panic, exclude?
-	mPciNub->retain();
 	if (!mPciNub->open(this)) {
 		errorMsg("error: couldn't open PCI device\n");
-		
-		mPciNub->release();
 		mPciNub = NULL;
-		
 		return NULL;
 	}
 /*
@@ -422,7 +417,6 @@ bool VoodooHDADevice::initHardware(IOService *provider)
 	mMsgBufferPos = 0;
 	
 	mSwitchCh = false;
-  //TODO - allocMem at init??? May be better to move it into start?
 	mMsgBuffer = (char *) allocMem(mMsgBufferSize);
 	if (!mMsgBuffer) {
 		errorMsg("error: couldn't allocate message buffer (%ld bytes)\n", mMsgBufferSize);
@@ -442,6 +436,7 @@ bool VoodooHDADevice::initHardware(IOService *provider)
   
 	//logMsg("VoodooHDADevice[%p]::initHardware\n", this);
 
+	oldConfig = UINT16_MAX;
 	if (!mPciNub || !super::initHardware(provider))
 		goto done;
 	if (!mPciNub->open(this)) {
@@ -454,9 +449,11 @@ bool VoodooHDADevice::initHardware(IOService *provider)
 	config |= (kIOPCICommandBusMaster | kIOPCICommandMemorySpace); // | kIOPCICommandMemWrInvalidate); //Slice
 	 //config &= ~kIOPCICommandIOSpace; //Slice - not implemented for HDA
 	mPciNub->configWrite16(kIOPCIConfigCommand, config);
+	if (mPciNub->hasPCIPowerManagement(kPCIPMCD3Support))
+		mPciNub->enablePCIPowerManagement(kPCIPMCSPowerStateD3);
 
-	// xxx: should mBarMap be retained?
-	mBarMap = mPciNub->mapDeviceMemoryWithRegister(kIOPCIConfigBaseAddress0, kIOMapInhibitCache);
+	// Note: kIOMapInhibitCache is the default for PCI bars... - Zenith432
+	mBarMap = mPciNub->mapDeviceMemoryWithIndex(0U);
 	if (!mBarMap) {
 		errorMsg("error: mapDeviceMemoryWithRegister for BAR0 failed\n");
 		goto done;
@@ -466,7 +463,6 @@ bool VoodooHDADevice::initHardware(IOService *provider)
 		errorMsg("error: getVirtualAddress for mBarMap failed\n");
 		goto done;
 	}
-	mPciNub->setMemoryEnable(true);
 	char string[20];
 //	strncpy(string, "Voodoo HDA Device", sizeof(string));
   snprintf(string, sizeof(string), "VoodooHDADevice%x ", (unsigned int)(mDeviceId >> 16));
@@ -492,7 +488,7 @@ bool VoodooHDADevice::initHardware(IOService *provider)
 	if (snoop & INTEL_SCH_HDA_DEVC_NOSNOOP) {
 		mPciNub->configWrite16( INTEL_SCH_HDA_DEVC,	snoop & (~INTEL_SCH_HDA_DEVC_NOSNOOP));
 	}
-	
+	mPciNub->close(this);
 
 	if (!getCapabilities()) {
 		errorMsg("error: getCapabilities failed\n");
@@ -621,12 +617,13 @@ void VoodooHDADevice::stop(IOService *provider)
 			errorMsg("warning: resetController failed\n");
 		UNLOCK();
 	}
-	if (mPciNub) mPciNub->open(this);
-	mPciNub->configWrite16(kIOPCIConfigCommand, oldConfig); //Slice
-	if (mPciNub->hasPCIPowerManagement(kPCIPMCD3Support))
-    {
-        mPciNub->enablePCIPowerManagement(kPCIPMCSPowerStateD0);
-    }
+	if (mPciNub && mPciNub->open(this)) {
+		if (oldConfig != UINT16_MAX)
+			mPciNub->configWrite16(kIOPCIConfigCommand, oldConfig); //Slice
+		if (mPciNub->hasPCIPowerManagement(kPCIPMCD3Support))
+			mPciNub->enablePCIPowerManagement(kPCIPMCSPowerStateD0);
+		mPciNub->close(this);
+	}
 	
 	super::stop(provider);
 }
@@ -665,11 +662,7 @@ void VoodooHDADevice::free()
 		mRegBase = 0;
 	RELEASE(mBarMap);
 
-	if (mPciNub) {
-		mPciNub->close(this);
-		mPciNub->release();
-		mPciNub = NULL;
-	}
+	mPciNub = NULL;
 
 	for (int i = 0; i < HDAC_CODEC_MAX; i++) {
 		Codec *codec = mCodecs[i];
@@ -708,7 +701,7 @@ void VoodooHDADevice::free()
 
 	super::free();
 }
-	
+
 bool VoodooHDADevice::createAudioEngine(Channel *channel)
 {
 	VoodooHDAEngine *audioEngine = NULL;
@@ -717,7 +710,7 @@ bool VoodooHDADevice::createAudioEngine(Channel *channel)
 	//logMsg("VoodooHDADevice[%p]::createAudioEngine\n", this);
 
 	audioEngine = new VoodooHDAEngine;
-	if (!audioEngine->init(channel)) {
+	if (!audioEngine->initWithChannel(channel)) {
 		errorMsg("error: VoodooHDAEngine::init failed\n");
 		goto done;
 	}
@@ -774,8 +767,6 @@ bool VoodooHDADevice::suspend()
 {
 		//logMsg("VoodooHDADevice[%p]::suspend\n", this);
 
-	VoodooHDAEngine *engine;
-	
 	LOCK();
 		//Slice - trace PCI
 /*	for (int i=0; i<0xff; i+=16) {
@@ -790,9 +781,6 @@ bool VoodooHDADevice::suspend()
 			channelStop(&mChannels[i], false);
 		}
 		mChannels[i].flags |= HDAC_CHN_SUSPEND;
-		engine = lookupEngine(i);
-		if (engine)
-			engine->pauseAudioEngine();
 	}
 
 	for (int codecNum = 0; codecNum < HDAC_CODEC_MAX; codecNum++) {
@@ -834,6 +822,9 @@ bool VoodooHDADevice::resume()
 			logMsg("(%02x)=%08x   ",(unsigned int)(i+j), (unsigned int)mPciNub->configRead32(i+j));  //for trace
 		logMsg("\n");
 	}*/
+	/*
+	 * Zenith432 - open/close on mPciNub not needed since IOPCIDevice has no ownership semantics
+	 */
 		//Slice - this trick was resolved weird sleep issue
 	int vendorId = mDeviceId & 0xffff;
 	if (vendorId == INTEL_VENDORID) {
@@ -846,8 +837,8 @@ bool VoodooHDADevice::resume()
 	if (snoop & INTEL_SCH_HDA_DEVC_NOSNOOP) {
 		mPciNub->configWrite16( INTEL_SCH_HDA_DEVC,	snoop & (~INTEL_SCH_HDA_DEVC_NOSNOOP));
 	}
-	
-	
+
+
 	logMsg("Resetting controller...\n");
 	if (!resetController(true)) {
 		errorMsg("error: resetController failed\n");
@@ -857,7 +848,7 @@ bool VoodooHDADevice::resume()
 	initCorb();
 	initRirb();
 //Slice
-	
+
 //	setupWorkloop();
 //	enableEventSources();
 
@@ -893,37 +884,27 @@ bool VoodooHDADevice::resume()
 			UNLOCK(); // xxx
 			for (int i = 0; i < funcGroup->audio.numPcmDevices; i++) {
 //				logMsg("OSS mixer reinitialization...\n");
-				// TODO: restore previous status
-				mixerSetDefaults(&funcGroup->audio.pcmDevices[i]);
+				mixerResume(&funcGroup->audio.pcmDevices[i]);
 			}
-			
+
 			switchInit(funcGroup);
 
 			if (funcGroup->mSwitchEnable)
 				switchHandler(funcGroup, false);
-			 
+
 			LOCK(); // xxx
 		}
 	}
 
-	VoodooHDAEngine *engine;
-	
 	for (int i = 0; i < mNumChannels; i++) {
 		if (!(mChannels[i].flags & HDAC_CHN_SUSPEND)) {
 			errorMsg("warning: found non-suspended channel during resume action\n");
 			continue;
 		}
-		
 		mChannels[i].flags &= ~HDAC_CHN_SUSPEND;
-		
-		engine = lookupEngine(i);
-		if (engine) {
-			engine->resumeAudioEngine();
-			engine->takeTimeStamp(false);
-		}
 	}
 
-	UNLOCK();	
+	UNLOCK();
 
 //	logMsg("Resume done.\n");
 
@@ -1627,7 +1608,7 @@ DmaMemory *VoodooHDADevice::allocateDmaMemory(mach_vm_size_t size, const char *d
 	ASSERT(segLength == offset);
 	ASSERT(offset == size);
 
-	map = memDesc->map(kIOMapInhibitCache);
+	map = memDesc->map();
 	if (!map) {
 		errorMsg("error: IOBufferMemoryDescriptor::map failed\n");
 		goto failed;
@@ -2385,6 +2366,13 @@ void VoodooHDADevice::mixerSetDefaults(PcmDevice *pcmDevice)
 	if (audioCtlOssMixerSetRecSrc(pcmDevice, SOUND_MASK_INPUT) == 0)
 		//errorMsg("warning: couldn't set recording source to input\n");
 		return;
+}
+
+void VoodooHDADevice::mixerResume(PcmDevice *pcmDevice)
+{
+	for (int n = 0; n < SOUND_MIXER_NRDEVICES; n++)
+		audioCtlOssMixerSet(pcmDevice, n, pcmDevice->left[n], pcmDevice->right[n]);
+	audioCtlOssMixerSetRecSrc(pcmDevice, SOUND_MASK_INPUT);	// ignore error
 }
 
 /*******************************************************************************************/

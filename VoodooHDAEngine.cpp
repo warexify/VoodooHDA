@@ -60,7 +60,7 @@ void VoodooHDAEngine::messageHandler(UInt32 type, const char *format, ...)
 /******************************************************************************************/
 /******************************************************************************************/
 
-bool VoodooHDAEngine::init(Channel *channel)
+bool VoodooHDAEngine::initWithChannel(Channel *channel)
 {
 	bool result = false;
 

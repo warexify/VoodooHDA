@@ -93,7 +93,7 @@ public:
 	IOReturn muteChanged(IOAudioControl *muteControl, SInt32 oldValue, SInt32 newValue);
     IOReturn gainChanged(IOAudioControl *gainControl, SInt32 oldValue, SInt32 newValue);
 
-	virtual bool init(Channel *channel);
+	virtual bool initWithChannel(Channel *channel);
 	virtual void free();
 	virtual bool initHardware(IOService *provider);
 	virtual void stop(IOService *provider);
