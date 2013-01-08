@@ -103,7 +103,7 @@ enum {
 //- (bool) updateChannelInfo;
 - (bool) updateMath;
 - (bool) updateSliders;
-- (void) awakeFromNib;
+- (void) mainViewDidLoad;
 - (void) didUnselect;
 - (bool) saveSettings;
 - (void) willSelect;

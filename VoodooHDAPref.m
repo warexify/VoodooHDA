@@ -434,8 +434,9 @@ NSString* trimIORegistryPathForDisplay(NSString* path)
 	return true;
 }
 
-- (void) awakeFromNib;
+- (void) mainViewDidLoad
 {
+	[super mainViewDidLoad];
 	services = getServices();
 	if (services)
 		[services retain];
@@ -443,14 +444,6 @@ NSString* trimIORegistryPathForDisplay(NSString* path)
 		currentService = 0;
 	else
 		currentService = -1;
-
-	currentChannel = 0U;
-
-	if(![self updateSliders])
-		goto failure;
-
-	if (![self populateSelector])
-		goto failure;
 
 	if (![self populateHDASelector])
 		goto failure;
@@ -581,6 +574,7 @@ failure:
 
 - (void) didUnselect
 {
+	[super didUnselect];
 	[self saveSettings];
 }
 
@@ -710,11 +704,28 @@ void disableViewRecursive(NSView* view)
 
 - (void) willSelect
 {
+	[super willSelect];
 	if (currentService < 0) {
 		NSRunCriticalAlertPanel(NSLocalizedString( @"Error", "MsgBox"),
 								NSLocalizedString( @"No VoodooHDA Devices Detected", "MsgBoxBody" ), nil, nil, nil );
 		disableViewRecursive([self mainView]);
+		return;
 	}
+
+	currentChannel = 0U;
+
+	if(![self updateSliders])
+		goto failure;
+
+	if (![self populateSelector])
+		goto failure;
+
+	[versionText setStringValue:@"Loaded"];
+
+	return;
+
+failure:
+	[versionText setStringValue:@"ERROR"];
 }
 
 - (void) dealloc
