@@ -20,18 +20,12 @@ public:
 	void messageHandler(UInt32 type, const char *format, ...) __attribute__ ((format (printf, 3, 4)));
 
 	/* IOService overrides */
-	virtual void free();
 	virtual bool start(IOService *provider);
-	virtual void stop(IOService *provider);
 
 	/* IOUserClient overrides */
-	virtual bool initWithTask(task_t owningTask, void *securityID, UInt32 type, OSDictionary *properties);
 	virtual IOReturn clientClose();
-	virtual IOReturn clientDied();
 
-	virtual bool willTerminate(IOService *provider, IOOptionBits options);
 	virtual bool didTerminate(IOService *provider, IOOptionBits options, bool *defer);
-	virtual bool terminate(IOOptionBits options = 0);
 
 	virtual IOExternalMethod *getTargetAndMethodForIndex(IOService **targetP, UInt32 index);
 

@@ -3,7 +3,7 @@
 // This class represents the user client object for the driver, which
 // will be instantiated by IOKit to represent a connection to the client
 // process, in response to the client's call to IOServiceOpen().
-// It will be destroyed when the connection is closed or the client 
+// It will be destroyed when the connection is closed or the client
 // abnormally terminates, so it should track all the resources allocated
 // to the client.
 
@@ -36,14 +36,6 @@ void VoodooHDAUserClient::messageHandler(UInt32 type, const char *format, ...)
 	va_end(args);
 }
 
-bool VoodooHDAUserClient::initWithTask(task_t owningTask, void *securityID, UInt32 type,
-		OSDictionary *properties)
-{
-//	logMsg("VoodooHDAUserClient[%p]::initWithTask(%ld)\n", this, type);
-
-	return super::initWithTask(owningTask, securityID, type, properties);
-}
-
 bool VoodooHDAUserClient::start(IOService *provider)
 {
 //	logMsg("VoodooHDAUserClient[%p]::start\n", this);
@@ -53,18 +45,10 @@ bool VoodooHDAUserClient::start(IOService *provider)
 
 	mDevice = OSDynamicCast(VoodooHDADevice, provider);
 	ASSERT(mDevice);
-	mDevice->retain();
 
 	mVerbose = mDevice->mVerbose;
 
 	return true;
-}
-
-bool VoodooHDAUserClient::willTerminate(IOService *provider, IOOptionBits options)
-{
-//	logMsg("VoodooHDAUserClient[%p]::willTerminate\n", this);
-
-	return super::willTerminate(provider, options);
 }
 
 bool VoodooHDAUserClient::didTerminate(IOService *provider, IOOptionBits options, bool *defer)
@@ -77,13 +61,6 @@ bool VoodooHDAUserClient::didTerminate(IOService *provider, IOOptionBits options
 	return super::didTerminate(provider, options, defer);
 }
 
-bool VoodooHDAUserClient::terminate(IOOptionBits options)
-{
-//	logMsg("VoodooHDAUserClient[%p]::terminate\n", this);
-
-	return super::terminate(options);
-}
-
 // clientClose is called when the user process calls IOServiceClose
 IOReturn VoodooHDAUserClient::clientClose()
 {
@@ -93,33 +70,6 @@ IOReturn VoodooHDAUserClient::clientClose()
 		terminate();
 
 	return kIOReturnSuccess;
-}
-
-// clientDied is called when the user process terminates unexpectedly, the default
-// implementation simply calls clientClose
-IOReturn VoodooHDAUserClient::clientDied()
-{
-//	logMsg("VoodooHDAUserClient[%p]::clientDied\n", this);
-
-	return super::clientDied();
-}
-
-void VoodooHDAUserClient::free(void)
-{
-//	logMsg("VoodooHDAUserClient[%p]::free\n", this);
-
-	RELEASE(mDevice);
-
-	super::free();
-}
-
-// stop will be called during the termination process, and should free all resources
-// associated with this client
-void VoodooHDAUserClient::stop(IOService *provider)
-{
-//	logMsg("VoodooHDAUserClient[%p]::stop\n", this);
-
-	super::stop(provider);
 }
 
 // getTargetAndMethodForIndex looks up the external methods - supply a description of the parameters 
@@ -233,6 +183,7 @@ IOReturn VoodooHDAUserClient::clientMemoryForType(UInt32 type, IOOptionBits *opt
 			break;
 		}
 		msgBuffer = (char *) memDesc->getBytesNoCopy();
+		mDevice->updatePrefPanelMemoryBuf();
 		bcopy(mDevice->mPrefPanelMemoryBuf, msgBuffer, mDevice->mPrefPanelMemoryBufSize);
 		mDevice->unlockPrefPanelMemoryBuf();
 		//*options |= kIOMapReadOnly;
@@ -241,18 +192,18 @@ IOReturn VoodooHDAUserClient::clientMemoryForType(UInt32 type, IOOptionBits *opt
 		break;
 			//Разделяемая память для буфера с текущеми настройками усиления
 	case kVoodooHDAMemoryExtMessageBuffer:
-			
+
 		/*
 		channelInfoBuffer = mDevice->getChannelInfo();
 		if (!channelInfoBuffer)
 			return kIOReturnError;
-			
+
 		channelInfoBufferSize = sizeof(*channelInfoBuffer) * channelInfoBuffer->numChannels;
 		//IOLog("infoBufferSize %ld\n", channelInfoBufferSize);
 		if (!channelInfoBufferSize)
 			return kIOReturnError;
 		*/
-	
+
 		mDevice->lockExtMsgBuffer();
 		if (!mDevice->mExtMsgBufferSize) {
 			errorMsg("error: ext message buffer size is zero\n");
@@ -260,7 +211,7 @@ IOReturn VoodooHDAUserClient::clientMemoryForType(UInt32 type, IOOptionBits *opt
 			result = kIOReturnUnsupported;
 			break;
 		}
-			
+
 		memDesc = IOBufferMemoryDescriptor::withOptions(kIOMemoryKernelUserShared,	mDevice->mExtMsgBufferSize);
 		//memDesc = IOBufferMemoryDescriptor::withOptions(kIOMemoryKernelUserShared,	8);
 		if (!memDesc) {

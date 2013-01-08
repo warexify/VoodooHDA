@@ -113,7 +113,7 @@ bool VoodooHDADevice::init(OSDictionary *dict)
 	if (osBool) {
 		vectorize = (bool)osBool->getValue();
 	} else {
-		vectorize = false;
+		vectorize = true;
 	}
 
 	verboseLevelNum = OSDynamicCast(OSNumber, dict->getObject("Noise"));
@@ -129,7 +129,7 @@ bool VoodooHDADevice::init(OSDictionary *dict)
 		Boost = 0;
 
 	osBool = OSDynamicCast(OSBoolean, dict->getObject(kVoodooHDAAllowMSI));
-	mAllowMSI = (osBool ? osBool->isTrue() : false);
+	mAllowMSI = (osBool ? osBool->isTrue() : true);
 
 	mLock = IOLockAlloc();
 
@@ -231,6 +231,8 @@ IOService *VoodooHDADevice::probe(IOService *provider, SInt32 *score)
 //	IOLog("HDA: MixerInfoSize=%d ChannelInfoSize=%d\n", (int)sizeof(mixerDeviceInfo), (int)sizeof(ChannelInfo));
 
 	result = super::probe(provider, score);
+	if (result != static_cast<IOService*>(this))
+		return result;
 	
 	initMixerDefaultValues();
 	
@@ -580,10 +582,6 @@ bool VoodooHDADevice::initHardware(IOService *provider)
 				switchHandler(funcGroup, true);
 		}
 	}
-	
-	
-	//Обновляю информацию о положении регуляторов усиления 
-	updatePrefPanelMemoryBuf();
 
 	result = true;
 done:
@@ -1224,11 +1222,11 @@ IOReturn VoodooHDADevice::handleAction(OSObject *owner, void *arg0, void *arg1, 
 #endif
 	UInt32 *outSize = (UInt32 *) arg1;
 	void **outData = (void **) arg2;
-	
+
 	device = OSDynamicCast(VoodooHDADevice, owner);
 	if (!device)
 		return kIOReturnBadArgument;
-	
+
 	//device->logMsg("VoodooHDADevice[%p]::handleAction(0x%lx, %p, %p)\n", owner, action, outSize, outData);
 
 	if((action & 0xFF)  == kVoodooHDAActionSetMixer) {
@@ -1236,19 +1234,19 @@ IOReturn VoodooHDADevice::handleAction(OSObject *owner, void *arg0, void *arg1, 
 		UInt8 value;  // slide value
 		UInt8 sliderNum;  //OSS device
 		UInt8 tabNum; //Channel number
-		
+
 		tabNum = ((action >> 8) & 0xFF);
 		sliderNum = ((action >> 16) & 0xFF);
 		value = ((action >> 24) & 0xFF);
-		
+
 		device->changeSliderValue(tabNum, sliderNum, value);
-		
+
 		*outSize = 0;
 		*outData = NULL;
-		
+
 		return result;
 	}
-	
+
 	if((action & 0x60)  == kVoodooHDAActionSetMath) {
 		UInt8 ch, opt, val;
 		ch = ((action >> 8) & 0xFF);
@@ -1257,15 +1255,17 @@ IOReturn VoodooHDADevice::handleAction(OSObject *owner, void *arg0, void *arg1, 
 		//IOLog("HDA: Channel=%02x Options=%02x Value=%02x\n", ch, opt, val);
 			  //device->vectorize?"Yes":"No", device->noiseLevel,
 			  //device->useStereo?"Yes":"No", device->StereoBase);
-		
-		
-		device->mPrefPanelMemoryBuf[ch].vectorize = ((opt & 0x1) == 1);
-		device->mPrefPanelMemoryBuf[ch].noiseLevel = (val & 0x0F);
-		device->mPrefPanelMemoryBuf[ch].useStereo = ((opt & 0x2) == 2);
-		device->mPrefPanelMemoryBuf[ch].StereoBase = (val & 0xF0) >> 4;
-		
+
+
+		if (ch < device->nSliderTabsCount) {
+			device->mPrefPanelMemoryBuf[ch].vectorize = ((opt & 0x1) == 1);
+			device->mPrefPanelMemoryBuf[ch].noiseLevel = (val & 0x0F);
+			device->mPrefPanelMemoryBuf[ch].useStereo = ((opt & 0x2) == 2);
+			device->mPrefPanelMemoryBuf[ch].StereoBase = (val & 0xF0) >> 4;
+		}
+
 		device->setMath(ch, opt, val);
-/*		
+/*
 		device->vectorize = ((opt & 0x1) == 1);
 		device->noiseLevel = (val & 0x0F);
 		device->useStereo = ((opt & 0x2) == 2);
@@ -1273,22 +1273,22 @@ IOReturn VoodooHDADevice::handleAction(OSObject *owner, void *arg0, void *arg1, 
 */
 		*outSize = 0;
 		*outData = NULL;
-		
+
 		return result;		
 		}
-	
+
 	//Команда от моей версии getDump для обновления данных о усилении
 	if((action & 0xFF)  == kVoodooHDAActionGetMixers) {
 
 		device->updateExtDump();
-		
+
 		*outSize = 0;
 		*outData = NULL;
-		
+
 		return result;
 	}
-	
-	
+
+
 	switch (action) {
 	case kVoodooHDAActionTest:
 		device->logMsg("test action received\n");
@@ -2961,18 +2961,13 @@ void VoodooHDADevice::updatePrefPanelMemoryBuf(void)
 void VoodooHDADevice::changeSliderValue(UInt8 tabNum, UInt8 sliderNum, UInt8 newValue)
 {
 	//logMsg("change for Device (%d) ossSlider (%d) value to %d\n", tabNum, sliderNum, newValue);
-	
 	if(tabNum < nSliderTabsCount) {
-		
-		if(sliderTabs[tabNum].pcmDevice != 0) {		
-			
-			audioCtlOssMixerSet(sliderTabs[tabNum].pcmDevice, sliderNum, newValue, newValue);
-		
-			updatePrefPanelMemoryBuf();
-		}
+		PcmDevice* _pcmDevice = sliderTabs[tabNum].pcmDevice;
+		if(_pcmDevice)
+			audioCtlOssMixerSet(_pcmDevice, sliderNum, newValue, newValue);
 	}
-	
 }
+
 //Slice
 void VoodooHDADevice::setMath(UInt8 tabNum, UInt8 sliderNum, UInt8 newValue)
 {
