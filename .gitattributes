@@ -2,6 +2,9 @@
 English.lproj/InfoPlist.strings -text
 English.lproj/VoodooHDAPref.xib -text
 /Info.plist -text
+VoodooHDA-old.xcodeproj/project.pbxproj -text
+VoodooHDA-old.xcodeproj/slice.mode1v3 -text
+VoodooHDA-old.xcodeproj/slice.pbxuser -text
 VoodooHDA.xcodeproj/project.pbxproj -text
 VoodooHDA.xcodeproj/project.xcworkspace/contents.xcworkspacedata -text
 VoodooHDA.xcodeproj/project.xcworkspace/xcuserdata/Slice.xcuserdatad/UserInterfaceState.xcuserstate -text
