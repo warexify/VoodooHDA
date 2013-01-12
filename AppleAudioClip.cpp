@@ -2,14 +2,14 @@
  * Copyright (c) 1998-2008 Apple Computer, Inc. All rights reserved.
  *
  * @APPLE_LICENSE_HEADER_START@
- * 
+ *
  * This file contains Original Code and/or Modifications of Original Code
  * as defined in and that are subject to the Apple Public Source License
  * Version 2.0 (the 'License'). You may not use this file except in
  * compliance with the License. Please obtain a copy of the License at
  * http://www.opensource.apple.com/apsl/ and read it before using this
  * file.
- * 
+ *
  * The Original Code and all software distributed under the License are
  * distributed on an 'AS IS' basis, WITHOUT WARRANTY OF ANY KIND, EITHER
  * EXPRESS OR IMPLIED, AND APPLE HEREBY DISCLAIMS ALL SUCH WARRANTIES,
@@ -17,7 +17,7 @@
  * FITNESS FOR A PARTICULAR PURPOSE, QUIET ENJOYMENT OR NON-INFRINGEMENT.
  * Please see the License for the specific language governing rights and
  * limitations under the License.
- * 
+ *
  * @APPLE_LICENSE_HEADER_END@
  */
 
@@ -30,7 +30,7 @@
 class IOMemoryDescriptor;
 
 #include <IOKit/audio/IOAudioTypes.h>
- 
+
 #include "AppleAudioClip.h"
 #include "AppleAudioCommon.h"
 #include "VoodooHDADevice.h"
@@ -165,42 +165,42 @@ inline static Float32 ClipFloat32ForSInt32(Float32 inSample)
 static void	ClipFloat32ToSInt8_4(const Float32* inInputBuffer, SInt8* outOutputBuffer, UInt32 inNumberSamples)
 {
 	register UInt32 theLeftOvers = inNumberSamples % 4;
-	
+
 	while(inNumberSamples > theLeftOvers)
 	{
 		register Float32 theFloat32Value1 = *(inInputBuffer + 0);
 		register Float32 theFloat32Value2 = *(inInputBuffer + 1);
 		register Float32 theFloat32Value3 = *(inInputBuffer + 2);
 		register Float32 theFloat32Value4 = *(inInputBuffer + 3);
-		
+
 		inInputBuffer += 4;
-		
+
 		theFloat32Value1 = ClipFloat32ForSInt8(theFloat32Value1);
 		theFloat32Value2 = ClipFloat32ForSInt8(theFloat32Value2);
 		theFloat32Value3 = ClipFloat32ForSInt8(theFloat32Value3);
 		theFloat32Value4 = ClipFloat32ForSInt8(theFloat32Value4);
-		
+
 		*(outOutputBuffer + 0) = (SInt8)(theFloat32Value1 * kFloat32ToSInt8);
 		*(outOutputBuffer + 1) = (SInt8)(theFloat32Value2 * kFloat32ToSInt8);
 		*(outOutputBuffer + 2) = (SInt8)(theFloat32Value3 * kFloat32ToSInt8);
 		*(outOutputBuffer + 3) = (SInt8)(theFloat32Value4 * kFloat32ToSInt8);
-		
+
 		outOutputBuffer += 4;
 		inNumberSamples -= 4;
 	}
-	
+
 	while(inNumberSamples > 0)
 	{
 		register Float32	theFloat32Value = *inInputBuffer;
-		
+
 		++inInputBuffer;
-		
+
 		theFloat32Value = ClipFloat32ForSInt8(theFloat32Value);
-		
+
 		*outOutputBuffer = (SInt8)(theFloat32Value * kFloat32ToSInt8);
-		
+
 		++outOutputBuffer;
-		
+
 		--inNumberSamples;
 	}
 }
@@ -216,35 +216,35 @@ static void	ClipFloat32ToSInt16LE_4(const Float32* inInputBuffer, SInt16* outOut
 		register Float32 theFloat32Value2 = *(inInputBuffer + 1);
 		register Float32 theFloat32Value3 = *(inInputBuffer + 2);
 		register Float32 theFloat32Value4 = *(inInputBuffer + 3);
-		
+
 		inInputBuffer += 4;
-		
+
 		theFloat32Value1 = ClipFloat32ForSInt16(theFloat32Value1);
 		theFloat32Value2 = ClipFloat32ForSInt16(theFloat32Value2);
 		theFloat32Value3 = ClipFloat32ForSInt16(theFloat32Value3);
 		theFloat32Value4 = ClipFloat32ForSInt16(theFloat32Value4);
-		
+
 		*(outOutputBuffer + 0) = SInt16NativeToLittleEndian((SInt16)(theFloat32Value1 * kFloat32ToSInt16));
 		*(outOutputBuffer + 1) = SInt16NativeToLittleEndian((SInt16)(theFloat32Value2 * kFloat32ToSInt16));
 		*(outOutputBuffer + 2) = SInt16NativeToLittleEndian((SInt16)(theFloat32Value3 * kFloat32ToSInt16));
 		*(outOutputBuffer + 3) = SInt16NativeToLittleEndian((SInt16)(theFloat32Value4 * kFloat32ToSInt16));
-		
+
 		outOutputBuffer += 4;
 		inNumberSamples -= 4;
 	}
-	
+
 	while(inNumberSamples > 0)
 	{
 		register Float32	theFloat32Value = *inInputBuffer;
-		
+
 		++inInputBuffer;
-		
+
 		theFloat32Value = ClipFloat32ForSInt16(theFloat32Value);
-		
+
 		*outOutputBuffer = SInt16NativeToLittleEndian((SInt16)(theFloat32Value * kFloat32ToSInt16));
-		
+
 		++outOutputBuffer;
-		
+
 		--inNumberSamples;
 	}
 }
@@ -253,7 +253,7 @@ static void	ClipFloat32ToSInt16LE_4(const Float32* inInputBuffer, SInt16* outOut
 	static void	ClipFloat32ToSInt24LE_8(const Float32* inInputBuffer, SInt32* outOutputBuffer, UInt32 inNumberSamples)
 	{
 		register UInt32 theLeftOvers = inNumberSamples % 8;
-		
+
 		while(inNumberSamples > theLeftOvers)
 		{
 			register Float32 theFloat32Value11 = *(inInputBuffer + 0);
@@ -264,9 +264,9 @@ static void	ClipFloat32ToSInt16LE_4(const Float32* inInputBuffer, SInt16* outOut
 			register Float32 theFloat32Value22 = *(inInputBuffer + 3);
 			register Float32 theFloat32Value32 = *(inInputBuffer + 5);
 			register Float32 theFloat32Value42 = *(inInputBuffer + 7);
-			
+
 			inInputBuffer += 8;
-			
+
 			theFloat32Value11 = ClipFloat32ForSInt24(theFloat32Value11);
 			theFloat32Value21 = ClipFloat32ForSInt24(theFloat32Value21);
 			theFloat32Value31 = ClipFloat32ForSInt24(theFloat32Value31);
@@ -275,7 +275,7 @@ static void	ClipFloat32ToSInt16LE_4(const Float32* inInputBuffer, SInt16* outOut
 			theFloat32Value22 = ClipFloat32ForSInt24(theFloat32Value22);
 			theFloat32Value32 = ClipFloat32ForSInt24(theFloat32Value32);
 			theFloat32Value42 = ClipFloat32ForSInt24(theFloat32Value42);
-			
+
 			// Multiply by kFloat32ToSInt32 instead of kFloat32toSInt24 to make the binary operations below work properly.
 			register UInt32 a1 = (UInt32)(SInt32)(theFloat32Value11 * kFloat32ToSInt32);
 			register UInt32 b1 = (UInt32)(SInt32)(theFloat32Value21 * kFloat32ToSInt32);
@@ -289,7 +289,7 @@ static void	ClipFloat32ToSInt16LE_4(const Float32* inInputBuffer, SInt16* outOut
 			//	IN REGISTER:		123X 456X 789X ABCX					abc0 def0 ghi0 jkl0
 			//	OUT REGISTERS:		6123 8945 ABC7						fabc hide jklg
 			//	OUT MEMORY:			3216 5498 7CBA
-			
+
 			register SInt32 theOutputValue11 = ((b1 << 16) & 0xFF000000) | (a1 >> 8);
 			register SInt32 theOutputValue21 = ((c1 << 8) & 0xFFFF0000) | ((b1 >> 16) & 0x0000FFFF);
 			register SInt32 theOutputValue31 = (d1 & 0xFFFFFF00) | ((c1 >> 24) & 0x000000FF);
@@ -303,52 +303,52 @@ static void	ClipFloat32ToSInt16LE_4(const Float32* inInputBuffer, SInt16* outOut
 			*(outOutputBuffer + 3) = theOutputValue22;
 			*(outOutputBuffer + 4) = theOutputValue31;
 			*(outOutputBuffer + 5) = theOutputValue32;
-			
+
 			outOutputBuffer += 6;
-			
+
 			inNumberSamples -= 8;
 		}
-		
+
 		SInt8* theOutputBuffer = (SInt8*)outOutputBuffer;
 		while(inNumberSamples > 0)
 		{
 			register Float32 theFloat32Value = *inInputBuffer;
 			++inInputBuffer;
-			
+
 			theFloat32Value = ClipFloat32ForSInt24(theFloat32Value);
-			
+
 			// Multiply by kFloat32ToSInt32 instead of kFloat32toSInt24 to make the binary operations below work properly.
 			register SInt32 theSInt32Value = (SInt32)(theFloat32Value * kFloat32ToSInt32);
-			
+
 			// Byte swapping will be handled automatically by the CPU if necessary.
 			*(theOutputBuffer + 0) = (SInt8)((((UInt32)theSInt32Value) >> 8) & 0x000000FF);
 			*(theOutputBuffer + 1) = (SInt8)((((UInt32)theSInt32Value) >> 16) & 0x000000FF);
 			*(theOutputBuffer + 2) = (SInt8)((((UInt32)theSInt32Value) >> 24) & 0x000000FF);
-			
+
 			theOutputBuffer += 3;
-			
+
 			--inNumberSamples;
 		}
-		
-			
+
+
 }
-			
+
 //	Float32 -> SInt24
 //	we use the MaxSInt32 value because of how we munge the data
 #if 0
 static void	ClipFloat32ToSInt24LE_4(const Float32* inInputBuffer, SInt32* outOutputBuffer, UInt32 inNumberSamples)
 {
 	register UInt32 theLeftOvers = inNumberSamples % 4;
-	
+
 	while(inNumberSamples > theLeftOvers)
 	{
 		register Float32 theFloat32Value1 = *(inInputBuffer + 0);
 		register Float32 theFloat32Value2 = *(inInputBuffer + 1);
 		register Float32 theFloat32Value3 = *(inInputBuffer + 2);
 		register Float32 theFloat32Value4 = *(inInputBuffer + 3);
-		
+
 		inInputBuffer += 4;
-		
+
 		theFloat32Value1 = ClipFloat32ForSInt24(theFloat32Value1);
 		theFloat32Value2 = ClipFloat32ForSInt24(theFloat32Value2);
 		theFloat32Value3 = ClipFloat32ForSInt24(theFloat32Value3);
@@ -359,9 +359,9 @@ static void	ClipFloat32ToSInt24LE_4(const Float32* inInputBuffer, SInt32* outOut
 		register UInt32 b = (UInt32)(SInt32)(theFloat32Value2 * kFloat32ToSInt32);
 		register UInt32 c = (UInt32)(SInt32)(theFloat32Value3 * kFloat32ToSInt32);
 		register UInt32 d = (UInt32)(SInt32)(theFloat32Value4 * kFloat32ToSInt32);
-		
+
 		#if	defined(__ppc__)
-		
+
 			//						a    b    c    d
 			//	IN REGISTER:		123X 456X 789X ABCX
 			//	OUT REGISTERS:		3216 5498 7CBA
@@ -371,51 +371,51 @@ static void	ClipFloat32ToSInt24LE_4(const Float32* inInputBuffer, SInt32* outOut
 			//	is the unused byte we need to munge all four so that they look
 			//	like this in three registers: 3216 5498 7CBA. We want to avoid
 			//	any non-aligned memory writes if at all possible.
-			
+
 			register SInt32	theOutputValue1 = ((a << 16) & 0xFF000000) | (a & 0x00FF0000) | ((a >> 16) & 0x0000FF00) | ((b >> 8) & 0x000000FF);	// 3216
 			register SInt32	theOutputValue2 = ((b << 8) & 0xFF000000) | ((b >> 8) & 0x00FF0000) | (c & 0x0000FF00) | ((c >> 16) & 0x000000FF);
 			register SInt32	theOutputValue3 = (c & 0xFF000000) | ((d << 8) & 0x00FF0000) | ((d >> 8) & 0x0000FF00) | ((d >> 24) & 0x000000FF);
-			
+
 		#elif defined(__i386__) || defined(__x86_64__)
 			//						a    b    c    d					a    b    c    d
 			//	IN REGISTER:		123X 456X 789X ABCX					abc0 def0 ghi0 jkl0
 			//	OUT REGISTERS:		6123 8945 ABC7						fabc hide jklg
 			//	OUT MEMORY:			3216 5498 7CBA
-		
+
 			register SInt32 theOutputValue1 = ((b << 16) & 0xFF000000) | (a >> 8);
 			register SInt32 theOutputValue2 = ((c << 8) & 0xFFFF0000) | ((b >> 16) & 0x0000FFFF);
 			register SInt32 theOutputValue3 = (d & 0xFFFFFF00) | ((c >> 24) & 0x000000FF);
-		
+
 		#endif
-		
+
 		//	store everything back to memory
 		*(outOutputBuffer + 0) = theOutputValue1;
 		*(outOutputBuffer + 1) = theOutputValue2;
 		*(outOutputBuffer + 2) = theOutputValue3;
-	
+
 		outOutputBuffer += 3;
-		
+
 		inNumberSamples -= 4;
 	}
-	
+
 	SInt8* theOutputBuffer = (SInt8*)outOutputBuffer;
 	while(inNumberSamples > 0)
 	{
 		register Float32 theFloat32Value = *inInputBuffer;
 		++inInputBuffer;
-		
+
 		theFloat32Value = ClipFloat32ForSInt24(theFloat32Value);
-		
+
 		// Multiply by kFloat32ToSInt32 instead of kFloat32toSInt24 to make the binary operations below work properly.
 		register SInt32 theSInt32Value = (SInt32)(theFloat32Value * kFloat32ToSInt32);
-		
+
 		// Byte swapping will be handled automatically by the CPU if necessary.
 		*(theOutputBuffer + 0) = (SInt8)((((UInt32)theSInt32Value) >> 8) & 0x000000FF);
 		*(theOutputBuffer + 1) = (SInt8)((((UInt32)theSInt32Value) >> 16) & 0x000000FF);
 		*(theOutputBuffer + 2) = (SInt8)((((UInt32)theSInt32Value) >> 24) & 0x000000FF);
-		
+
 		theOutputBuffer += 3;
-		
+
 		--inNumberSamples;
 	}
 }
@@ -424,41 +424,41 @@ static void	ClipFloat32ToSInt24LE_4(const Float32* inInputBuffer, SInt32* outOut
 static void	ClipFloat32ToSInt32LE_4(const Float32* inInputBuffer, SInt32* outOutputBuffer, UInt32 inNumberSamples)
 {
 	register UInt32 theLeftOvers = inNumberSamples % 4;
-	
+
 	while(inNumberSamples > theLeftOvers)
 	{
 		register Float32 theFloat32Value1 = *(inInputBuffer + 0);
 		register Float32 theFloat32Value2 = *(inInputBuffer + 1);
 		register Float32 theFloat32Value3 = *(inInputBuffer + 2);
 		register Float32 theFloat32Value4 = *(inInputBuffer + 3);
-		
+
 		inInputBuffer += 4;
-		
+
 		theFloat32Value1 = ClipFloat32ForSInt32(theFloat32Value1);
 		theFloat32Value2 = ClipFloat32ForSInt32(theFloat32Value2);
 		theFloat32Value3 = ClipFloat32ForSInt32(theFloat32Value3);
 		theFloat32Value4 = ClipFloat32ForSInt32(theFloat32Value4);
-		
+
 		*(outOutputBuffer + 0) = SInt32NativeToLittleEndian((SInt32)(theFloat32Value1 * kFloat32ToSInt32));
 		*(outOutputBuffer + 1) = SInt32NativeToLittleEndian((SInt32)(theFloat32Value2 * kFloat32ToSInt32));
 		*(outOutputBuffer + 2) = SInt32NativeToLittleEndian((SInt32)(theFloat32Value3 * kFloat32ToSInt32));
 		*(outOutputBuffer + 3) = SInt32NativeToLittleEndian((SInt32)(theFloat32Value4 * kFloat32ToSInt32));
-		
+
 		outOutputBuffer += 4;
 		inNumberSamples -= 4;
 	}
-	
+
 	while(inNumberSamples > 0)
 	{
 		register Float32 theFloat32Value = *inInputBuffer;
 		++inInputBuffer;
-		
+
 		theFloat32Value = ClipFloat32ForSInt32(theFloat32Value);
 
 		*outOutputBuffer = SInt32NativeToLittleEndian((SInt32)(theFloat32Value * kFloat32ToSInt32));
-		
+
 		++outOutputBuffer;
-		
+
 		--inNumberSamples;
 	}
 }
@@ -488,11 +488,11 @@ IOReturn clipAppleAudioToOutputStreamiSub (const void *mixBuf, void *sampleBuf, 
     maxSampleIndex = (firstSampleFrame + numSampleFrames) * (streamFormat->fNumChannels);
 
 	// Filter out the highs and lows for use with the iSub
-	if (1 == streamFormat->fNumChannels) 
+	if (1 == streamFormat->fNumChannels)
 	{
 		MonoFilter (&floatMixBuf[firstSampleFrame * streamFormat->fNumChannels], &low[firstSampleFrame * streamFormat->fNumChannels], &high[firstSampleFrame * streamFormat->fNumChannels], numSampleFrames, 960000);
-	} 
-	else if (2 == streamFormat->fNumChannels) 
+	}
+	else if (2 == streamFormat->fNumChannels)
 	{
 		// aml 2.21.02 changed to 4th order version
 		// aml 2.21.02 changed to 4th order version with phase compensation
@@ -500,14 +500,14 @@ IOReturn clipAppleAudioToOutputStreamiSub (const void *mixBuf, void *sampleBuf, 
     }
 
 	// Non iSub Audio
-    for (sampleIndex = (firstSampleFrame * streamFormat->fNumChannels); sampleIndex < maxSampleIndex; sampleIndex++) 
+    for (sampleIndex = (firstSampleFrame * streamFormat->fNumChannels); sampleIndex < maxSampleIndex; sampleIndex++)
 	{
             highSample = high[sampleIndex];
-            if (highSample > 1.0) 
+            if (highSample > 1.0)
 			{
                     highSample = 1.0;
-            } 
-			else if (highSample < -1.0) 
+            }
+			else if (highSample < -1.0)
 			{
                     highSample = -1.0;
             }
@@ -515,115 +515,115 @@ IOReturn clipAppleAudioToOutputStreamiSub (const void *mixBuf, void *sampleBuf, 
            outputBuf[sampleIndex] = OSSwapHostToLittleInt16 ((SInt16)(highSample * 32767.0));
 		   // outputBuf[sampleIndex] = OSSwapHostToLittleInt16 ((SInt16)(highSample * 32768.0));
     }
-    
-    // aml 3.01.02 adding num channels check. 
-    if ((iSubFormat->numChannels == 1) && (streamFormat->fNumChannels == 2)) 
+
+    // aml 3.01.02 adding num channels check.
+    if ((iSubFormat->numChannels == 1) && (streamFormat->fNumChannels == 2))
 	{
-        // aml 3.6.02 linear interpolation src (takes the edge off the zoh version, without wasting too many 
+        // aml 3.6.02 linear interpolation src (takes the edge off the zoh version, without wasting too many
         // cycles since we have a 4th order lp in front of us, down -90 dB at Nyquist for 6kHz sample rate)
         // STEREO->MONO
         sampleIndex = (firstSampleFrame * streamFormat->fNumChannels);
-        while (sampleIndex < maxSampleIndex) 
+        while (sampleIndex < maxSampleIndex)
 		{
-            if (phase >= 1.0) 
-			{	
+            if (phase >= 1.0)
+			{
                 phase -= 1.0;
                 sampleIndex+=2;
-            } 
-			else 
-			{   
+            }
+			else
+			{
                 // check for beginning of frame case, use saved last sample if needed
-                if (sampleIndex == (firstSampleFrame * streamFormat->fNumChannels)) 
-				{ 
+                if (sampleIndex == (firstSampleFrame * streamFormat->fNumChannels))
+				{
                     x0 = *srcState;
-                } 
-				else 
+                }
+				else
 				{
                     // mix x[n-1] to mono
                     x0 = low[sampleIndex-2];
                     temp = low[sampleIndex-1];
                     x0 = 0.5*(x0 + temp);
                 }
-                
+
                 // mix x[n] to mono
                 x1 = low[sampleIndex];
                 temp = low[sampleIndex+1];
                 x1 = 0.5*(x1 + temp);
-                                
+
                 // linearly interpolate between x0 and x1
                 iSubSampleFloat = x0 + phase*(x1 - x0);
-                
+
                 // clip
-                if (iSubSampleFloat > 1.0) 
+                if (iSubSampleFloat > 1.0)
 				{
                     iSubSampleFloat = 1.0;
-                } 
-				else if (iSubSampleFloat < -1.0) 
+                }
+				else if (iSubSampleFloat < -1.0)
 				{
                     iSubSampleFloat = -1.0;
                 }
-                
+
                 // convert to fixed
-                if (iSubSampleFloat >= 0) 
+                if (iSubSampleFloat >= 0)
 				{
                     iSubSampleInt = (SInt16) (iSubSampleFloat * 32767.0);
-                } 
-				else 
+                }
+				else
 				{
                     iSubSampleInt = (SInt16) (iSubSampleFloat * 32768.0);
                 }
-                
+
                 // check for end of buffer condition
-                if (*iSubBufferOffset >= (SInt32)iSubBufferLen) 
+                if (*iSubBufferOffset >= (SInt32)iSubBufferLen)
 				{
                         *iSubBufferOffset = 0;
                         (*loopCount)++;
                 }
-                
+
                 // byteswap to USB format and copy to iSub buffer
 				iSubBufferMemory[(*iSubBufferOffset)++] = OSSwapLittleToHostInt16(iSubSampleInt);
 
                 // increment phase and update input buffer pointer
-                phase += phaseInc;		
+                phase += phaseInc;
             }
 	}
-        if (phase < 1) 
+        if (phase < 1)
 		{
             // mix and save last sample in buffer to mono if it will be needed for the next loop
             x1 = low[maxSampleIndex-2];
             temp = low[maxSampleIndex-1];
             *srcState = 0.5*(x1 + temp);
-        } 
-		else 
+        }
+		else
 		{
             *srcState = 0;
         }
         // cache current phase for use next time we enter the clip loop
        *srcPhase = phase;
-    } 
-	else 
+    }
+	else
 	{
         // STEREO->STEREO, MONO->MONO
-	for (sampleIndex = (firstSampleFrame * streamFormat->fNumChannels); sampleIndex < maxSampleIndex; sampleIndex++) 
+	for (sampleIndex = (firstSampleFrame * streamFormat->fNumChannels); sampleIndex < maxSampleIndex; sampleIndex++)
 	{
             iSubSampleFloat = low[sampleIndex];
-            if (iSubSampleFloat > 1.0) 
+            if (iSubSampleFloat > 1.0)
 			{
                     iSubSampleFloat = 1.0;
-            } 
-			else if (iSubSampleFloat < -1.0) 
+            }
+			else if (iSubSampleFloat < -1.0)
 			{
                     iSubSampleFloat = -1.0;
             }
-    
+
             iSubSampleInt = (SInt16) (iSubSampleFloat * 32767.0);
-     
-            if (*iSubBufferOffset >= (SInt32)iSubBufferLen) 
+
+            if (*iSubBufferOffset >= (SInt32)iSubBufferLen)
 			{
                     *iSubBufferOffset = 0;
                     (*loopCount)++;
             }
-    
+
 			iSubBufferMemory[(*iSubBufferOffset)++] = OSSwapLittleToHostInt16(iSubSampleInt);
         }
     }
@@ -635,7 +635,7 @@ const float kOneOverMaxSInt16Value = 1.0/32768.0f;
 // const float kOneOverMaxSInt24Value = 1.0/8388608.0f;
 const float kOneOverMaxSInt24Value = 0.00000011920928955078125f;
 const float kOneOverMaxSInt32Value = 1.0/2147483648.0f;
-	
+
 #if FLOATLIB
 /*
 	***CoeffsFilterOrder2***
@@ -1004,7 +1004,7 @@ void StereoFilter4thOrder (Float32 *in, Float32 *low, Float32 *high, UInt32 fram
     // set all coefficients
     if (Set4thOrderCoefficients (&b0, &b1, &b2, &a1, &a2, SamplingRate) == FALSE)
         return;
-    
+
 // old way:
 //    success = CoeffsFilterOrder2Table (LP_Coeff, SamplingRate);
 //    if (success == FALSE)  goto End;
@@ -1109,7 +1109,7 @@ void StereoFilter4thOrderPhaseComp (Float32 *in, Float32 *low, Float32 *high, UI
     outLTap2 = section1State->yl_2;
     outRTap1 = section1State->yr_1;
     outRTap2 = section1State->yr_2;
-    
+
     // section 2
     inLTap1_2 = section2State->xl_1;
     inLTap2_2 = section2State->xl_2;
@@ -1120,7 +1120,7 @@ void StereoFilter4thOrderPhaseComp (Float32 *in, Float32 *low, Float32 *high, UI
     outLTap2_2 = section2State->yl_2;
     outRTap1_2 = section2State->yr_1;
     outRTap2_2 = section2State->yr_2;
-    
+
     // phase compensator
     inLTap1_p = phaseCompState->xl_1;
     inLTap2_p = phaseCompState->xl_2;
@@ -1131,7 +1131,7 @@ void StereoFilter4thOrderPhaseComp (Float32 *in, Float32 *low, Float32 *high, UI
     outLTap2_p = phaseCompState->yl_2;
     outRTap1_p = phaseCompState->yr_1;
     outRTap2_p = phaseCompState->yr_2;
- 
+
     // set all coefficients
     if (Set4thOrderCoefficients (&b0, &b1, &b2, &a1, &a2, SamplingRate) == FALSE)
         return;
@@ -1142,11 +1142,11 @@ void StereoFilter4thOrderPhaseComp (Float32 *in, Float32 *low, Float32 *high, UI
     {
         inL = in[2*i];
         inR = in[2*i+1];
-        
+
         // Low-pass filter first pass
         outL1 = b0*inL + b1*inLTap1 + b2*inLTap2 - a1*outLTap1 - a2*outLTap2;
         outR1 = b0*inR + b1*inRTap1 + b2*inRTap2 - a1*outRTap1 - a2*outRTap2;
- 
+
         // update section 1 filter taps
         inLTap2 = inLTap1;
         inRTap2 = inRTap1;
@@ -1156,11 +1156,11 @@ void StereoFilter4thOrderPhaseComp (Float32 *in, Float32 *low, Float32 *high, UI
         outRTap2 = outRTap1;
         outLTap1 = outL1;
         outRTap1 = outR1;
-        
+
         // Low-pass filter second pass
         outL = b0*outL1 + b1*inLTap1_2 + b2*inLTap2_2 - a1*outLTap1_2 - a2*outLTap2_2;
         outR = b0*outR1 + b1*inRTap1_2 + b2*inRTap2_2 - a1*outRTap1_2 - a2*outRTap2_2;
-        
+
         // update section 2 filter taps
         inLTap2_2 = inLTap1_2;
         inRTap2_2 = inRTap1_2;
@@ -1174,7 +1174,7 @@ void StereoFilter4thOrderPhaseComp (Float32 *in, Float32 *low, Float32 *high, UI
         // phase compensate the input, note that b2 is 1.0
         inPhaseCompL = bp0*inL + bp1*inLTap1_p + inLTap2_p - ap1*outLTap1_p - ap2*outLTap2_p;
         inPhaseCompR = bp0*inR + bp1*inRTap1_p + inRTap2_p - ap1*outRTap1_p - ap2*outRTap2_p;
-        
+
         // update phase compensate filter taps
         inLTap2_p = inLTap1_p;
         inRTap2_p = inRTap1_p;
@@ -1193,7 +1193,7 @@ void StereoFilter4thOrderPhaseComp (Float32 *in, Float32 *low, Float32 *high, UI
     }
 
     // update state structures
-    
+
     // section 1 state
     section1State->xl_1 = inLTap1;
     section1State->xl_2 = inLTap2;
@@ -2482,63 +2482,63 @@ void Float32ToInt8( float *src, SInt8 *dst, unsigned int count )
 	//	Because of the do nothing stage, the inner loop had to be unrolled by one, so in actuality, each
 	//	inner loop iteration represents two virtual clock cycles that push data through our virtual pipeline.
 	//
-	//	The reason why this works is that this allows us to break data dependency chains and insert 5 real 
-	//	operations in between every virtual pipeline stage. This means 5 instructions between each data 
-	//	dependency, which is just enough to keep all of our real pipelines happy. The data flow follows 
+	//	The reason why this works is that this allows us to break data dependency chains and insert 5 real
+	//	operations in between every virtual pipeline stage. This means 5 instructions between each data
+	//	dependency, which is just enough to keep all of our real pipelines happy. The data flow follows
 	//	standard pipeline diagrams:
 	//
 	//					stage1	stage2	stage3	stage4	stage5	stage6	stage7
 	//	virtual cycle 1:	data1	-		-		-		-		-		-
 	//	virtual cycle 2:	data2	data1	-		-		-		-		-
 	//	virtual cycle 3:	data3	data2	data1	-		-		-		-
-	//	virtual cycle 4:	data4	data3	data2	data1	-		-		-		
-	//	virtual cycle 5:	data5	data4	data3	data2	data1	-		-			   
-	//	virtual cycle 6:	data6	data5	data4	data3	data2	data1	-	
+	//	virtual cycle 4:	data4	data3	data2	data1	-		-		-
+	//	virtual cycle 5:	data5	data4	data3	data2	data1	-		-
+	//	virtual cycle 6:	data6	data5	data4	data3	data2	data1	-
 	//
 	//	inner loop:
-	//	  virtual cycle A:	data7	data6	data5	data4	data3	data2	data1					  
-	//	  virtual cycle B:	data8	data7	data6	data5	data4	data3	data2	
+	//	  virtual cycle A:	data7	data6	data5	data4	data3	data2	data1
+	//	  virtual cycle B:	data8	data7	data6	data5	data4	data3	data2
 	//
 	//	virtual cycle 7 -		dataF	dataE	dataD	dataC	dataB	dataA
-	//	virtual cycle 8 -		-		dataF	dataE	dataD	dataC	dataB	
+	//	virtual cycle 8 -		-		dataF	dataE	dataD	dataC	dataB
 	//	virtual cycle 9 -		-		-		dataF	dataE	dataD	dataC
-	//	virtual cycle 10	-		-		-		-		dataF	dataE	dataD  
-	//	virtual cycle 11	-		-		-		-		-		dataF	dataE	
-	//	virtual cycle 12	-		-		-		-		-		-		dataF						 
-	
+	//	virtual cycle 10	-		-		-		-		dataF	dataE	dataD
+	//	virtual cycle 11	-		-		-		-		-		dataF	dataE
+	//	virtual cycle 12	-		-		-		-		-		-		dataF
+
 	if( count >= 6 )
 	{
 		//virtual cycle 1
 		startingFloat = (src++)[0];
-		
+
 		//virtual cycle 2
 		scaled = startingFloat * scale + round;
 		startingFloat = (src++)[0];
-		
+
 		//virtual cycle 3
 		converted = __fctiw( scaled );
 		scaled = startingFloat * scale + round;
 		startingFloat = (src++)[0];
-		
+
 		//virtual cycle 4
 		__stfiwx( converted, 0, buffer );
 		converted = __fctiw( scaled );
 		scaled = startingFloat * scale + round;
 		startingFloat = (src++)[0];
-		
+
 		//virtual cycle 5
 		__stfiwx( converted, sizeof(float), buffer );
 		converted = __fctiw( scaled );
 		scaled = startingFloat * scale + round;
 		startingFloat = (src++)[0];
-		
+
 		//virtual cycle 6
-		copy = ((SInt8*) buffer)[0];	
+		copy = ((SInt8*) buffer)[0];
 		__stfiwx( converted, 0, buffer );
 		converted = __fctiw( scaled );
 		scaled = startingFloat * scale + round;
 		startingFloat = (src++)[0];
-		
+
 		count -= 6;
 		loopCount = count / 2;
 		count &= 1;
@@ -2548,11 +2548,11 @@ void Float32ToInt8( float *src, SInt8 *dst, unsigned int count )
 			register double scaled2;
 			register double converted2;
 			register SInt8	copy2;
-			
+
 			//virtual Cycle A
 			(dst++)[0] = copy;
 			__asm__ __volatile__ ( "fctiw %0, %1" : "=f" (converted2) : "f" ( scaled ) );
-			copy2 = ((SInt8*) buffer)[4];		
+			copy2 = ((SInt8*) buffer)[4];
 			__asm__ __volatile__ ( "fmadd %0, %1, %2, %3" : "=f" (scaled2) : "f" ( startingFloat), "f" (scale), "f" (round) );
 			__asm__ __volatile__ ( "stfiwx %0, %1, %2" : : "f" (converted), "b%" (sizeof(float)), "r" (buffer) : "memory" );
 			startingFloat2 = (src++)[0];
@@ -2565,29 +2565,29 @@ void Float32ToInt8( float *src, SInt8 *dst, unsigned int count )
 			__asm__ __volatile__ ( "stfiwx %0, %1, %2" : : "f" (converted2), "b%" (0), "r" (buffer) : "memory" );
 			startingFloat = (src++)[0];
 		}
-		
+
 		//Virtual Cycle 7
 		(dst++)[0] = copy;
 		copy = ((SInt8*) buffer)[4];
 		__stfiwx( converted, sizeof(float), buffer );
 		converted = __fctiw( scaled );
 		scaled = startingFloat * scale + round;
-		
+
 		//Virtual Cycle 8
 		(dst++)[0] = copy;
 		copy = ((SInt8*) buffer)[0];
 		__stfiwx( converted, 0, buffer );
 		converted = __fctiw( scaled );
-	
+
 		//Virtual Cycle 9
 		(dst++)[0] = copy;
 		copy = ((SInt8*) buffer)[4];
 		__stfiwx( converted, sizeof(float), buffer );
-		
+
 		//Virtual Cycle 10
 		(dst++)[0] = copy;
 		copy = ((SInt8*) buffer)[0];
-	
+
 		//Virtual Cycle 11
 		(dst++)[0] = copy;
 		copy = ((SInt8*) buffer)[4];
@@ -2635,63 +2635,63 @@ void Float32ToNativeInt16( float *src, signed short *dst, unsigned int count )
 	//	Because of the do nothing stage, the inner loop had to be unrolled by one, so in actuality, each
 	//	inner loop iteration represents two virtual clock cycles that push data through our virtual pipeline.
 	//
-	//	The reason why this works is that this allows us to break data dependency chains and insert 5 real 
-	//	operations in between every virtual pipeline stage. This means 5 instructions between each data 
-	//	dependency, which is just enough to keep all of our real pipelines happy. The data flow follows 
+	//	The reason why this works is that this allows us to break data dependency chains and insert 5 real
+	//	operations in between every virtual pipeline stage. This means 5 instructions between each data
+	//	dependency, which is just enough to keep all of our real pipelines happy. The data flow follows
 	//	standard pipeline diagrams:
 	//
 	//					stage1	stage2	stage3	stage4	stage5	stage6	stage7
 	//	virtual cycle 1:	data1	-		-		-		-		-		-
 	//	virtual cycle 2:	data2	data1	-		-		-		-		-
 	//	virtual cycle 3:	data3	data2	data1	-		-		-		-
-	//	virtual cycle 4:	data4	data3	data2	data1	-		-		-		
-	//	virtual cycle 5:	data5	data4	data3	data2	data1	-		-			   
-	//	virtual cycle 6:	data6	data5	data4	data3	data2	data1	-	
+	//	virtual cycle 4:	data4	data3	data2	data1	-		-		-
+	//	virtual cycle 5:	data5	data4	data3	data2	data1	-		-
+	//	virtual cycle 6:	data6	data5	data4	data3	data2	data1	-
 	//
 	//	inner loop:
-	//	  virtual cycle A:	data7	data6	data5	data4	data3	data2	data1					  
-	//	  virtual cycle B:	data8	data7	data6	data5	data4	data3	data2	
+	//	  virtual cycle A:	data7	data6	data5	data4	data3	data2	data1
+	//	  virtual cycle B:	data8	data7	data6	data5	data4	data3	data2
 	//
 	//	virtual cycle 7 -		dataF	dataE	dataD	dataC	dataB	dataA
-	//	virtual cycle 8 -		-		dataF	dataE	dataD	dataC	dataB	
+	//	virtual cycle 8 -		-		dataF	dataE	dataD	dataC	dataB
 	//	virtual cycle 9 -		-		-		dataF	dataE	dataD	dataC
-	//	virtual cycle 10	-		-		-		-		dataF	dataE	dataD  
-	//	virtual cycle 11	-		-		-		-		-		dataF	dataE	
-	//	virtual cycle 12	-		-		-		-		-		-		dataF						 
-	
+	//	virtual cycle 10	-		-		-		-		dataF	dataE	dataD
+	//	virtual cycle 11	-		-		-		-		-		dataF	dataE
+	//	virtual cycle 12	-		-		-		-		-		-		dataF
+
 	if( count >= 6 )
 	{
 		//virtual cycle 1
 		startingFloat = (src++)[0];
-		
+
 		//virtual cycle 2
 		scaled = startingFloat * scale + round;
 		startingFloat = (src++)[0];
-		
+
 		//virtual cycle 3
 		converted = __fctiw( scaled );
 		scaled = startingFloat * scale + round;
 		startingFloat = (src++)[0];
-		
+
 		//virtual cycle 4
 		__stfiwx( converted, 0, buffer );
 		converted = __fctiw( scaled );
 		scaled = startingFloat * scale + round;
 		startingFloat = (src++)[0];
-		
+
 		//virtual cycle 5
 		__stfiwx( converted, sizeof(float), buffer );
 		converted = __fctiw( scaled );
 		scaled = startingFloat * scale + round;
 		startingFloat = (src++)[0];
-		
+
 		//virtual cycle 6
 		copy = ((short*) buffer)[0];
 		__stfiwx( converted, 0, buffer );
 		converted = __fctiw( scaled );
 		scaled = startingFloat * scale + round;
 		startingFloat = (src++)[0];
-		
+
 		count -= 6;
 		loopCount = count / 2;
 		count &= 1;
@@ -2701,7 +2701,7 @@ void Float32ToNativeInt16( float *src, signed short *dst, unsigned int count )
 			register double scaled2;
 			register double converted2;
 			register short	copy2;
-			
+
 			//virtual Cycle A
 			(dst++)[0] = copy;
 			__asm__ __volatile__ ( "fctiw %0, %1" : "=f" (converted2) : "f" ( scaled ) );
@@ -2718,29 +2718,29 @@ void Float32ToNativeInt16( float *src, signed short *dst, unsigned int count )
 			__asm__ __volatile__ ( "stfiwx %0, %1, %2" : : "f" (converted2), "b%" (0), "r" (buffer) : "memory" );
 			startingFloat = (src++)[0];
 		}
-		
+
 		//Virtual Cycle 7
 		(dst++)[0] = copy;
 		copy = ((short*) buffer)[2];
 		__stfiwx( converted, sizeof(float), buffer );
 		converted = __fctiw( scaled );
 		scaled = startingFloat * scale + round;
-		
+
 		//Virtual Cycle 8
 		(dst++)[0] = copy;
 		copy = ((short*) buffer)[0];
 		__stfiwx( converted, 0, buffer );
 		converted = __fctiw( scaled );
-	
+
 		//Virtual Cycle 9
 		(dst++)[0] = copy;
 		copy = ((short*) buffer)[2];
 		__stfiwx( converted, sizeof(float), buffer );
-		
+
 		//Virtual Cycle 10
 		(dst++)[0] = copy;
 		copy = ((short*) buffer)[0];
-	
+
 		//Virtual Cycle 11
 		(dst++)[0] = copy;
 		copy = ((short*) buffer)[2];
@@ -2787,63 +2787,63 @@ void Float32ToSwapInt16( float *src, signed short *dst, unsigned int count )
 	//	Because of the do nothing stage, the inner loop had to be unrolled by one, so in actuality, each
 	//	inner loop iteration represents two virtual clock cycles that push data through our virtual pipeline.
 	//
-	//	The reason why this works is that this allows us to break data dependency chains and insert 5 real 
-	//	operations in between every virtual pipeline stage. This means 5 instructions between each data 
-	//	dependency, which is just enough to keep all of our real pipelines happy. The data flow follows 
+	//	The reason why this works is that this allows us to break data dependency chains and insert 5 real
+	//	operations in between every virtual pipeline stage. This means 5 instructions between each data
+	//	dependency, which is just enough to keep all of our real pipelines happy. The data flow follows
 	//	standard pipeline diagrams:
 	//
 	//					stage1	stage2	stage3	stage4	stage5	stage6	stage7
 	//	virtual cycle 1:	data1	-		-		-		-		-		-
 	//	virtual cycle 2:	data2	data1	-		-		-		-		-
 	//	virtual cycle 3:	data3	data2	data1	-		-		-		-
-	//	virtual cycle 4:	data4	data3	data2	data1	-		-		-		
-	//	virtual cycle 5:	data5	data4	data3	data2	data1	-		-			   
-	//	virtual cycle 6:	data6	data5	data4	data3	data2	data1	-	
+	//	virtual cycle 4:	data4	data3	data2	data1	-		-		-
+	//	virtual cycle 5:	data5	data4	data3	data2	data1	-		-
+	//	virtual cycle 6:	data6	data5	data4	data3	data2	data1	-
 	//
 	//	inner loop:
-	//	  virtual cycle A:	data7	data6	data5	data4	data3	data2	data1					  
-	//	  virtual cycle B:	data8	data7	data6	data5	data4	data3	data2	
+	//	  virtual cycle A:	data7	data6	data5	data4	data3	data2	data1
+	//	  virtual cycle B:	data8	data7	data6	data5	data4	data3	data2
 	//
 	//	virtual cycle 7 -		dataF	dataE	dataD	dataC	dataB	dataA
-	//	virtual cycle 8 -		-		dataF	dataE	dataD	dataC	dataB	
+	//	virtual cycle 8 -		-		dataF	dataE	dataD	dataC	dataB
 	//	virtual cycle 9 -		-		-		dataF	dataE	dataD	dataC
-	//	virtual cycle 10	-		-		-		-		dataF	dataE	dataD  
-	//	virtual cycle 11	-		-		-		-		-		dataF	dataE	
-	//	virtual cycle 12	-		-		-		-		-		-		dataF						 
-	
+	//	virtual cycle 10	-		-		-		-		dataF	dataE	dataD
+	//	virtual cycle 11	-		-		-		-		-		dataF	dataE
+	//	virtual cycle 12	-		-		-		-		-		-		dataF
+
 	if( count >= 6 )
 	{
 		//virtual cycle 1
 		startingFloat = (src++)[0];
-		
+
 		//virtual cycle 2
 		scaled = startingFloat * scale + round;
 		startingFloat = (src++)[0];
-		
+
 		//virtual cycle 3
 		converted = __fctiw( scaled );
 		scaled = startingFloat * scale + round;
 		startingFloat = (src++)[0];
-		
+
 		//virtual cycle 4
 		__stfiwx( converted, 0, buffer );
 		converted = __fctiw( scaled );
 		scaled = startingFloat * scale + round;
 		startingFloat = (src++)[0];
-		
+
 		//virtual cycle 5
 		__stfiwx( converted, sizeof(float), buffer );
 		converted = __fctiw( scaled );
 		scaled = startingFloat * scale + round;
 		startingFloat = (src++)[0];
-		
+
 		//virtual cycle 6
 		copy = ((short*) buffer)[0];
 		__stfiwx( converted, 0, buffer );
 		converted = __fctiw( scaled );
 		scaled = startingFloat * scale + round;
 		startingFloat = (src++)[0];
-		
+
 		count -= 6;
 		loopCount = count / 2;
 		count &= 1;
@@ -2853,7 +2853,7 @@ void Float32ToSwapInt16( float *src, signed short *dst, unsigned int count )
 			register double scaled2;
 			register double converted2;
 			register short	copy2;
-			
+
 			//virtual Cycle A
 //			  (dst++)[0] = copy;
 			__asm__ __volatile__ ( "sthbrx %0, 0, %1" : : "r" (copy), "r" (dst) );
@@ -2866,36 +2866,36 @@ void Float32ToSwapInt16( float *src, signed short *dst, unsigned int count )
 			//virtual cycle B
 //			  (dst++)[0] = copy2;
 			dst+=2;
-			__asm__ __volatile__ ( "sthbrx %0, %1, %2" : : "r" (copy2), "b" (-2), "r" (dst) );	
+			__asm__ __volatile__ ( "sthbrx %0, %1, %2" : : "r" (copy2), "b" (-2), "r" (dst) );
 			__asm__ __volatile__ ( "fctiw %0, %1" : "=f" (converted) : "f" ( scaled2 ) );
 			copy = ((short*) buffer)[0];
 			__asm__ __volatile__ ( "fmadd %0, %1, %2, %3" : "=f" (scaled) : "f" ( startingFloat2), "f" (scale), "f" (round) );
 			__asm__ __volatile__ ( "stfiwx %0, %1, %2" : : "f" (converted2), "b%" (0), "r" (buffer) : "memory" );
-			startingFloat = (src)[-1];	
+			startingFloat = (src)[-1];
 		}
-		
+
 		//Virtual Cycle 7
 		__asm__ __volatile__ ( "sthbrx %0, 0, %1" : : "r" (copy),  "r" (dst) );	 dst++;
 		copy = ((short*) buffer)[2];
 		__stfiwx( converted, sizeof(float), buffer );
 		converted = __fctiw( scaled );
 		scaled = startingFloat * scale + round;
-		
+
 		//Virtual Cycle 8
 		__asm__ __volatile__ ( "sthbrx %0, 0, %1" : : "r" (copy),  "r" (dst) );	 dst++;
 		copy = ((short*) buffer)[0];
 		__stfiwx( converted, 0, buffer );
 		converted = __fctiw( scaled );
-	
+
 		//Virtual Cycle 9
 		__asm__ __volatile__ ( "sthbrx %0, 0, %1" : : "r" (copy),  "r" (dst) );	 dst++;
 		copy = ((short*) buffer)[2];
 		__stfiwx( converted, sizeof(float), buffer );
-		
+
 		//Virtual Cycle 10
 		__asm__ __volatile__ ( "sthbrx %0, 0, %1" : : "r" (copy),  "r" (dst) );	 dst++;
 		copy = ((short*) buffer)[0];
-	
+
 		//Virtual Cycle 11
 		__asm__ __volatile__ ( "sthbrx %0, 0, %1" : : "r" (copy),  "r" (dst) );	 dst++;
 		copy = ((short*) buffer)[2];
@@ -2911,7 +2911,7 @@ void Float32ToSwapInt16( float *src, signed short *dst, unsigned int count )
 		double converted = __fctiw( scaled );
 		__stfiwx( converted, 0, buffer );
 		copy = buffer[0] >> 16;
-		__asm__ __volatile__ ( "sthbrx %0, 0, %1" : : "r" (copy),  "r" (dst) );	 
+		__asm__ __volatile__ ( "sthbrx %0, 0, %1" : : "r" (copy),  "r" (dst) );
 		src++;
 		dst++;
 	}
@@ -3006,7 +3006,7 @@ void Float32ToNativeInt24( float *src, signed long *dst, unsigned int count )
 	//	virtual cycle 12	-	-	-	-		dataH	dataG	dataF	dataE	dataD
 	//	virtual cycle 13	-	-	-	-		-		dataH	dataG	dataF	dataE
 	//	virtual cycle 14	-	-	-	-		-		-		dataH	dataG	dataF
-	//	virtual cycle 15	-	-	-	-		-		-		-	dataH	dataG	
+	//	virtual cycle 15	-	-	-	-		-		-		-	dataH	dataG
 	//	virtual cycle 16	-	-	-	-		-		-		-	-	dataH
 
 	src--;
@@ -3262,7 +3262,7 @@ void Float32ToSwapInt24( float *src, signed long *dst, unsigned int count )
 	//	virtual cycle 12	-	-	-	-		dataH	dataG	dataF	dataE	dataD
 	//	virtual cycle 13	-	-	-	-		-		dataH	dataG	dataF	dataE
 	//	virtual cycle 14	-	-	-	-		-		-		dataH	dataG	dataF
-	//	virtual cycle 15	-	-	-	-		-		-		-	dataH	dataG	
+	//	virtual cycle 15	-	-	-	-		-		-		-	dataH	dataG
 	//	virtual cycle 16	-	-	-	-		-		-		-	-	dataH
 
 	src--;
@@ -3446,21 +3446,21 @@ void Float32ToSwapInt32( float *src, signed long *dst, unsigned int count )
 			int		i[2];
 		}setting;
 		register double newSetting;
-		
+
 		//Read the the current FPSCR value
 		asm volatile ( "mffs %0" : "=f" ( oldSetting ) );
-		
+
 		//Store it to the stack
 		setting.d = oldSetting;
-		
-		//Read in the low 32 bits and mask off the last two bits so they are zero 
+
+		//Read in the low 32 bits and mask off the last two bits so they are zero
 		//in the integer unit. These two bits set to zero means round to nearest mode.
 		//Finally, then store the result back
 		setting.i[1] &= 0xFFFFFFFC;
-		
+
 		//Load the new FPSCR setting into the FP register file again
 		newSetting = setting.d;
-		
+
 		//Change the FPSCR to the new setting
 		asm volatile( "mtfsf 7, %0" : : "f" (newSetting ) );
 	}
@@ -3481,63 +3481,63 @@ void Float32ToSwapInt32( float *src, signed long *dst, unsigned int count )
 	//	Because of the do nothing stage, the inner loop had to be unrolled by one, so in actuality, each
 	//	inner loop iteration represents two virtual clock cycles that push data through our virtual pipeline.
 	//
-	//	The reason why this works is that this allows us to break data dependency chains and insert 5 real 
-	//	operations in between every virtual pipeline stage. This means 5 instructions between each data 
-	//	dependency, which is just enough to keep all of our real pipelines happy. The data flow follows 
+	//	The reason why this works is that this allows us to break data dependency chains and insert 5 real
+	//	operations in between every virtual pipeline stage. This means 5 instructions between each data
+	//	dependency, which is just enough to keep all of our real pipelines happy. The data flow follows
 	//	standard pipeline diagrams:
 	//
 	//				stage1	stage2	stage3	stage4	stage5	stage6	stage7
 	//	virtual cycle 1:	data1	-	-	-		-		-		-
 	//	virtual cycle 2:	data2	data1	-	-		-		-		-
 	//	virtual cycle 3:	data3	data2	data1	-		-		-		-
-	//	virtual cycle 4:	data4	data3	data2	data1	-		-		-		
-	//	virtual cycle 5:	data5	data4	data3	data2	data1	-		-			   
-	//	virtual cycle 6:	data6	data5	data4	data3	data2	data1	-	
+	//	virtual cycle 4:	data4	data3	data2	data1	-		-		-
+	//	virtual cycle 5:	data5	data4	data3	data2	data1	-		-
+	//	virtual cycle 6:	data6	data5	data4	data3	data2	data1	-
 	//
 	//	inner loop:
-	//	  virtual cycle A:	data7	data6	data5	data4	data3	data2	data1					  
-	//	  virtual cycle B:	data8	data7	data6	data5	data4	data3	data2	
+	//	  virtual cycle A:	data7	data6	data5	data4	data3	data2	data1
+	//	  virtual cycle B:	data8	data7	data6	data5	data4	data3	data2
 	//
 	//	virtual cycle 7		-	dataF	dataE	dataD	dataC	dataB	dataA
-	//	virtual cycle 8		-	-	dataF	dataE	dataD	dataC	dataB	
+	//	virtual cycle 8		-	-	dataF	dataE	dataD	dataC	dataB
 	//	virtual cycle 9		-	-	-	dataF	dataE	dataD	dataC
-	//	virtual cycle 10	-	-	-	-		dataF	dataE	dataD  
-	//	virtual cycle 11	-	-	-	-		-		dataF	dataE	
-	//	virtual cycle 12	-	-	-	-		-		-		dataF						 
-	
+	//	virtual cycle 10	-	-	-	-		dataF	dataE	dataD
+	//	virtual cycle 11	-	-	-	-		-		dataF	dataE
+	//	virtual cycle 12	-	-	-	-		-		-		dataF
+
 	if( count >= 6 )
 	{
 		//virtual cycle 1
 		startingFloat = (src++)[0];
-		
+
 		//virtual cycle 2
 		scaled = startingFloat * scale;
 		startingFloat = (src++)[0];
-		
+
 		//virtual cycle 3
 		converted = __fctiw( scaled );
 		scaled = startingFloat * scale;
 		startingFloat = (src++)[0];
-		
+
 		//virtual cycle 4
 		__stfiwx( converted, 0, buffer );
 		converted = __fctiw( scaled );
 		scaled = startingFloat * scale;
 		startingFloat = (src++)[0];
-		
+
 		//virtual cycle 5
 		__stfiwx( converted, sizeof(float), buffer );
 		converted = __fctiw( scaled );
 		scaled = startingFloat * scale;
 		startingFloat = (src++)[0];
-		
+
 		//virtual cycle 6
 		copy = buffer[0];
 		__stfiwx( converted, 0, buffer );
 		converted = __fctiw( scaled );
 		scaled = startingFloat * scale;
 		startingFloat = (src++)[0];
-		
+
 		count -= 6;
 		loopCount = count / 2;
 		count &= 1;
@@ -3547,7 +3547,7 @@ void Float32ToSwapInt32( float *src, signed long *dst, unsigned int count )
 			register double scaled2;
 			register double converted2;
 			register long	copy2;
-			
+
 			//virtual Cycle A
 //			  (dst++)[0] = copy;
 			__asm__ __volatile__ ( "stwbrx %0, 0, %1" : : "r" (copy), "r" (dst) );
@@ -3560,36 +3560,36 @@ void Float32ToSwapInt32( float *src, signed long *dst, unsigned int count )
 			//virtual cycle B
 //			  (dst++)[0] = copy2;
 			dst+=2;
-			__asm__ __volatile__ ( "stwbrx %0, %1, %2" : : "r" (copy2), "b" (-sizeof(dst[0])), "r" (dst) );	 
+			__asm__ __volatile__ ( "stwbrx %0, %1, %2" : : "r" (copy2), "b" (-sizeof(dst[0])), "r" (dst) );
 			__asm__ __volatile__ ( "fctiw %0, %1" : "=f" (converted) : "f" ( scaled2 ) );
 			copy = buffer[0];
 			__asm__ __volatile__ ( "fmuls %0, %1, %2" : "=f" (scaled) : "f" ( startingFloat2), "f" (scale) );
 			__asm__ __volatile__ ( "stfiwx %0, %1, %2" : : "f" (converted2), "b%" (0), "r" (buffer) : "memory" );
-			startingFloat = (src)[-1];	
+			startingFloat = (src)[-1];
 		}
-		
+
 		//Virtual Cycle 7
 		__asm__ __volatile__ ( "stwbrx %0, 0, %1" : : "r" (copy),  "r" (dst) );	 dst++;
 		copy = buffer[1];
 		__stfiwx( converted, sizeof(float), buffer );
 		converted = __fctiw( scaled );
 		scaled = startingFloat * scale;
-		
+
 		//Virtual Cycle 8
 		__asm__ __volatile__ ( "stwbrx %0, 0, %1" : : "r" (copy),  "r" (dst) );	 dst++;
 		copy =	buffer[0];
 		__stfiwx( converted, 0, buffer );
 		converted = __fctiw( scaled );
-	
+
 		//Virtual Cycle 9
 		__asm__ __volatile__ ( "stwbrx %0, 0, %1" : : "r" (copy),  "r" (dst) );	 dst++;
 		copy = buffer[1];
 		__stfiwx( converted, sizeof(float), buffer );
-		
+
 		//Virtual Cycle 10
 		__asm__ __volatile__ ( "stwbrx %0, 0, %1" : : "r" (copy),  "r" (dst) );	 dst++;
 		copy = buffer[0];
-	
+
 		//Virtual Cycle 11
 		__asm__ __volatile__ ( "stwbrx %0, 0, %1" : : "r" (copy),  "r" (dst) );	 dst++;
 		copy = buffer[1];
@@ -3605,11 +3605,11 @@ void Float32ToSwapInt32( float *src, signed long *dst, unsigned int count )
 		double converted = __fctiw( scaled );
 		__stfiwx( converted, 0, buffer );
 		copy = buffer[0];
-		__asm__ __volatile__ ( "stwbrx %0, 0, %1" : : "r" (copy),  "r" (dst) );	 
+		__asm__ __volatile__ ( "stwbrx %0, 0, %1" : : "r" (copy),  "r" (dst) );
 		src++;
 		dst++;
 	}
-	
+
 	//restore the old FPSCR setting
 	__asm__ __volatile__ ( "mtfsf 7, %0" : : "f" (oldSetting) );
 }
@@ -3631,21 +3631,21 @@ void Float32ToNativeInt32( float *src, signed long *dst, unsigned int count )
 			int		i[2];
 		}setting;
 		register double newSetting;
-		
+
 		//Read the the current FPSCR value
 		asm volatile ( "mffs %0" : "=f" ( oldSetting ) );
-		
+
 		//Store it to the stack
 		setting.d = oldSetting;
-		
-		//Read in the low 32 bits and mask off the last two bits so they are zero 
+
+		//Read in the low 32 bits and mask off the last two bits so they are zero
 		//in the integer unit. These two bits set to zero means round to -infinity mode.
 		//Finally, then store the result back
 		setting.i[1] &= 0xFFFFFFFC;
-		
+
 		//Load the new FPSCR setting into the FP register file again
 		newSetting = setting.d;
-		
+
 		//Change the FPSCR to the new setting
 		asm volatile( "mtfsf 7, %0" : : "f" (newSetting ) );
 	}
@@ -3664,33 +3664,33 @@ void Float32ToNativeInt32( float *src, signed long *dst, unsigned int count )
 	//
 	//	The data flow follows standard pipeline diagrams:
 	//
-	//				stage1	stage2	stage3	stage4	
-	//	virtual cycle 1:	data1	-	-	-	   
-	//	virtual cycle 2:	data2	data1	-	-	   
-	//	virtual cycle 3:	data3	data2	data1	-			 
+	//				stage1	stage2	stage3	stage4
+	//	virtual cycle 1:	data1	-	-	-
+	//	virtual cycle 2:	data2	data1	-	-
+	//	virtual cycle 3:	data3	data2	data1	-
 	//
 	//	inner loop:
-	//	  virtual cycle A:	data4	data3	data2	data1					  
-	//	  virtual cycle B:	data5	data4	data3	data2	
+	//	  virtual cycle A:	data4	data3	data2	data1
+	//	  virtual cycle B:	data5	data4	data3	data2
 	//	  ...
-	//	virtual cycle 4		-	dataD	dataC	dataB	
+	//	virtual cycle 4		-	dataD	dataC	dataB
 	//	virtual cycle 5		-	-		dataD	dataC
-	//	virtual cycle 6		-	-	-	dataD  
-	
+	//	virtual cycle 6		-	-	-	dataD
+
 	if( count >= 3 )
 	{
 		//virtual cycle 1
 		startingFloat = (src++)[0];
-		
+
 		//virtual cycle 2
 		scaled = startingFloat * scale;
 		startingFloat = (src++)[0];
-		
+
 		//virtual cycle 3
 		converted = __fctiw( scaled );
 		scaled = startingFloat * scale;
 		startingFloat = (src++)[0];
-				
+
 		count -= 3;
 		loopCount = count / 2;
 		count &= 1;
@@ -3700,7 +3700,7 @@ void Float32ToNativeInt32( float *src, signed long *dst, unsigned int count )
 			register double scaled2;
 			register double converted2;
 			//register short	copy2;
-			
+
 			//virtual Cycle A
 			startingFloat2 = (src)[0];
 			__asm__ __volatile__ ( "fmul %0, %1, %2" : "=f" (scaled2) : "f" ( startingFloat), "f" (scale) );
@@ -3708,22 +3708,22 @@ void Float32ToNativeInt32( float *src, signed long *dst, unsigned int count )
 			__asm__ __volatile__ ( "fctiw %0, %1" : "=f" (converted2) : "f" ( scaled ) );
 
 			//virtual cycle B
-		   startingFloat = (src)[1];	 src+=2; 
+		   startingFloat = (src)[1];	 src+=2;
 			__asm__ __volatile__ ( "fmul %0, %1, %2" : "=f" (scaled) : "f" ( startingFloat2), "f" (scale) );
 			__asm__ __volatile__ ( "stfiwx %0, %1, %2" : : "f" (converted2), "b%" (4), "r" (dst) : "memory" );
 			__asm__ __volatile__ ( "fctiw %0, %1" : "=f" (converted) : "f" ( scaled2 ) );
 			dst+=2;
 		}
-		
+
 		//Virtual Cycle 4
 		__stfiwx( converted, 0, dst++ );
 		converted = __fctiw( scaled );
 		__asm__ __volatile__ ( "fmul %0, %1, %2" : "=f" (scaled) : "f" ( startingFloat), "f" (scale) );
-		
+
 		//Virtual Cycle 5
 		__stfiwx( converted, 0, dst++ );
 		converted = __fctiw( scaled );
-	
+
 		//Virtual Cycle 6
 		__stfiwx( converted, 0, dst++ );
 	}
@@ -3763,12 +3763,12 @@ IOReturn VoodooHDAEngine::clipOutputSamples(const void *mixBuf, void *sampleBuf,
 	UInt8* theOutputBufferSInt24;
 	SInt32* theOutputBufferSInt32;
 	long int noiseMask = ~((long int)(1 << mChannel->noiseLevel) - 1);
-#ifndef TIGER	
+#ifndef TIGER
 	bool SSE2 = mChannel->vectorize;
 	UInt8 *sourceBuf = (UInt8 *) sampleBuf;
-#endif	
+#endif
 	bool Stereo = mChannel->useStereo;
-	int base = mChannel->StereoBase; 
+	int base = mChannel->StereoBase;
 	if (base) base = mChannel->StereoBase * 2 - 14;
 	if (Stereo && base) {
 		if (base > 0) {
@@ -3782,7 +3782,7 @@ IOReturn VoodooHDAEngine::clipOutputSamples(const void *mixBuf, void *sampleBuf,
 						floatMixBuf2[i+1] += floatMixBufOld[i]/2.0;
 					} else {
 						floatMixBuf2[i] += floatMixBuf2[i+1]/2.0;
-						floatMixBuf2[i+1] += floatMixBuf2[i]/2.0;						
+						floatMixBuf2[i+1] += floatMixBuf2[i]/2.0;
 					}
 
 				} else {
@@ -3794,13 +3794,13 @@ IOReturn VoodooHDAEngine::clipOutputSamples(const void *mixBuf, void *sampleBuf,
 			//Simple mixer
 			for (int i=firstSample; i<lastSample; i+=2) {
 				floatMixBuf2[i] += (floatMixBuf2[i+1]/10.0) * base;
-				floatMixBuf2[i+1] += (floatMixBuf2[i]/10.0) * base;						
-			}			
+				floatMixBuf2[i+1] += (floatMixBuf2[i]/10.0) * base;
+			}
 		} else
 			for (int i=0; i<(int)numSamples; i+=2) {
 				floatMixBuf[i] -= (floatMixBuf[i+1]/10.0) * base;
 				floatMixBuf[i+1] -= (floatMixBuf[i]/10.0) * base;
-			}			
+			}
 	}
 	if (Boost) {
 		for (int i=firstSample; i<lastSample; i++) {
@@ -3814,89 +3814,89 @@ IOReturn VoodooHDAEngine::clipOutputSamples(const void *mixBuf, void *sampleBuf,
 	if ((streamFormat->fSampleFormat == kIOAudioStreamSampleFormatLinearPCM) && streamFormat->fIsMixable) {
 		// it's mixable linear PCM, which means we will be calling a blitter, which works in samples
 		// not frames
-		
+
 		if (streamFormat->fNumericRepresentation == kIOAudioStreamNumericRepresentationSignedInt) {
 			// it's some kind of signed integer, which we handle as some kind of even byte length
 			bool nativeEndianInts;
 			nativeEndianInts = (streamFormat->fByteOrder == kIOAudioStreamByteOrderLittleEndian);
-			
+
 			switch (streamFormat->fBitWidth) {
 				case 8:
-					theOutputBufferSInt8 = ((SInt8*)sampleBuf) + firstSample;				
+					theOutputBufferSInt8 = ((SInt8*)sampleBuf) + firstSample;
 						ClipFloat32ToSInt8_4(floatMixBuf, theOutputBufferSInt8, numSamples);
 					break;
-					
+
 				case 16:
 					theOutputBufferSInt16 = ((SInt16*)sampleBuf) + firstSample;
 					if (nativeEndianInts) {
-#ifndef TIGER						
+#ifndef TIGER
 						if (SSE2) {
 							Float32ToNativeInt16(floatMixBuf, theOutputBufferSInt16, numSamples);
 							for (int i=0; i<(int)numSamples; i++) {
 								theOutputBufferSInt16[i] &= noiseMask;
 							}
-							
+
 						} else
-#endif							
+#endif
 						{
 							ClipFloat32ToSInt16LE_4(floatMixBuf, theOutputBufferSInt16, numSamples);
 						}
 					}
-#ifndef TIGER						
+#ifndef TIGER
 					else
 						Float32ToSwapInt16(floatMixBuf, theOutputBufferSInt16, numSamples);
-#endif					
+#endif
 					break;
-					
+
 				case 20:
 				case 24:
-					
+
 					theOutputBufferSInt24 = ((UInt8*)sampleBuf) + (firstSample * 3);
 					if (nativeEndianInts) {
-#ifndef TIGER						
+#ifndef TIGER
 						if (SSE2) {
 							Float32ToNativeInt24(floatMixBuf, theOutputBufferSInt24, numSamples);
-						} else 
-#endif							
+						} else
+#endif
 						{
-							ClipFloat32ToSInt24LE_8(floatMixBuf, (SInt32*)theOutputBufferSInt24, numSamples);		
+							ClipFloat32ToSInt24LE_8(floatMixBuf, (SInt32*)theOutputBufferSInt24, numSamples);
 						}
 					}
-#ifndef TIGER						
+#ifndef TIGER
 					else
 						Float32ToSwapInt24(floatMixBuf, theOutputBufferSInt24, numSamples);
 #endif
 					break;
-					
+
 				case 32:
 					theOutputBufferSInt32 = ((SInt32*)sampleBuf) + firstSample;
 					if (nativeEndianInts) {
-#ifndef TIGER						
+#ifndef TIGER
 						if (SSE2) {
 							Float32ToNativeInt32(floatMixBuf, theOutputBufferSInt32, numSamples);
 							for (int i=0; i<(int)numSamples; i++) {
 								theOutputBufferSInt32[i] &= noiseMask;
 							}
-							
+
 						} else
-#endif						
-						{					
+#endif
+						{
 							ClipFloat32ToSInt32LE_4(floatMixBuf, theOutputBufferSInt32, numSamples);
 						}
-						
+
 					}
-#ifndef TIGER						
+#ifndef TIGER
 					else
 						Float32ToSwapInt32(floatMixBuf, (SInt32 *) &sourceBuf[4 * firstSample],
 										   numSamples);
-#endif					
+#endif
 					break;
-					
+
 				default:
 					IOLog("clipOutputSamples: can't handle signed integers with a bit width of %d",
 							 streamFormat->fBitWidth);
 					break;
-					
+
 			}
 		} else if (streamFormat->fNumericRepresentation == kIOAudioStreamNumericRepresentationIEEE754Float) {
 			// it is some kind of floating point format
@@ -3916,7 +3916,7 @@ IOReturn VoodooHDAEngine::clipOutputSamples(const void *mixBuf, void *sampleBuf,
 //        memcpy(&((SInt8 *) sampleBuf)[offset], &((SInt8 *) mixBuf)[offset], size);
         memcpy((UInt8 *)sampleBuf + offset, (UInt8 *)mixBuf, size);
 	}
-	
+
 	return kIOReturnSuccess;
 }
 
@@ -3926,75 +3926,75 @@ IOReturn VoodooHDAEngine::convertInputSamples(const void *sampleBuf, void *destB
 {
 	UInt32	numSamplesLeft, numSamples;
 	float 	*floatDestBuf;
-	
+
     floatDestBuf = (float *)destBuf;
 	UInt32 firstSample = firstSampleFrame * streamFormat->fNumChannels;
 	numSamples = numSamplesLeft = numSampleFrames * streamFormat->fNumChannels;
 	long int noiseMask = ~((long int)(1 << mChannel->noiseLevel) - 1);
-	
+
 	SInt8 *inputBuf8;
 	SInt16 *inputBuf16;
 	const UInt8 *inputBuf24;
 	SInt32 *inputBuf32;
-#ifndef TIGER	
+#ifndef TIGER
 	bool SSE2 = mChannel->vectorize;
-#endif	
-	
+#endif
+
 	// figure out what sort of blit we need to do
 	if ((streamFormat->fSampleFormat == kIOAudioStreamSampleFormatLinearPCM) && streamFormat->fIsMixable) {
 		// it's linear PCM, which means the target is Float32 and we will be calling a blitter, which
 		// works in samples not frames
 //		Float32 *floatDestBuf = (Float32 *) destBuf;
-		
+
 		if (streamFormat->fNumericRepresentation == kIOAudioStreamNumericRepresentationSignedInt) {
 			// it's some kind of signed integer, which we handle as some kind of even byte length
 			bool nativeEndianInts;
 			nativeEndianInts = (streamFormat->fByteOrder == kIOAudioStreamByteOrderLittleEndian);
-			
+
 			switch (streamFormat->fBitWidth) {
 				case 8:
 					inputBuf8  = &(((SInt8 *)sampleBuf)[firstSample]);
-					while (numSamplesLeft-- > 0) 
-					{	
+					while (numSamplesLeft-- > 0)
+					{
 						*(floatDestBuf++) = (float)(*(inputBuf8++) &= (SInt8)noiseMask) * kOneOverMaxSInt8Value;
 					}
 					break;
 				case 16:
 					inputBuf16 = &(((SInt16 *)sampleBuf)[firstSample]);
 					if (nativeEndianInts) {
-#ifndef TIGER						
+#ifndef TIGER
 						if (SSE2) {
 							NativeInt16ToFloat32(inputBuf16, floatDestBuf, numSamples);
 						} else {
-#endif							
-							while (numSamplesLeft-- > 0) 
-							{	
+#endif
+							while (numSamplesLeft-- > 0)
+							{
 								*(floatDestBuf++) = (float)(*(inputBuf16++) &= (SInt16)noiseMask) * kOneOverMaxSInt16Value;
 							}
-							
+
 						}
-#ifndef TIGER							
+#ifndef TIGER
 					} else
 						SwapInt16ToFloat32(inputBuf16, floatDestBuf, numSamples);
-#endif				
+#endif
 					break;
-					
+
 				case 20:
 				case 24: //impossible for Intel chipset, dunno for other
 					inputBuf24 = &(((UInt8 *)sampleBuf)[firstSample * 3]);
 					if (nativeEndianInts){
-#ifndef TIGER						
+#ifndef TIGER
 						if (SSE2) {
 							NativeInt24ToFloat32(inputBuf24, floatDestBuf, numSamples);
 						} else
-#endif							
+#endif
 						{
 							// Multiply by 3 because 20 and 24 bit samples are packed into only three bytes, so we have to index bytes, not shorts or longs
 							register SInt32 inputSample;
-							
+
 							// [rdar://4311684] - Fixed 24-bit input convert routine. /thw
-							while (numSamplesLeft-- > 1) 
-							{	
+							while (numSamplesLeft-- > 1)
+							{
 								inputSample = (* (UInt32 *)inputBuf24) & 0x00FFFFFF & noiseMask;
 								// Sign extend if necessary
 								if (inputSample > 0x7FFFFF)
@@ -4010,51 +4010,51 @@ IOReturn VoodooHDAEngine::convertInputSamples(const void *sampleBuf, void *destB
 							*(floatDestBuf++) = (float)inputSample * kOneOverMaxSInt24Value;
 						}
 					}
-#ifndef TIGER						
+#ifndef TIGER
 					else
 						SwapInt24ToFloat32(inputBuf24, floatDestBuf, numSamples);
-#endif					
+#endif
 					break;
-					
+
 				case 32:
 					inputBuf32 = &(((SInt32 *)sampleBuf)[firstSample]);
 					if (nativeEndianInts) {
-#ifndef TIGER						
+#ifndef TIGER
 						if (SSE2) {
 							NativeInt32ToFloat32(inputBuf32, floatDestBuf, numSamples);
 						} else
-#endif							
+#endif
 						{
-							while (numSamplesLeft-- > 0) {	
+							while (numSamplesLeft-- > 0) {
 								*(floatDestBuf++) = (float)(*(inputBuf32++) & noiseMask) * kOneOverMaxSInt32Value;
 							}
 						}
 					}
-#ifndef TIGER						
+#ifndef TIGER
 					else
 						SwapInt32ToFloat32(inputBuf32, floatDestBuf, numSamples);
-#endif					
+#endif
 					break;
-					
+
 				default:
 					IOLog("convertInputSamples: can't handle signed integers with a bit width of %d",
 							 streamFormat->fBitWidth);
 					break;
-					
+
 			}
-			
+
 			//Меняю местами значения для левого и правого канала
 			if(mDevice && mDevice->mSwitchCh && (streamFormat->fNumChannels > 1)) {
 				UInt32 i;
 				Float32 tempSamples;
-				
+
 				for(i = 0; i < numSamples; i+= streamFormat->fNumChannels) {
 					tempSamples = floatDestBuf[i];
 					floatDestBuf[i] = floatDestBuf[i+1];
 					floatDestBuf[i+1] = tempSamples;
 				}
 			}
-			
+
 		} else if (streamFormat->fNumericRepresentation == kIOAudioStreamNumericRepresentationIEEE754Float) {
 			// it is some kind of floating point format
 			if ((streamFormat->fBitWidth == 32) && (streamFormat->fBitDepth == 32) &&
@@ -4071,6 +4071,6 @@ IOReturn VoodooHDAEngine::convertInputSamples(const void *sampleBuf, void *destB
 		UInt32 size = numSampleFrames * (streamFormat->fBitWidth / 8) * streamFormat->fNumChannels;
 		memcpy((UInt8 *)destBuf, (UInt8 *)sampleBuf + offset, size);
 	}
-	
+
 	return kIOReturnSuccess;
 }

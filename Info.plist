@@ -47,9 +47,9 @@
 			<key>VoodooHDAEnableMuteFix</key>
 			<false/>
 			<key>InhibitCache</key>
-			<true/>
-			<key>Vectorize</key>
 			<false/>
+			<key>Vectorize</key>
+			<true/>
 			<key>AllowMSI</key>
 			<true/>
 			<key>Noise</key>
@@ -65,7 +65,7 @@
 				<key>Rec</key>
 				<integer>70</integer>
 				<key>PCM</key>
-				<integer>90</integer>
+				<integer>100</integer>
 				<key>iMix</key>
 				<integer>0</integer>
 				<key>iGain</key>

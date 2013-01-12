@@ -26,7 +26,7 @@ typedef struct {
 	UInt32 Node;
 	UInt32 Config;
 	UInt32 Type;
-	UInt32 nConns; //Число соединений 
+	UInt32 nConns; //Число соединений
 	UInt32 Conns[HDA_MAX_CONNS];
 	UInt32 Cap;
 	UInt32 Control;
@@ -45,7 +45,7 @@ typedef struct _volSlider{
 	UInt8 pcmDev; //к какому устройству PCM принадлежит регулятор
 	AudioControl *audioCtls[MAX_AUDIO_CTLS]; //Здесь перечислены какие AudioControl'ы затрагивает этот регулятор
 	UInt8 nAudioCtlsCount; //Здесь храниться число AudioControl в массиве audioCtls
-	
+
 	_volSlider() { //Конструктор по умолчанию
 		bzero(name, sizeof(name));
 		enabled = false;
@@ -59,7 +59,7 @@ typedef struct _sliderTab{
 	PcmDevice *pcmDevice; //Указатель на устройство PCM к которому принадлежат OSS Dev регуляторов на данной вкладке
 	volSlider volSliders[25]; //Регуляторы на вкладке
 	ChannelInfo *sliderChan;
-	
+
 	_sliderTab() {
 		pcmDevice = 0;
 		sliderChan = NULL;
@@ -86,7 +86,7 @@ public:
 	IOWorkLoop *mWorkLoop;
 
 	IOCommandGate::Action mActionHandler;
-//Slice	
+//Slice
 	OSArray *NodesToPatch;
 	int NumNodes;
 	PatchArray NodesToPatchArray[MAX_NODES];
@@ -94,7 +94,7 @@ public:
 //
 	bool mSwitchCh;
 	UInt32 Boost;
-	
+
 	const char *mControllerName;
 	UInt32 mDeviceId, mSubDeviceId;
 
@@ -156,7 +156,7 @@ public:
 	size_t mMsgBufferSize;
 	size_t mMsgBufferPos;
 	IOLock *mMessageLock;
-	
+
 	bool mSwitchEnable;
 	bool mInhibitCache;
 
@@ -235,7 +235,7 @@ public:
 	static void *reallocMem(void *addr, size_t size);
 	static void freeMem(void *addr);
 
-	DmaMemory *allocateDmaMemory(mach_vm_size_t size, const char *description);
+	DmaMemory *allocateDmaMemory(mach_vm_size_t size, const char *description, UInt32 cacheOption = kIOMapDefaultCache);
 	void freeDmaMemory(DmaMemory *dmaMemory);
 
 	void initCorb();
@@ -272,7 +272,7 @@ public:
 	void audioCtlAmpSetInternal(nid_t cad, nid_t nid, int index, int lmute, int rmute, int left, int right,
 			int direction);
 	void audioCtlAmpSet(AudioControl *ctl, UInt32 mute, int left, int right);
-	void audioCtlAmpGetInternal(nid_t cad, nid_t nid, int index, int *lmute, int *rmute, int *left, int *right, 
+	void audioCtlAmpGetInternal(nid_t cad, nid_t nid, int index, int *lmute, int *rmute, int *left, int *right,
 								int direction);
 	void audioCtlAmpGetGain(AudioControl *control);
 	void widgetConnectionSelect(Widget *widget, UInt8 index);
@@ -362,24 +362,24 @@ public:
 	int bdlAlloc(Channel *channel);
 
 	int pcmAttach(PcmDevice *pcmDevice);
-//AutumnRain	
+//AutumnRain
 /***************/
-	
+
 	sliderTab sliderTabs[25];
 	UInt8 nSliderTabsCount;
-	
+
 	ChannelInfo *mPrefPanelMemoryBuf;
 	bool mPrefPanelMemoryBufEnabled;
 	size_t mPrefPanelMemoryBufSize;
 	IOLock *mPrefPanelMemoryBufLock;
 	void lockPrefPanelMemoryBuf();
 	void unlockPrefPanelMemoryBuf();
-	
+
 	void catPinName(Widget *widget); //UInt32 config, char *buf, size_t size);
-	
+
 	void changeSliderValue(UInt8 tabNum, UInt8 sliderNum, UInt8 newValue);
 	void setMath(UInt8 tabNum, UInt8 sliderNum, UInt8 newValue);
-	
+
 	//Создаем разделяемую область памяти, откуда будет брать информацию PrefPanel
 	void createPrefPanelMemoryBuf(FunctionGroup *funcGroup);
 	//Создаем структуру в которой запомним какие объекты AudioControl каким регуляторам на панели PrefPanel соотвествуют
@@ -387,21 +387,21 @@ public:
 	//Считываем текущее настройки усиления и сохраняем их в разделяемой памяти
 	void updatePrefPanelMemoryBuf(void);
 	void freePrefPanelMemoryBuf(void);
-	
+
 	/*********************/
-	
+
 	struct assocTree{
 		nid_t nid[MAX_TREE_LENGHT];
 		int count;
 	} treePin[16];
-	
+
 	/*********************/
-	
+
 	char *mExtMsgBuffer;
 	size_t mExtMsgBufferSize;
 	size_t mExtMsgBufferPos;
 	IOLock *mExtMessageLock;
-	
+
 	void lockExtMsgBuffer();
 	void unlockExtMsgBuffer();
 	void dumpExtMsg(const char *format, ...) __attribute__ ((format (printf, 2, 3)));
@@ -412,7 +412,7 @@ public:
 	void extDumpNodes(FunctionGroup *funcGroup);
 	void extDumpCtls(PcmDevice *pcmDevice, const char *banner, UInt32 flag);
 	void extDumpPin(Widget *widget);
-	
+
 	/*********************/
 	void initMixerDefaultValues(void);
 };

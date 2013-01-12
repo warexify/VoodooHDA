@@ -53,9 +53,9 @@ bool VoodooHDADevice::init(OSDictionary *dict)
 	mVerbose = 0;
 	if (!super::init(dict))
 		return false;
-	
+
 	dumpMsg("Loading VoodooHDA %s (based on hdac version " HDAC_REVISION ")\n", kmod_info.version);
-	
+
 //	ASSERT(dict);
 	verboseLevelNum = OSDynamicCast(OSNumber, dict->getObject(kVoodooHDAVerboseLevelKey));
 	if (verboseLevelNum)
@@ -76,7 +76,7 @@ bool VoodooHDADevice::init(OSDictionary *dict)
 	} else {
 		mEnableVolumeChangeFix = false;
 	}
-	
+
 	// Half volume slider fix
 	osBool = OSDynamicCast(OSBoolean, dict->getObject(kVoodooHDAEnableHalfVolumeFixKey));
 	if (osBool) {
@@ -84,7 +84,7 @@ bool VoodooHDADevice::init(OSDictionary *dict)
 	} else {
 		mEnableHalfVolumeFix = false;
 	}
-    
+
     // VertexBZ: Half Mic volume slider fix
     osBool = OSDynamicCast(OSBoolean, dict->getObject(kVoodooHDAEnableHalfMicVolumeFixKey));
 	if (osBool) {
@@ -92,14 +92,14 @@ bool VoodooHDADevice::init(OSDictionary *dict)
 	} else {
 		mEnableHalfMicVolumeFix = false;
 	}
-    
+
     // VertexBZ: Mute fix
     osBool = OSDynamicCast(OSBoolean, dict->getObject(kVoodooHDAEnableMuteFixKey));
 	if (osBool) {
 		mEnableMuteFix = (bool)osBool->getValue();
 	} else {
 		mEnableMuteFix = false;
-	}    
+	}
 
 //Slice - some chipsets needed Inhibit Cache
 	osBool = OSDynamicCast(OSBoolean, dict->getObject("InhibitCache"));
@@ -144,7 +144,7 @@ bool VoodooHDADevice::init(OSDictionary *dict)
 	mMsgBufferEnabled = false;
 	mMsgBufferSize = MSG_BUFFER_SIZE;
 	mMsgBufferPos = 0;
-	
+
 	mSwitchCh = false;
 //TODO - allocMem at init??? May be better to move it into start?
 	mMsgBuffer = (char *) allocMem(mMsgBufferSize);
@@ -152,24 +152,24 @@ bool VoodooHDADevice::init(OSDictionary *dict)
 		errorMsg("error: couldn't allocate message buffer (%ld bytes)\n", mMsgBufferSize);
 		return false;
 	}
-	
+
 	mExtMessageLock = IOLockAlloc();
 	mExtMsgBufferSize = MSG_BUFFER_SIZE;
 	mExtMsgBufferPos = 0;
-	
+
 	mExtMsgBuffer = (char *) allocMem(mExtMsgBufferSize);
 	if (!mExtMsgBuffer) {
 		errorMsg("error: couldn't allocate ext message buffer (%ld bytes)\n", mExtMsgBufferSize);
 		return false;
 	}
-*/	
+*/
 	nSliderTabsCount = 0;
 	mPrefPanelMemoryBufSize = 0;
 	mPrefPanelMemoryBuf = 0;
 
 //	if (!super::init(dict))
 //		return false;
-	
+
 	return true;
 }
 
@@ -184,14 +184,14 @@ void VoodooHDADevice::initMixerDefaultValues(void)
 	int index;
 	OSString *tmpString = 0;
 //	int MixValueCount = sizeof(MixerValueNamesBind) / sizeof(MixerValueName);
-	
+
 	MixerValues = OSDynamicCast(OSDictionary, getProperty("MixerValues"));
 
 	for(int i=0; i<SOUND_MIXER_NRDEVICES; i++){
-						
+
 		tmpUI16 = MixerValueNamesBind[i].initValue;
-	
-		
+
+
 		if(MixerValues && MixerValueNamesBind[i].name != 0 && MixerValueNamesBind[i].name[0] != 0) {
 			tmpNumber = OSDynamicCast(OSNumber, MixerValues->getObject(MixerValueNamesBind[i].name));
 			if (tmpNumber) {
@@ -210,10 +210,10 @@ void VoodooHDADevice::initMixerDefaultValues(void)
 			}
 		}
 		//logMsg("Item %d init %d, index %d\n", i , tmpUI16, MixerValueNamesBind[i].index);
-	
-		
+
+
 		index = MixerValueNamesBind[i].index;
-		if(index >= 0 && index < SOUND_MIXER_NRDEVICES) 
+		if(index >= 0 && index < SOUND_MIXER_NRDEVICES)
 			mMixerDefaults[index] = tmpUI16;
 	}
 }
@@ -233,10 +233,10 @@ IOService *VoodooHDADevice::probe(IOService *provider, SInt32 *score)
 	result = super::probe(provider, score);
 	if (result != static_cast<IOService*>(this))
 		return result;
-	
+
 	initMixerDefaultValues();
-	
-//Slice	
+
+//Slice
 	OSDictionary *tmpDict = 0;
 	OSIterator *iter = 0;
 	const OSSymbol *dictKey = 0;
@@ -247,14 +247,14 @@ IOService *VoodooHDADevice::probe(IOService *provider, SInt32 *score)
 	UInt32 tmpUIArray[HDA_MAX_CONNS];
 	UInt32 nArrayCount = 0;
 //	UInt32 j = 0;
-	
+
 	NodesToPatch = OSDynamicCast(OSArray, getProperty("NodesToPatch"));
 	if(NodesToPatch){
 		NumNodes = NodesToPatch->getCount();
 		for(int i=0; i<NumNodes; i++){
 			NodesToPatchArray[i].Enable = 0;
 			NodesToPatchArray[i].cad = 0;
-			tmpDict = OSDynamicCast(OSDictionary, NodesToPatch->getObject(i)); 
+			tmpDict = OSDynamicCast(OSDictionary, NodesToPatch->getObject(i));
 			iter = OSCollectionIterator::withCollection(tmpDict);
 			if (iter) {
 				while ((dictKey = (const OSSymbol *)iter->getNextObject())) {
@@ -280,12 +280,12 @@ IOService *VoodooHDADevice::probe(IOService *provider, SInt32 *score)
 							}
 							tmpUIArray[nArrayCount]= tmpUI32;
 							nArrayCount++;
-							
+
 							//logMsg("%d ", tmpUI32);
 						}
 						//logMsg("\n");
 					}else{
-					
+
 						tmpNumber = OSDynamicCast(OSNumber, tmpDict->getObject(dictKey));
 						if (tmpNumber) {
 							tmpUI32 = tmpNumber->unsigned32BitValue();
@@ -303,7 +303,7 @@ IOService *VoodooHDADevice::probe(IOService *provider, SInt32 *score)
 					}
 					tmpString = OSString::withCString(dictKey->getCStringNoCopy());
 					if(tmpString->isEqualTo("Node")){
-						if(tmpUI32 == 0) 
+						if(tmpUI32 == 0)
 							break;
 						NodesToPatchArray[i].Node = tmpUI32;
 					} else if (tmpString->isEqualTo("Config")){
@@ -340,7 +340,7 @@ IOService *VoodooHDADevice::probe(IOService *provider, SInt32 *score)
 						//Меняем левый канал на правый для входных данных
 						mSwitchCh = true;
 					}
-					
+
 				}
 			}
 		}
@@ -350,7 +350,7 @@ IOService *VoodooHDADevice::probe(IOService *provider, SInt32 *score)
 #if __LP64__
     for(int i=0; i<NumNodes; i++){
         dumpMsg("VHD Codec=%d Node=%d Config=%08lx Conns=%ld Type=%d\n", NodesToPatchArray[i].cad, NodesToPatchArray[i].Node,
-                (long unsigned int)NodesToPatchArray[i].Config, (long int)NodesToPatchArray[i].Conns, 
+                (long unsigned int)NodesToPatchArray[i].Config, (long int)NodesToPatchArray[i].Conns,
 				(int)NodesToPatchArray[i].Type);
     }
 #else
@@ -358,7 +358,7 @@ IOService *VoodooHDADevice::probe(IOService *provider, SInt32 *score)
         dumpMsg("VHD Codec=%d Node=%d Config=%08lx Conns=%d Type=%d\n", (int)NodesToPatchArray[i].cad, (int)NodesToPatchArray[i].Node,
                 NodesToPatchArray[i].Config, (int)NodesToPatchArray[i].Conns, (int)NodesToPatchArray[i].Type);
     }
-#endif//	
+#endif//
 	mPciNub = OSDynamicCast(IOPCIDevice, provider);
 	if (!mPciNub) {
 		errorMsg("error: couldn't cast provider to IOPCIDevice\n");
@@ -415,25 +415,25 @@ bool VoodooHDADevice::initHardware(IOService *provider)
   mMsgBufferEnabled = false;
 	mMsgBufferSize = MSG_BUFFER_SIZE;
 	mMsgBufferPos = 0;
-	
+
 	mSwitchCh = false;
 	mMsgBuffer = (char *) allocMem(mMsgBufferSize);
 	if (!mMsgBuffer) {
 		errorMsg("error: couldn't allocate message buffer (%ld bytes)\n", mMsgBufferSize);
 		return false;
 	}
-	
+
 	mExtMessageLock = IOLockAlloc();
 	mExtMsgBufferSize = MSG_BUFFER_SIZE;
 	mExtMsgBufferPos = 0;
-	
+
 	mExtMsgBuffer = (char *) allocMem(mExtMsgBufferSize);
 	if (!mExtMsgBuffer) {
 		errorMsg("error: couldn't allocate ext message buffer (%ld bytes)\n", mExtMsgBufferSize);
 		return false;
 	}
-//--------------  
-  
+//--------------
+
 	//logMsg("VoodooHDADevice[%p]::initHardware\n", this);
 
 	oldConfig = UINT16_MAX;
@@ -472,7 +472,7 @@ bool VoodooHDADevice::initHardware(IOService *provider)
 	//TODO: setDeviceModelName
   snprintf(string, sizeof(string), "VoodooHDA:%x ", (unsigned int)(mDeviceId >> 16));
   setDeviceModelName(string);
-	setDeviceTransportType(kIOAudioDeviceTransportTypeOther);
+	setDeviceTransportType(kIOAudioDeviceTransportTypeBuiltIn);
 
 //	logMsg("deviceId: %08lx, subDeviceId: %08lx\n", mDeviceId, mSubDeviceId);
 
@@ -501,13 +501,13 @@ bool VoodooHDADevice::initHardware(IOService *provider)
 		goto done;
 	}
 
-	mCorbMem = allocateDmaMemory(mCorbSize * sizeof (UInt32), "CORB");
+	mCorbMem = allocateDmaMemory(mCorbSize * sizeof (UInt32), "CORB", kIOMapInhibitCache);
 	if (!mCorbMem) {
 		errorMsg("error: allocateDmaMemory for CORB memory failed\n");
 		goto done;
 	}
 
-	mRirbMem = allocateDmaMemory(mRirbSize * sizeof (RirbResponse), "RIRB");
+	mRirbMem = allocateDmaMemory(mRirbSize * sizeof (RirbResponse), "RIRB", kIOMapInhibitCache);
 	if (!mRirbMem) {
 		errorMsg("error: allocateDmaMemory for RIRB memory failed\n");
 		goto done;
@@ -573,7 +573,7 @@ bool VoodooHDADevice::initHardware(IOService *provider)
 			FunctionGroup *funcGroup = &codec->funcGroups[funcGroupNum];
 			if (!funcGroup) continue;
 			if (funcGroup->nodeType != HDA_PARAM_FCT_GRP_TYPE_NODE_TYPE_AUDIO)
-				continue;	
+				continue;
 			if (funcGroup->mSwitchEnable)
 				switchHandler(funcGroup, true);
 		}
@@ -624,7 +624,7 @@ void VoodooHDADevice::stop(IOService *provider)
 			mPciNub->enablePCIPowerManagement(kPCIPMCSPowerStateD0);
 		mPciNub->close(this);
 	}
-	
+
 	super::stop(provider);
 }
 
@@ -649,7 +649,7 @@ void VoodooHDADevice::free()
 	mMsgBufferEnabled = false;
 	FREE(mMsgBuffer);
 	FREE_LOCK(mMessageLock);
-	
+
 	FREE(mExtMsgBuffer);
 	FREE_LOCK(mExtMessageLock);
 
@@ -714,12 +714,12 @@ bool VoodooHDADevice::createAudioEngine(Channel *channel)
 		errorMsg("error: VoodooHDAEngine::init failed\n");
 		goto done;
 	}
-	
+
 	// cue8chalk: set volume change fix on the engine
 	audioEngine->mEnableVolumeChangeFix = mEnableVolumeChangeFix;
     // VertexBZ: set Mute fix on the engine
 	audioEngine->mEnableMuteFix = mEnableMuteFix;
-	
+
 	audioEngine->Boost = Boost;
 	// Active the audio engine - this will cause the audio engine to have start() and
 	// initHardware() called on it. After this function returns, that audio engine should
@@ -774,7 +774,7 @@ bool VoodooHDADevice::suspend()
 			logMsg("(%02x)=%08x   ",(unsigned int)(i+j), (unsigned int)mPciNub->configRead32(i+j));  //for trace
 		logMsg("\n");
 	}*/
-		//	
+		//
 	for (int i = 0; i < mNumChannels; i++) {
 		if (mChannels[i].flags & HDAC_CHN_RUNNING) {
 			errorMsg("warning: found active channel during suspend action\n");
@@ -1255,7 +1255,7 @@ IOReturn VoodooHDADevice::handleAction(OSObject *owner, void *arg0, void *arg1, 
 		*outSize = 0;
 		*outData = NULL;
 
-		return result;		
+		return result;
 		}
 
 	//Команда от моей версии getDump для обновления данных о усилении
@@ -1291,7 +1291,7 @@ ChannelInfo *VoodooHDADevice::getChannelInfo() {
 	ChannelInfo *info = (ChannelInfo*)allocMem(sizeof(ChannelInfo) * mNumChannels);
 	VoodooHDAEngine *engine;
 	const char *pName;
-	
+
 	for(; i < mNumChannels; i++) {
 		engine = lookupEngine(i);
 		if (!engine)
@@ -1307,16 +1307,16 @@ ChannelInfo *VoodooHDADevice::getChannelInfo() {
 			UInt32 ossMask;
 			//name = engine->getOssDevName(ossDev);
 			name = engine->mName;
-			
+
 			if (engine->getEngineDirection() == kIOAudioStreamDirectionOutput)
 				ossMask = engine->mChannel->pcmDevice->devMask;
 			else
 				ossMask = engine->mChannel->pcmDevice->recDevMask;
-			
-			info[i].mixerValues[ossDev-1].enabled = false;			
+
+			info[i].mixerValues[ossDev-1].enabled = false;
 			if ((ossMask & (1 << ossDev)) == 0)
 				continue;
-			
+
 			info[i].mixerValues[ossDev-1].mixId = ossDev;
 			info[i].mixerValues[ossDev-1].enabled = true;
 			info[i].mixerValues[ossDev-1].value = engine->mChannel->pcmDevice->left[ossDev];// mMixerDefaults[ossDev];
@@ -1330,7 +1330,7 @@ ChannelInfo *VoodooHDADevice::getChannelInfo() {
 		info[i].useStereo = engine->mChannel->useStereo;
 		info[i].StereoBase = engine->mChannel->StereoBase;
 	}
-	
+
 	return info;
 }
 
@@ -1529,7 +1529,7 @@ void VoodooHDADevice::freeMem(void *addr)
 	kern_os_free(addr);
 }
 
-DmaMemory *VoodooHDADevice::allocateDmaMemory(mach_vm_size_t size, const char *description)
+DmaMemory *VoodooHDADevice::allocateDmaMemory(mach_vm_size_t size, const char *description, UInt32 cacheOption)
 {
 	IOReturn result;
 	IODMACommand::SegmentFunction outSegFunc;
@@ -1558,13 +1558,12 @@ DmaMemory *VoodooHDADevice::allocateDmaMemory(mach_vm_size_t size, const char *d
 		outSegFunc = kIODMACommandOutputHost32;
 		physMask = ~((UInt32) HDAC_DMA_ALIGNMENT - 1);
 	}
-	if (mInhibitCache) {
-		memDesc = IOBufferMemoryDescriptor::inTaskWithPhysicalMask(kernel_task,
-		   kIOMemoryPhysicallyContiguous | kIOMapInhibitCache, size, physMask);
-	} else
-		memDesc = IOBufferMemoryDescriptor::inTaskWithPhysicalMask(kernel_task,
-			kIOMemoryPhysicallyContiguous, size, physMask);
-	
+	cacheOption &= kIOMapCacheMask;
+	if (!cacheOption)
+		cacheOption = mInhibitCache ? kIOMapInhibitCache : kIOMapDefaultCache;
+	memDesc = IOBufferMemoryDescriptor::inTaskWithPhysicalMask(kernel_task,
+			kIOMemoryPhysicallyContiguous | kIODirectionInOut | cacheOption, size, physMask);
+
 	if (!memDesc) {
 		errorMsg("error: IOBufferMemoryDescriptor::inTaskWithPhysicalMask failed\n");
 		goto failed;
@@ -1833,11 +1832,13 @@ void VoodooHDADevice::initRirb()
 	writeData8(HDAC_RIRBCTL, HDAC_RIRBCTL_RINTCTL);
 #endif
 
+#if 0
 	/* Make sure that the Host CPU cache doesn't contain any dirty
 	 * cache lines that falls in the rirb. If I understood correctly, it
 	 * should be sufficient to do this only once as the rirb is purely
 	 * read-only from now on. */
 	mRirbMem->command->synchronize(kIODirectionOut); // xxx
+#endif
 }
 
 /*
@@ -1905,7 +1906,7 @@ int VoodooHDADevice::rirbFlush()
 	rirbCtl = readData8(HDAC_GCTL);
 	rirbCtl |= HDAC_GCTL_FCNTRL;
 	writeData8(HDAC_GCTL, rirbCtl);
-	
+
 	return ret;
 }
 
@@ -2188,22 +2189,22 @@ int VoodooHDADevice::audioCtlOssMixerSet(PcmDevice *pcmDevice, UInt32 dev, UInt3
 	FunctionGroup *funcGroup = pcmDevice->funcGroup;
 	AudioControl *control;
 	UInt32 mask = 0;
-	
+
 	LOCK();
-	
+
 	//logMsg("VoodooHDADevice[%p]::audioCtlOssMixerSet(%p, %ld, %ld, %ld)\n", this, pcmDevice, dev, left, right);
 
-	// Save new values. 
+	// Save new values.
 	pcmDevice->left[dev] = left;
 	pcmDevice->right[dev] = right;
 
-	
+
 	// 'ogain' is the special case implemented with EAPD.
 	if (dev == SOUND_MIXER_OGAIN) {
 		Widget *widget = NULL;
 		int i;
 		UInt32 orig;
-	
+
 		for (i = funcGroup->startNode; i < funcGroup->endNode; i++) {
 			widget = widgetGet(funcGroup, i);
 			if (!widget || (widget->enable == 0))
@@ -2213,7 +2214,7 @@ int VoodooHDADevice::audioCtlOssMixerSet(PcmDevice *pcmDevice, UInt32 dev, UInt3
 				continue;
 			break;
 		}
-		
+
 		if (i >= funcGroup->endNode) {
 			UNLOCK();
 			return -1;
@@ -2272,7 +2273,7 @@ int VoodooHDADevice::audioCtlOssMixerSet(PcmDevice *pcmDevice, UInt32 dev, UInt3
 			lvol = (lvol * control->step + 50) / 100;
 			rvol = (rvol * control->step + 50) / 100;
 		}
-        
+
 		audioCtlAmpSet(control, mute, lvol, rvol);
 	}
 
@@ -2319,11 +2320,11 @@ int VoodooHDADevice::audioCtlOssMixerGet(PcmDevice *pcmDevice, UInt32 dev, UInt3
 	int controlIndex;
 	//Slice
 	UInt32 mask = (1 << dev);
- 
-	
+
+
 	LOCK();
-	
-	
+
+
 	/* Recalculate all controls related to this OSS device. */
 	for (int i = 0; (control = audioCtlEach(funcGroup, &i)); ) {
 		if ((control->enable == 0) || !(control->ossmask & mask))
@@ -2334,25 +2335,25 @@ int VoodooHDADevice::audioCtlOssMixerGet(PcmDevice *pcmDevice, UInt32 dev, UInt3
 			   (control->widget->bindAssoc == mChannels[pcmDevice->recChanId].assocNum)) ||
 			  (control->widget->bindAssoc == -2)))
 			continue;
-	
+
 		audioCtlAmpGetGain(control);
-	
+
 		if(control->step != 0) {
 			bFound = true;
 			controlIndex = i;
 			lvol = 100 * control->left / control->step;
 			rvol = 100 * control->right / control->step;
-			
+
 			pcmDevice->left[dev] = lvol;
 			pcmDevice->right[dev] = rvol;
 		}
 	}
-	
+
 	UNLOCK();
-	
+
 	if(left != 0) (*left) = lvol;
 	if(right != 0) (*right) = rvol;
-	
+
 	return (lvol | (rvol << 8));
 }
 
@@ -2362,7 +2363,7 @@ void VoodooHDADevice::mixerSetDefaults(PcmDevice *pcmDevice)
 	for (int n = 0; n < SOUND_MIXER_NRDEVICES; n++) {
 		audioCtlOssMixerSet(pcmDevice, n, mMixerDefaults[n], mMixerDefaults[n]);
 	}
-//Slice - attention!	
+//Slice - attention!
 	if (audioCtlOssMixerSetRecSrc(pcmDevice, SOUND_MASK_INPUT) == 0)
 		//errorMsg("warning: couldn't set recording source to input\n");
 		return;
@@ -2534,7 +2535,7 @@ void VoodooHDADevice::streamSetup(Channel *channel)
 	UInt16 chmap[2][5] = {{ 0x0010, 0x0001, 0x0201, 0x0231, 0x0231 }, /* 5.1 */
 			{ 0x0010, 0x0001, 0x2001, 0x2031, 0x2431 }};/* 7.1 */
 	int map = -1;
-	
+
 	totalchn = AFMT_CHANNEL(channel->format);
 	if (!totalchn) {
 		if (channel->format & (AFMT_STEREO | AFMT_AC3)) { //Slice - AC3 supports more then Stereo, but here we force 2
@@ -2563,17 +2564,17 @@ void VoodooHDADevice::streamSetup(Channel *channel)
 	format |= (totalchn - 1);
 	//Slice - from BSD
 	/* Set channel mapping for known speaker setups. */
-	if (assoc->pinset == 0x0007 || assoc->pinset == 0x0013) // Standard 5.1 
+	if (assoc->pinset == 0x0007 || assoc->pinset == 0x0013) // Standard 5.1
 		map = 0;
-	 else if (assoc->pinset == 0x0017) // Standard 7.1 
+	 else if (assoc->pinset == 0x0017) // Standard 7.1
 		map = 1;
-	
+
 	digFormat = HDA_CMD_SET_DIGITAL_CONV_FMT1_DIGEN;
 	if (channel->format & AFMT_AC3)
 		digFormat |= HDA_CMD_SET_DIGITAL_CONV_FMT1_NAUDIO;
-	
+
 	writeData16(channel->off + HDAC_SDFMT, format);
-    
+
 	for (int i = 0, chn = 0; channel->io[i] != -1; i++) {
 		Widget *widget;
 		int c;
@@ -2596,14 +2597,14 @@ void VoodooHDADevice::streamSetup(Channel *channel)
 				c = 0;
 			} else {
 				c = (channel->streamId << 4) | chn;
-			}			
-		}		
+			}
+		}
 		if(mVerbose >= 2)
 			logMsg("PCMDIR_%s: Stream setup nid=%d format=%08lx speed=%ld , dfmt=0x%04x, chan=0x%04x\n",
-				   (channel->direction == PCMDIR_PLAY) ?"PLAY" : "REC", channel->io[i], 
+				   (channel->direction == PCMDIR_PLAY) ?"PLAY" : "REC", channel->io[i],
 				   (long unsigned int)channel->format, (long int)channel->speed, digFormat, c);
-		
-		
+
+
 //		logMsg("PCMDIR_%s: Stream setup nid=%d: format=0x%04x, digFormat=0x%04x\n",
 //				(channel->direction == PCMDIR_PLAY) ? "PLAY" : "REC", channel->io[i], format, digFormat);
 		sendCommand(HDA_CMD_SET_CONV_FMT(cad, channel->io[i], format), cad);
@@ -2617,7 +2618,7 @@ void VoodooHDADevice::streamSetup(Channel *channel)
 #else
 #warning not MULTICHANNEL
 #endif
-		
+
 		chn += HDA_PARAM_AUDIO_WIDGET_CAP_CC(widget->params.widgetCap) + 1;
 	}
 }
@@ -2734,7 +2735,7 @@ int VoodooHDADevice::bdlAlloc(Channel *channel)
 	ASSERT(pcmDevice);
 	ASSERT(pcmDevice->chanNumBlocks);
 
-	channel->bdlMem = allocateDmaMemory(sizeof (BdlEntry) * pcmDevice->chanNumBlocks, "bdlMem");
+	channel->bdlMem = allocateDmaMemory(sizeof (BdlEntry) * pcmDevice->chanNumBlocks, "bdlMem", kIOMapWriteThruCache);
 	if (!channel->bdlMem) {
 		errorMsg("error: couldn't allocate bdl\n");
 		return -1;
@@ -2792,11 +2793,11 @@ int VoodooHDADevice::pcmAttach(PcmDevice *pcmDevice)
 	dumpMsg("\n");
 
 	dumpMsg("OSS mixer initialization...\n");
-	
+
 	if (audioCtlOssMixerInit(pcmDevice) != 0) {
 		errorMsg("warning: mixer initialization failed\n");
 	}
-	
+
 	//logMsg("VoodooHDADevice::mixerSetDefaults begin\n");
 	UNLOCK(); // xxx
 	//logMsg("VoodooHDADevice::mixerSetDefaults mid\n");
@@ -2829,7 +2830,7 @@ void VoodooHDADevice::createPrefPanelMemoryBuf(FunctionGroup *funcGroup)
 		//mPrefPanelMemoryBufSize = nSliderTabsCount*sizeof(sliders);
 		mPrefPanelMemoryBufSize = SOUND_MIXER_NRDEVICES*sizeof(ChannelInfo);
 		mPrefPanelMemoryBuf = (ChannelInfo*)allocMem(mPrefPanelMemoryBufSize);
-		bzero(mPrefPanelMemoryBuf, mPrefPanelMemoryBufSize); 
+		bzero(mPrefPanelMemoryBuf, mPrefPanelMemoryBufSize);
 
 		mPrefPanelMemoryBufLock = IOLockAlloc();
 		mPrefPanelMemoryBufEnabled = false;
@@ -2839,7 +2840,7 @@ void VoodooHDADevice::createPrefPanelMemoryBuf(FunctionGroup *funcGroup)
 		strlcpy(mPrefPanelMemoryBuf[i].name, sliderTabs[i].name, MAX_SLIDER_TAB_NAME_LENGTH);
 		mPrefPanelMemoryBuf[i].numChannels = nSliderTabsCount;
 		for(int j = 1; j < 25; j++) {
-			if(sliderTabs[i].volSliders[j].enabled == 0) 
+			if(sliderTabs[i].volSliders[j].enabled == 0)
 				continue;
 
 			mPrefPanelMemoryBuf[i].mixerValues[j - 1].mixId = j;
@@ -2862,7 +2863,7 @@ void VoodooHDADevice::createPrefPanelMemoryBuf(FunctionGroup *funcGroup)
 void VoodooHDADevice::createPrefPanelStruct(FunctionGroup *funcGroup)
 {
 	//logMsg("createPrefPanelStruct: codec %d have %d assocNum\n", funcGroup->codec->cad, funcGroup->audio.numAssocs);
-	
+
 	//Перебираем все ассоциации которые были созданы ранее
 	for(int i = 0; i < funcGroup->audio.numAssocs; i++) {
 		//Получаем ноду которая является главной в ассоциации - это, как правило, устройство к которому или от которого приходит сигнал
@@ -2870,7 +2871,7 @@ void VoodooHDADevice::createPrefPanelStruct(FunctionGroup *funcGroup)
 		Widget *mainWidget = widgetGet(funcGroup, mainNid);
 		if(mainWidget) {
 			//logMsg("createPrefPanelStruct:    Assoc %d have main nid 0x%X %s\n", i, mainNid, mainWidget->name);
-			//logMsg("createPrefPanelStruct:    ctrl = %d  ossmask = 0x%08X\n", mainWidget->pin.ctrl, mainWidget->ossmask); 
+			//logMsg("createPrefPanelStruct:    ctrl = %d  ossmask = 0x%08X\n", mainWidget->pin.ctrl, mainWidget->ossmask);
 			 //В соответствии с названием устройства называем вкладку
 			//catPinName(mainWidget); //->pin.config, sliderTabs[nSliderTabsCount].name, MAX_SLIDER_TAB_NAME_LENGTH);
 			//sliderTabs[nSliderTabsCount].name = (char *)&mainWidget->name[5];
@@ -2886,15 +2887,15 @@ void VoodooHDADevice::createPrefPanelStruct(FunctionGroup *funcGroup)
 		for(int j = 0; (control = audioCtlEach(funcGroup, &j));) {
 			if((control->enable == 0) || (control->widget->enable == 0))
 				continue;
-			
+
 			if(control->widget->bindAssoc == i) {
 				ossmask |= control->ossmask;
 				//Slice
 				/*if(control->ossmask && SOUND_MASK_MONITOR)
 					ossmask |= SOUND_MASK_MIC; */
-				
+
 				//logMsg("createPrefPanelStruct:        audioControl %d ossmask = 0x%08lx\n", j, (long unsigned int)ossmask);
-				
+
 			}
 			//Ищем PCM устройство к которому принадлежит OSS устройство
 			for(int pcmDeviceIndex = 0; pcmDeviceIndex < funcGroup->audio.numPcmDevices; pcmDeviceIndex++) {
@@ -2906,10 +2907,10 @@ void VoodooHDADevice::createPrefPanelStruct(FunctionGroup *funcGroup)
 			}
 		}
 		//logMsg("createPrefPanelStruct:         ossdev %s, pcmDev = %d\n", audioCtlMixerMaskToString(ossmask, buf, sizeof(buf)), pcmDeviceNum);
-		
+
 		if(ossmask & SOUND_MASK_PCM)
 			ossmask |= SOUND_MASK_IMIX;
-		
+
 		sliderTabs[nSliderTabsCount].pcmDevice = pcmDevice;
 		//Создаем регуляторы на текущей вкладке
 		for(int j = 0; j < 32; j++) {
@@ -2971,7 +2972,7 @@ void VoodooHDADevice::setMath(UInt8 tabNum, UInt8 sliderNum, UInt8 newValue)
 	engine->mChannel->useStereo = s;
 	engine->mChannel->noiseLevel = n;
 	engine->mChannel->StereoBase = b;
-	
+
 }
 
 void VoodooHDADevice::freePrefPanelMemoryBuf(void)
@@ -2979,7 +2980,7 @@ void VoodooHDADevice::freePrefPanelMemoryBuf(void)
 	IOLockLock(mPrefPanelMemoryBufLock);
 	IOLockFree(mPrefPanelMemoryBufLock);
 	mPrefPanelMemoryBufEnabled = false;
-	
+
 	freeMem(mPrefPanelMemoryBuf);
 	mPrefPanelMemoryBuf = 0;
 }
@@ -3014,11 +3015,11 @@ void VoodooHDADevice::dumpExtMsg(const char *format, ...)
 	va_start(args, format);
 	bool lockExists;
 	int length;
-	
+
 	lockExists = (!isInactive() && mExtMessageLock);
 	if (lockExists)
 		lockExtMsgBuffer(); // utilize message buffer lock for console logging as well
-	
+
 	//ASSERT(mExtMsgBufferPos < (mExtMsgBufferSize - 1));
 	if (mExtMsgBufferPos != (mExtMsgBufferSize - 2)) {
 		length = vsnprintf(mExtMsgBuffer + mExtMsgBufferPos, mExtMsgBufferSize - mExtMsgBufferPos,
@@ -3028,9 +3029,9 @@ void VoodooHDADevice::dumpExtMsg(const char *format, ...)
 		else if (length < 0)
 			IOLog("warning: vsnprintf in dumpMsg failed\n");
 	}
-	
+
 	if (lockExists)
 		unlockExtMsgBuffer();
-	
+
 	va_end(args);
 }

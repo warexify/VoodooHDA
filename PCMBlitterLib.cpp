@@ -23,28 +23,28 @@
 void NativeInt16ToFloat32_Portable(const SInt16 *src, Float32 *dest, unsigned int count)
 {
 	TIntToFloatBlitter<PCMSInt16Native, PCMFloat32> blitter(16);
-	
+
 	blitter.Convert(src, dest, count);
 }
 
 void SwapInt16ToFloat32_Portable(const SInt16 *src, Float32 *dest, unsigned int count)
 {
 	TIntToFloatBlitter<PCMSInt16Swap, PCMFloat32> blitter(16);
-	
+
 	blitter.Convert(src, dest, count);
 }
 
 void Float32ToNativeInt16_Portable(const Float32 *src, SInt16 *dest, unsigned int count)
 {
 	TFloatToIntBlitter<PCMFloat32, PCMSInt16Native> blitter(16);
-	
+
 	blitter.Convert(src, dest, count);
 }
 
 void Float32ToSwapInt16_Portable(const Float32 *src, SInt16 *dest, unsigned int count)
 {
 	TFloatToIntBlitter<PCMFloat32, PCMSInt16Swap> blitter(16);
-	
+
 	blitter.Convert(src, dest, count);
 }
 
@@ -55,28 +55,28 @@ void Float32ToSwapInt16_Portable(const Float32 *src, SInt16 *dest, unsigned int 
 void NativeInt32ToFloat32_Portable(const SInt32 *src, Float32 *dest, unsigned int count)
 {
 	TIntToFloatBlitter<PCMSInt32Native, PCMFloat32> blitter(32);
-	
+
 	blitter.Convert(src, dest, count);
 }
 
 void SwapInt32ToFloat32_Portable(const SInt32 *src, Float32 *dest, unsigned int count)
 {
 	TIntToFloatBlitter<PCMSInt32Swap, PCMFloat32> blitter(32);
-	
+
 	blitter.Convert(src, dest, count);
 }
 
 void Float32ToNativeInt32_Portable(const Float32 *src, SInt32 *dest, unsigned int count)
 {
 	TFloatToIntBlitter<PCMFloat32, PCMSInt32Native> blitter(32);
-	
+
 	blitter.Convert(src, dest, count);
 }
 
 void Float32ToSwapInt32_Portable(const Float32 *src, SInt32 *dest, unsigned int count)
 {
 	TFloatToIntBlitter<PCMFloat32, PCMSInt32Swap> blitter(32);
-	
+
 	blitter.Convert(src, dest, count);
 }
 
@@ -95,7 +95,7 @@ void	Float32ToNativeInt24_Portable(const Float32 *src, UInt8 *vdest, unsigned in
 	int shift = 8, count;
 
 	SET_ROUNDMODE
-			
+
 	count = nSamples >> 2;
 	while (count--) {
 		double f1 = src[0] * maxInt32 + round;
@@ -143,7 +143,7 @@ void	Float32ToSwapInt24_Portable(const Float32 *src, UInt8 *vdest, unsigned int 
 	double max32 = maxInt32 - 1.0 - round;
 	double min32 = -2147483648.0;
 	int shift = 8, count;
-	
+
 	SET_ROUNDMODE
 
 	count = nSamples >> 2;
@@ -194,13 +194,13 @@ void	NativeInt24ToFloat32_Portable(const UInt8 *vsrc, Float32 *dest, unsigned in
 	const UInt32 *src = (const UInt32 *)vsrc;
 	Float32 scale = (1. / 2147483648.0);
 	int nSamples4 = count >> 2;
-	
+
 	while (nSamples4--) {
 		SInt32 lv1 = src[0];	// BE: a1 a2 a3 b1		LE memory: a3 a2 a1 b3	register: b3 a1 a2 a3
 		SInt32 lv2 = src[1];	// BE: b2 b3 c1 c2		LE memory: b2 b1 c3 c2	register: c2 c3 b1 b2
 		SInt32 lv3 = src[2];	// BE: c3 d1 d2 d3		LE memory: c1 d3 d2 d1	register: d1 d2 d3 c1
 		SInt32 lv4;
-		
+
 //		printf("%08X %08X %08X => ", lv1, lv2, lv3);
 		lv4 = lv3 & 0xFFFFFF00;
 		lv3 = (lv3 << 24) | ((lv2 & 0xFFFF0000) >> 8);
@@ -212,7 +212,7 @@ void	NativeInt24ToFloat32_Portable(const UInt8 *vsrc, Float32 *dest, unsigned in
 		dest[1] = lv2 * scale;
 		dest[2] = lv3 * scale;
 		dest[3] = lv4 * scale;
-		
+
 		src += 3;
 		dest += 4;
 	}
@@ -233,7 +233,7 @@ void	SwapInt24ToFloat32_Portable(const UInt8 *vsrc, Float32 *dest, unsigned int 
 	const UInt32 *src = (const UInt32 *)vsrc;
 	Float32 scale = (1. / 2147483648.0);
 	int nSamples4 = count >> 2;
-	
+
 	while (nSamples4--) {
 		SInt32 lv1 = src[0];	// BE: a3 a2 a1 b3		LE memory: a1 a2 a3 b1	register: b1 a3 a2 a1
 		SInt32 lv2 = src[1];	// BE: b2 b1 c3 c2		LE memory: b2 b3 c1 c2	register: c2 c1 b3 b2
@@ -259,7 +259,7 @@ void	SwapInt24ToFloat32_Portable(const UInt8 *vsrc, Float32 *dest, unsigned int 
 		dest[1] = lv2 * scale;
 		dest[2] = lv3 * scale;
 		dest[3] = lv4 * scale;
-		
+
 		src += 3;
 		dest += 4;
 	}

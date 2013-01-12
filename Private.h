@@ -15,7 +15,6 @@
 // xxx: check what these flags were for
 
 #define HDAC_F_DMA_NOCACHE		0x00000001
-#define HDAC_F_MSI				0x00000002
 
 #define HDAC_UNSOLQ_MAX			64
 #define HDAC_UNSOLQ_READY		0
@@ -34,6 +33,7 @@
 #define HDA_AMP_RIGHT_MUTED(v)	(((v) & HDA_AMP_MUTE_RIGHT) >> 1)
 
 #define HDA_ADC_MONITOR			(1 << 0)
+#define HDAA_IMIX_AS_DST		(2 << 0)
 
 #define HDA_CTL_OUT				1
 #define HDA_CTL_IN				2
@@ -48,7 +48,6 @@
 #define HDA_BLK_ALIGN			(~(HDA_BLK_MIN - 1))
 
 #define HDA_BUFSZ_MIN			4096
-	//#define HDA_BUFSZ_MAX			65536
 #define HDA_BUFSZ_MAX			262144
 #define HDA_BUFSZ_DEFAULT		HDA_BUFSZ_MAX
 
@@ -172,7 +171,8 @@ typedef struct _Widget {
 	UInt8 connsenable[HDA_MAX_CONNS];
 	char name[HDA_MAX_NAMELEN];
 	FunctionGroup *funcGroup;
-	UInt8 traceDir; 
+	UInt8 traceDir;
+	UInt8 stripecap;
 	nid_t favoritDAC;
 	struct {
 		UInt32 widgetCap;
@@ -292,9 +292,9 @@ typedef struct _Channel {
 	//Math
 	bool vectorize;
 	bool useStereo;
-    UInt8 noiseLevel;	
+    UInt8 noiseLevel;
 	UInt8 StereoBase;
-	
+
 	DmaMemory *bdlMem;
 	DmaMemory *buffer;
 } Channel;

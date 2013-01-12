@@ -17,11 +17,11 @@ void printMsgBuffer(io_service_t service)
 	io_connect_t connect = 0;
 #if __LP64__
 	mach_vm_address_t address;
-	mach_vm_size_t size;	
-#else	
+	mach_vm_size_t size;
+#else
 	vm_address_t address;
 	vm_size_t size;
-#endif	
+#endif
 
 	ret = IOServiceOpen(service, mach_task_self(), 0, &connect);
 	if (ret != KERN_SUCCESS) {

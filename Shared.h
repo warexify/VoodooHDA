@@ -72,7 +72,7 @@ typedef struct _ChannelInfo {
 	UInt8 numChannels;
 	bool vectorize;
 	bool useStereo;
-    UInt8 noiseLevel;	
+    UInt8 noiseLevel;
 	UInt8 StereoBase;
 	UInt8 empty[3]; //align to 8 bytes
 } ChannelInfo;

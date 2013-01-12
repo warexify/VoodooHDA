@@ -42,14 +42,12 @@ public:
 	const char *mName;
 	IOAudioPort *mPort;
 
-	char mDescription[32];
-
 	int mActiveOssDev;
 
 	IOAudioSelectorControl *mSelControl;
 	IOAudioLevelControl *mVolumeControl;
 	IOAudioToggleControl *mMuteControl;
-	
+
 	UInt32					oldOutVolumeLeft;
 	UInt32					oldOutVolumeRight;
 	UInt32					oldInputGain;
@@ -58,13 +56,13 @@ public:
 	bool mEnableVolumeChangeFix;
     // VertexBZ: flag for mute fix
 	bool mEnableMuteFix;
-	
+
 	void messageHandler(UInt32 type, const char *format, ...) __attribute__ ((format (printf, 3, 4)));
 
 	void setPinName(/*UInt32 type, */const char* name);
 //	void enumiratePinNames(void);
 	const char *getPortName();
-	const char *getDescription();
+	const char *getDescription(char*, unsigned);
 	void identifyPaths();
 	UInt32 getNumCtls(UInt32 dev);
 	UInt64 getMinMaxDb(UInt32 dev);
@@ -83,7 +81,7 @@ public:
 	bool createAudioStream();
 
 	bool createAudioControls();
-	
+
 	static IOReturn volumeChangeHandler(IOService *target, IOAudioControl *volumeControl, SInt32 oldValue, SInt32 newValue);
 	static IOReturn muteChangeHandler(IOService *target, IOAudioControl *muteControl, SInt32 oldValue, SInt32 newValue);
 	static IOReturn gainChangeHandler(IOService *target, IOAudioControl *gainControl, SInt32 oldValue, SInt32 newValue);
@@ -96,7 +94,6 @@ public:
 	virtual bool initWithChannel(Channel *channel);
 	virtual void free();
 	virtual bool initHardware(IOService *provider);
-	virtual void stop(IOService *provider);
 
 	virtual IOReturn performAudioEngineStart();
 	virtual IOReturn performAudioEngineStop();
