@@ -30,8 +30,6 @@
 			<string>org.voodoo.driver.VoodooHDA</string>
 			<key>IOClass</key>
 			<string>VoodooHDADevice</string>
-			<key>IOMatchCategory</key>
-			<string>VoodooHDADevice</string>
 			<key>IOPCIClassMatch</key>
 			<string>0x04030000&amp;0xffff0000</string>
 			<key>IOProviderClass</key>

@@ -78,6 +78,11 @@ see license.txt for details and copyright notices
 changelog
 ---------
 
+v2.8.2dX, r81
+- Make AllowMSI false for Nvidia if not in Info.plist. (+applied to tranc)
+- Reverted loose open/close policy from r78. (+applied to tranc)
+- Removed IOMatchCategory in Info.plist - so it be same as AppleHDA.kext.
+
 v2.8.2dX, r80
 - create development branch
 - Update from FreeBSD:
