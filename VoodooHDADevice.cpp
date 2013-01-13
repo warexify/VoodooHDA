@@ -488,7 +488,13 @@ bool VoodooHDADevice::initHardware(IOService *provider)
 	if (snoop & INTEL_SCH_HDA_DEVC_NOSNOOP) {
 		mPciNub->configWrite16( INTEL_SCH_HDA_DEVC,	snoop & (~INTEL_SCH_HDA_DEVC_NOSNOOP));
 	}
-	mPciNub->close(this);
+	if (vendorId == NVIDIA_VENDORID &&
+		!OSDynamicCast(OSBoolean, getProperty(kVoodooHDAAllowMSI)))
+		/*
+		 * Disable MSI for NVIDIA HDAC if not in Info.plist.
+		 *   Known to have problems with MSI
+		 */
+		mAllowMSI = false;
 
 	if (!getCapabilities()) {
 		errorMsg("error: getCapabilities failed\n");
@@ -617,7 +623,8 @@ void VoodooHDADevice::stop(IOService *provider)
 			errorMsg("warning: resetController failed\n");
 		UNLOCK();
 	}
-	if (mPciNub && mPciNub->open(this)) {
+	if (mPciNub &&
+		(mPciNub->isOpen(this) || mPciNub->open(this))) {
 		if (oldConfig != UINT16_MAX)
 			mPciNub->configWrite16(kIOPCIConfigCommand, oldConfig); //Slice
 		if (mPciNub->hasPCIPowerManagement(kPCIPMCD3Support))
@@ -822,9 +829,6 @@ bool VoodooHDADevice::resume()
 			logMsg("(%02x)=%08x   ",(unsigned int)(i+j), (unsigned int)mPciNub->configRead32(i+j));  //for trace
 		logMsg("\n");
 	}*/
-	/*
-	 * Zenith432 - open/close on mPciNub not needed since IOPCIDevice has no ownership semantics
-	 */
 		//Slice - this trick was resolved weird sleep issue
 	int vendorId = mDeviceId & 0xffff;
 	if (vendorId == INTEL_VENDORID) {
