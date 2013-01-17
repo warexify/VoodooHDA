@@ -270,7 +270,6 @@ bool VoodooHDAEngine::initHardware(IOService *provider)
 		errorMsg("error: IOAudioEngine::initHardware failed\n");
 		goto done;
 	}
-	IOSleep(50);
 	mDevice = OSDynamicCast(VoodooHDADevice, provider);
 	ASSERT(mDevice);
 
@@ -634,7 +633,6 @@ IOReturn VoodooHDAEngine::performFormatChange(IOAudioStream *audioStream,
 		mSampleSize = channels * (newFormat->fBitWidth / 8);
 		mNumSampleFrames = mBufferSize / mSampleSize;
 		setNumSampleFramesPerBuffer(mNumSampleFrames);
-		audioStream->clearSampleBuffer();
 
 		logMsg("buffer size: %ld, channels: %d, bit depth: %d, # samp. frames: %ld\n", (long int)mBufferSize,
 				channels, newFormat->fBitDepth, (long int)mNumSampleFrames);
@@ -820,6 +818,7 @@ void VoodooHDAEngine::setPinName(/*UInt32 type,*/ const char* name)
 	mSelControl->removeAvailableSelection('test');
 }
 
+__attribute__((visibility("hidden")))
 IOReturn VoodooHDAEngine::volumeChangeHandler(IOService *target, IOAudioControl *volumeControl, SInt32 oldValue, SInt32 newValue)
 {
     IOReturn result = kIOReturnBadArgument;
@@ -887,6 +886,7 @@ IOReturn VoodooHDAEngine::volumeChanged(IOAudioControl *volumeControl, SInt32 ol
     return kIOReturnSuccess;
 }
 
+__attribute__((visibility("hidden")))
 IOReturn VoodooHDAEngine::muteChangeHandler(IOService *target, IOAudioControl *muteControl, SInt32 oldValue, SInt32 newValue)
 {
     IOReturn result = kIOReturnBadArgument;
@@ -934,6 +934,7 @@ IOReturn VoodooHDAEngine::muteChanged(IOAudioControl *muteControl, SInt32 oldVal
     return kIOReturnSuccess;
 }
 
+__attribute__((visibility("hidden")))
 IOReturn VoodooHDAEngine::gainChangeHandler(IOService *target, IOAudioControl *gainControl, SInt32 oldValue, SInt32 newValue)
 {
     IOReturn result = kIOReturnBadArgument;

@@ -78,12 +78,24 @@ see license.txt for details and copyright notices
 changelog
 ---------
 
-v2.8.2dX, r81
+v2.8.2d4, r82
+- Simplified DmaMemory.
+- Moved interrupt timestamp closer to interrupt.
+- Fixed some locking errors.
+- Added 64bit quirk from FreeBSD.
+- removed unneeded
+  VoodooHDADevice::deactivateAllAudioEngines
+  clearSampleBuffer from r80
+  IOSleep(50) in VoodooHDAEngine::initHardware.
+- hide static methods.
+- update HDAC_REVISION.
+
+v2.8.2d2, r81
 - Make AllowMSI false for Nvidia if not in Info.plist. (+applied to tranc)
 - Reverted loose open/close policy from r78. (+applied to tranc)
 - Removed IOMatchCategory in Info.plist - so it be same as AppleHDA.kext.
 
-v2.8.2dX, r80
+v2.8.2d1, r80
 - create development branch
 - Update from FreeBSD:
   HDA models, codec models, misc macros

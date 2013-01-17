@@ -56,6 +56,7 @@ void VoodooHDADevice::scanCodecs()
 	}
 }
 
+__attribute__((visibility("hidden")))
 const char *VoodooHDADevice::findCodecName(Codec *codec)
 {
 	UInt32 id;

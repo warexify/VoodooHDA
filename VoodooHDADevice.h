@@ -142,6 +142,7 @@ public:
 	UInt32 mIntStatus;
 	UInt64 mTotalInt;
 	UInt64 mTotalChanInt;
+	UInt64 mIntrTimeStamp;
 
 	UInt32 mVerbose;
 	//Temporary for init driver
@@ -188,7 +189,6 @@ public:
 	virtual IOService *probe(IOService *provider, SInt32 *score);
 	virtual bool initHardware(IOService *provider);
 	virtual bool createAudioEngine(Channel *channel);
-	virtual void deactivateAllAudioEngines();
 	virtual void stop(IOService *provider);
 	virtual void free();
 

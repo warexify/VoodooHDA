@@ -7,8 +7,8 @@
 __attribute__((visibility("hidden")))
 const ControllerListItem gControllerList[] = {
 	{ HDA_INTEL_CPT,			"Intel Cougar Point"},
-  { HDA_INTEL_PATSBURG, "Intel Patsburg"},
-  { HDA_INTEL_PPT1,			"Intel Panther Point"},
+	{ HDA_INTEL_PATSBURG,		"Intel Patsburg"},
+	{ HDA_INTEL_PPT1,			"Intel Panther Point"},
 	{ HDA_INTEL_82801F,			"Intel 82801F" },
 	{ HDA_INTEL_63XXESB,		"Intel 631x/632xESB" },
 	{ HDA_INTEL_82801G,			"Intel 82801G" },
@@ -17,7 +17,7 @@ const ControllerListItem gControllerList[] = {
 	{ HDA_INTEL_82801JI,		"Intel 82801JI" },
 	{ HDA_INTEL_82801JD,		"Intel 82801JD"},
 	{ HDA_INTEL_PCH,			"Intel PCH" },
-  { HDA_INTEL_PCH2,     "Intel 5 Series/3400 Series"},
+	{ HDA_INTEL_PCH2,			"Intel 5 Series/3400 Series"},
 	{ HDA_INTEL_SCH,			"Intel SCH" },
 	{ HDA_NVIDIA_MCP51,			"NVidia MCP51" },
 	{ HDA_NVIDIA_MCP55,			"NVidia MCP55" },
