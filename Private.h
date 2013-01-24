@@ -34,6 +34,7 @@
 #define HDA_AMP_RIGHT_MUTED(v)	(((v) & HDA_AMP_MUTE_RIGHT) >> 1)
 
 #define HDA_ADC_MONITOR			(1 << 0)
+#define HDAA_IMIX_AS_DST		(2 << 0)
 
 #define HDA_CTL_OUT				1
 #define HDA_CTL_IN				2
@@ -111,8 +112,7 @@ class IODMACommand;
 
 typedef struct _DmaMemory {
 	const char *description;
-	IODMACommand *command;
-	IOMemoryMap *map;
+	IOBufferMemoryDescriptor *md;
 	UInt64 size;
 	UInt64 physAddr;
 	IOVirtualAddress virtAddr;
@@ -173,6 +173,7 @@ typedef struct _Widget {
 	char name[HDA_MAX_NAMELEN];
 	FunctionGroup *funcGroup;
 	UInt8 traceDir; 
+	UInt8 stripecap;
 	nid_t favoritDAC;
 	struct {
 		UInt32 widgetCap;

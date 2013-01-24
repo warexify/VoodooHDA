@@ -3,6 +3,7 @@
 	089C1669FE841209C02AAC07 /* Project object */ = {
 		activeArchitecturePreference = i386;
 		activeBuildConfigurationName = "Release Multichannel";
+		activeSDKPreference = macosx10.5;
 		activeTarget = 32D94FC30562CBF700B6AF17 /* VoodooHDA */;
 		addToTargets = (
 			32D94FC30562CBF700B6AF17 /* VoodooHDA */,
@@ -77,14 +78,15 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 379404780;
-			PBXWorkspaceStateSaveDate = 379404780;
+			PBXPerProjectTemplateStateSaveDate = 380723194;
+			PBXWorkspaceStateSaveDate = 380723194;
 		};
 		perUserProjectItems = {
+			12353F6916B160330014D043 /* PBXTextBookmark */ = 12353F6916B160330014D043 /* PBXTextBookmark */;
 			12A0E1B2169D41DF00069706 /* PlistBookmark */ = 12A0E1B2169D41DF00069706 /* PlistBookmark */;
 			12A0E1B3169D41DF00069706 /* PlistBookmark */ = 12A0E1B3169D41DF00069706 /* PlistBookmark */;
-			12A0E1B5169D41DF00069706 /* PBXTextBookmark */ = 12A0E1B5169D41DF00069706 /* PBXTextBookmark */;
-			12A0E1C0169D41FF00069706 /* PBXTextBookmark */ = 12A0E1C0169D41FF00069706 /* PBXTextBookmark */;
+			12F3B506169DAE9C00A8CE4D /* PBXTextBookmark */ = 12F3B506169DAE9C00A8CE4D /* PBXTextBookmark */;
+			12F3B509169DAE9C00A8CE4D /* PBXTextBookmark */ = 12F3B509169DAE9C00A8CE4D /* PBXTextBookmark */;
 		};
 		sourceControlManager = 12F6C0C81243DB5B00B39552 /* Source Control */;
 		userBuildSettings = {
@@ -92,10 +94,20 @@
 	};
 	089C167EFE841241C02AAC07 /* English */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {848, 350}}";
+			sepNavIntBoundsRect = "{{0, 0}, {848, 335}}";
 			sepNavSelRange = "{0, 0}";
 			sepNavVisRange = "{0, 45}";
 		};
+	};
+	12353F6916B160330014D043 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 12B21F1B12464EEC002948CA /* xmmintrin.h */;
+		name = "xmmintrin.h: 45";
+		rLen = 23;
+		rLoc = 1683;
+		rType = 0;
+		vrLen = 852;
+		vrLoc = 1239;
 	};
 	12A0E1B2169D41DF00069706 /* PlistBookmark */ = {
 		isa = PlistBookmark;
@@ -106,7 +118,7 @@
 		);
 		name = /Users/slice/Projects/voodoohda/tranc/Info.plist;
 		rLen = 0;
-		rLoc = 9223372036854775808;
+		rLoc = 4294967295;
 	};
 	12A0E1B3169D41DF00069706 /* PlistBookmark */ = {
 		isa = PlistBookmark;
@@ -118,27 +130,7 @@
 		);
 		name = /Users/slice/Projects/voodoohda/tranc/version.plist;
 		rLen = 0;
-		rLoc = 9223372036854775808;
-	};
-	12A0E1B5169D41DF00069706 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 089C167EFE841241C02AAC07 /* English */;
-		name = "InfoPlist.strings: 1";
-		rLen = 0;
-		rLoc = 0;
-		rType = 0;
-		vrLen = 45;
-		vrLoc = 0;
-	};
-	12A0E1C0169D41FF00069706 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 089C167EFE841241C02AAC07 /* English */;
-		name = "InfoPlist.strings: 1";
-		rLen = 0;
-		rLoc = 0;
-		rType = 0;
-		vrLen = 45;
-		vrLoc = 0;
+		rLoc = 4294967295;
 	};
 	12B21F1612464EEC002948CA /* emmintrin.h */ = {
 		uiCtxt = {
@@ -149,8 +141,9 @@
 	};
 	12B21F1B12464EEC002948CA /* xmmintrin.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {453, 22498}}";
+			sepNavIntBoundsRect = "{{0, 0}, {848, 20319}}";
 			sepNavSelRange = "{1683, 23}";
+			sepNavVisRange = "{1239, 852}";
 			sepNavVisRect = "{{0, 897}, {453, 201}}";
 		};
 	};
@@ -168,6 +161,26 @@
 			sepNavSelRange = "{1742, 0}";
 			sepNavVisRange = "{468, 960}";
 		};
+	};
+	12F3B506169DAE9C00A8CE4D /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 089C167EFE841241C02AAC07 /* English */;
+		name = "InfoPlist.strings: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 45;
+		vrLoc = 0;
+	};
+	12F3B509169DAE9C00A8CE4D /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 12B21F1B12464EEC002948CA /* xmmintrin.h */;
+		name = "xmmintrin.h: 45";
+		rLen = 23;
+		rLoc = 1683;
+		rType = 0;
+		vrLen = 778;
+		vrLoc = 1312;
 	};
 	12F6C0C81243DB5B00B39552 /* Source Control */ = {
 		isa = PBXSourceControlManager;
@@ -330,9 +343,9 @@
 	};
 	CEF7C0A70EF74C2700A14C68 /* PCMBlitterLibX86.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {733, 11453}}";
-			sepNavSelRange = "{6460, 24}";
-			sepNavVisRange = "{7665, 849}";
+			sepNavIntBoundsRect = "{{0, 0}, {1026, 12656}}";
+			sepNavSelRange = "{11499, 31}";
+			sepNavVisRange = "{9855, 629}";
 		};
 	};
 }

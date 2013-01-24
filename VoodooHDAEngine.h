@@ -42,8 +42,6 @@ public:
 	const char *mName;
 	IOAudioPort *mPort;
 
-	char mDescription[32];
-
 	int mActiveOssDev;
 
 	IOAudioSelectorControl *mSelControl;
@@ -64,7 +62,7 @@ public:
 	void setPinName(/*UInt32 type, */const char* name);
 //	void enumiratePinNames(void);
 	const char *getPortName();
-	const char *getDescription();
+	const char *getDescription(char*, unsigned);
 	void identifyPaths();
 	UInt32 getNumCtls(UInt32 dev);
 	UInt64 getMinMaxDb(UInt32 dev);

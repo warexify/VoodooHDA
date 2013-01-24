@@ -21,7 +21,7 @@
 #include "TigerAdditionals.h"
 #endif
 
-#define HDAC_REVISION "20100917_0142"
+#define HDAC_REVISION "20120126_0002"
 
 #define LOCK()		lock(__FUNCTION__)
 #define UNLOCK()	unlock(__FUNCTION__)
@@ -472,7 +472,7 @@ bool VoodooHDADevice::initHardware(IOService *provider)
 	//TODO: setDeviceModelName
   snprintf(string, sizeof(string), "VoodooHDA:%x ", (unsigned int)(mDeviceId >> 16));
   setDeviceModelName(string);
-	setDeviceTransportType(kIOAudioDeviceTransportTypeOther);
+	setDeviceTransportType(kIOAudioDeviceTransportTypeBuiltIn);
 
 //	logMsg("deviceId: %08lx, subDeviceId: %08lx\n", mDeviceId, mSubDeviceId);
 
@@ -491,8 +491,8 @@ bool VoodooHDADevice::initHardware(IOService *provider)
 	if (vendorId == NVIDIA_VENDORID &&
 		!OSDynamicCast(OSBoolean, getProperty(kVoodooHDAAllowMSI)))
 		/*
-		 * Disable MSI for NVIDIA HDAC if not in Info.plist.
-		 *   Known to have problems with MSI
+		 * Disable MSI for NVIDIA controller if not in Info.plist.
+		 *   Known to have problems with MSI (Quirk from HDAC)
 		 */
 		mAllowMSI = false;
 
@@ -507,13 +507,13 @@ bool VoodooHDADevice::initHardware(IOService *provider)
 		goto done;
 	}
 
-	mCorbMem = allocateDmaMemory(mCorbSize * sizeof (UInt32), "CORB");
+	mCorbMem = allocateDmaMemory(mCorbSize * sizeof (UInt32), "CORB", kIOMapInhibitCache);
 	if (!mCorbMem) {
 		errorMsg("error: allocateDmaMemory for CORB memory failed\n");
 		goto done;
 	}
 
-	mRirbMem = allocateDmaMemory(mRirbSize * sizeof (RirbResponse), "RIRB");
+	mRirbMem = allocateDmaMemory(mRirbSize * sizeof (RirbResponse), "RIRB", kIOMapInhibitCache);
 	if (!mRirbMem) {
 		errorMsg("error: allocateDmaMemory for RIRB memory failed\n");
 		goto done;
@@ -571,6 +571,7 @@ bool VoodooHDADevice::initHardware(IOService *provider)
 		errorMsg("error: no audio engines were created\n");
 		goto done;
 	}
+	LOCK();
 	//Slice - it's a time to switch engines
 	for (int n = 0; n < HDAC_CODEC_MAX; n++) {
 		Codec *codec = mCodecs[n];
@@ -584,6 +585,7 @@ bool VoodooHDADevice::initHardware(IOService *provider)
 				switchHandler(funcGroup, true);
 		}
 	}
+	UNLOCK();
 
 	result = true;
 done:
@@ -891,12 +893,14 @@ bool VoodooHDADevice::resume()
 				mixerResume(&funcGroup->audio.pcmDevices[i]);
 			}
 
+			LOCK(); // xxx
+
 			switchInit(funcGroup);
 
 			if (funcGroup->mSwitchEnable)
 				switchHandler(funcGroup, false);
 
-			LOCK(); // xxx
+	//		LOCK(); // xxx
 		}
 	}
 
@@ -1008,6 +1012,8 @@ bool VoodooHDADevice::getCapabilities()
 	mSDO = HDAC_GCAP_NSDO(globalCap);
 
 	mSupports64Bit = HDA_FLAG_MATCH(globalCap, HDAC_GCAP_64OK);
+	if ((mDeviceId & ~0x30000U) == HDA_NVIDIA_MCP78_1)	// Quirk from HDAC
+		mSupports64Bit = false;
 
 	corbSizeReg = readData8(HDAC_CORBSIZE);
 	if ((corbSizeReg & HDAC_CORBSIZE_CORBSZCAP_256) == HDAC_CORBSIZE_CORBSZCAP_256)
@@ -1243,10 +1249,12 @@ IOReturn VoodooHDADevice::handleAction(OSObject *owner, void *arg0, void *arg1, 
 
 
 		if (ch < device->nSliderTabsCount) {
+			device->lockPrefPanelMemoryBuf();
 			device->mPrefPanelMemoryBuf[ch].vectorize = ((opt & 0x1) == 1);
 			device->mPrefPanelMemoryBuf[ch].noiseLevel = (val & 0x0F);
 			device->mPrefPanelMemoryBuf[ch].useStereo = ((opt & 0x2) == 2);
 			device->mPrefPanelMemoryBuf[ch].StereoBase = (val & 0xF0) >> 4;
+			device->unlockPrefPanelMemoryBuf();
 		}
 
 		device->setMath(ch, opt, val);
@@ -1265,7 +1273,9 @@ IOReturn VoodooHDADevice::handleAction(OSObject *owner, void *arg0, void *arg1, 
 	//Команда от моей версии getDump для обновления данных о усилении
 	if((action & 0xFF)  == kVoodooHDAActionGetMixers) {
 
+		device->LOCK();
 		device->updateExtDump();
+		device->UNLOCK();
 
 		*outSize = 0;
 		*outData = NULL;
@@ -1425,14 +1435,25 @@ bool VoodooHDADevice::interruptFilter(OSObject *owner, __unused IOFilterInterrup
 	VoodooHDADevice *device;
 	UInt32 status;
 
+#if 0
 	device = OSDynamicCast(VoodooHDADevice, owner);
+#else
+	/*
+	 * Not sure OSDynamicCast is safe in interrupt context, and
+	 *   anyhow, this function will never get called with any
+	 *   other OSObject. - Zenith432
+	 */
+	device = static_cast<VoodooHDADevice*>(owner);
+#endif
 	if (!device)
 		return false;
 
-	status = *(UInt32 *) ((UInt8 *) device->mRegBase + HDAC_INTSTS);
+	status = *(UInt32 volatile*) ((UInt8 *) device->mRegBase + HDAC_INTSTS);
 	if (!HDA_FLAG_MATCH(status, HDAC_INTSTS_GIS))
 		return false;
-	*(UInt32 *) ((UInt8 *) device->mRegBase + HDAC_INTSTS) = status;
+	if (status & HDAC_INTSTS_SIS_MASK)
+		device->mIntrTimeStamp = mach_absolute_time();
+	*(UInt32 volatile*) ((UInt8 *) device->mRegBase + HDAC_INTSTS) = status;
 	device->mIntStatus = status;
 
 	return true;
@@ -1441,7 +1462,15 @@ bool VoodooHDADevice::interruptFilter(OSObject *owner, __unused IOFilterInterrup
 void VoodooHDADevice::interruptHandler(OSObject *owner, __unused IOInterruptEventSource *source,
 		__unused int count)
 {
+#if 0
 	VoodooHDADevice *device = OSDynamicCast(VoodooHDADevice, owner);
+#else
+	/*
+	 * Not interrupt context anymore, but OSDynamicCast
+	 *   still not needed - Zenith432.
+	 */
+	VoodooHDADevice *device = static_cast<VoodooHDADevice*>(owner);
+#endif
 	if (!device)
 		return;
 	device->handleInterrupt();
@@ -1475,7 +1504,7 @@ void VoodooHDADevice::handleChannelInterrupt(int channelId)
 		errorMsg("warning: couldn't find engine matching channel %d\n", channelId);
 		return;
 	}
-	engine->takeTimeStamp();
+	engine->takeTimeStamp(true, reinterpret_cast<AbsoluteTime*>(&mIntrTimeStamp));
 }
 
 /******************************************************************************************/
@@ -1533,41 +1562,29 @@ void VoodooHDADevice::freeMem(void *addr)
 	kern_os_free(addr);
 }
 
-DmaMemory *VoodooHDADevice::allocateDmaMemory(mach_vm_size_t size, const char *description)
+DmaMemory *VoodooHDADevice::allocateDmaMemory(mach_vm_size_t size, const char *description, UInt32 cacheOption)
 {
-	IOReturn result;
-	IODMACommand::SegmentFunction outSegFunc;
-	UInt8 numAddrBits;
 	mach_vm_address_t physMask;
 	IOBufferMemoryDescriptor *memDesc = NULL;
-	IODMACommand *command = NULL;
-	UInt32 numSegments;
-	UInt64 offset = 0;
 	DmaMemory *dmaMemory = NULL;
-	UInt64 segAddr, segLength;
-	IOMemoryMap *map;
-	IOVirtualAddress virtAddr;
+	UInt64 segAddr;
+	IOByteCount segLength;
+	void* virtAddr;
 
 	ASSERT(size);
 	ASSERT(description);
 
-//	logMsg("VoodooHDADevice::allocateDmaMemory(%lld, %s)\n", size, description);
+//	logMsg("VoodooHDADevice::allocateDmaMemory(%llu, %s)\n", size, description);
 
-	if (mSupports64Bit) {
-		numAddrBits = 64;
-		outSegFunc = kIODMACommandOutputHost64;
-		physMask = ~((UInt64) HDAC_DMA_ALIGNMENT - 1);
-	} else {
-		numAddrBits = 32;
-		outSegFunc = kIODMACommandOutputHost32;
-		physMask = ~((UInt32) HDAC_DMA_ALIGNMENT - 1);
-	}
-	if (mInhibitCache) {
+	if (mSupports64Bit)
+		physMask = -HDAC_DMA_ALIGNMENT;
+	else
+		physMask = -HDAC_DMA_ALIGNMENT & UINT32_MAX;
+	cacheOption &= kIOMapCacheMask;
+	if (!cacheOption)
+		cacheOption = mInhibitCache ? kIOMapInhibitCache : kIOMapDefaultCache;
 		memDesc = IOBufferMemoryDescriptor::inTaskWithPhysicalMask(kernel_task,
-		   kIOMemoryPhysicallyContiguous | kIOMapInhibitCache, size, physMask);
-	} else
-		memDesc = IOBufferMemoryDescriptor::inTaskWithPhysicalMask(kernel_task,
-			kIOMemoryPhysicallyContiguous, size, physMask);
+			kIOMemoryPhysicallyContiguous | kIODirectionInOut | cacheOption, size, physMask);
 	
 	if (!memDesc) {
 		errorMsg("error: IOBufferMemoryDescriptor::inTaskWithPhysicalMask failed\n");
@@ -1575,69 +1592,38 @@ DmaMemory *VoodooHDADevice::allocateDmaMemory(mach_vm_size_t size, const char *d
 	}
 	ASSERT(memDesc->getLength() == size);
 
-	command = IODMACommand::withSpecification(outSegFunc, numAddrBits, size);
-	if (!command) {
-		errorMsg("error: IODMACommand::withSpecification failed\n");
-		goto failed;
-	}
-	result = command->setMemoryDescriptor(memDesc); // auto-prepared and retained
-	if (result != kIOReturnSuccess) {
-		errorMsg("error: IODMACommand::setMemoryDescriptor failed\n");
+	/*
+	 * Note: memDesc is kIOMemoryAutoPrepare, but just to conform...
+	 */
+	if (memDesc->prepare() != kIOReturnSuccess) {
+		errorMsg("error: IOMemoryDescriptor::prepare failed\n");
 		goto failed;
 	}
 
-	numSegments = 1;
-	if (numAddrBits == 64) {
-		IODMACommand::Segment64 segment;
-		result = command->gen64IOVMSegments(&offset, &segment, &numSegments);
-		if (result != kIOReturnSuccess) {
-			errorMsg("error: IODMACommand::gen64IOVMSegments failed\n");
+	segAddr = memDesc->getPhysicalSegment(0U, &segLength, 0U);
+	if (!segAddr) {
+		errorMsg("error: IOBufferMemoryDescriptor::getPhysicalSegment failed\n");
+		memDesc->complete();
 			goto failed;
 		}
-		segAddr = segment.fIOVMAddr;
-		segLength = segment.fLength;
-	} else if (numAddrBits == 32) {
-		IODMACommand::Segment32 segment;
-		result = command->gen32IOVMSegments(&offset, &segment, &numSegments);
-		if (result != kIOReturnSuccess) {
-			errorMsg("error: IODMACommand::gen32IOVMSegments failed\n");
-			goto failed;
-		}
-		segAddr = segment.fIOVMAddr;
-		segLength = segment.fLength;
-	} else
-		BUG("invalid numAddrBits");
 
-	ASSERT(numSegments == 1);
-	ASSERT(segLength == offset);
-	ASSERT(offset == size);
-
-	map = memDesc->map();
-	if (!map) {
-		errorMsg("error: IOBufferMemoryDescriptor::map failed\n");
-		goto failed;
-	}
-	virtAddr = map->getVirtualAddress();
+	virtAddr = memDesc->getBytesNoCopy();
 	ASSERT(virtAddr);
-	bzero((void *) virtAddr, size);
-
-	RELEASE(memDesc);
+	bzero(virtAddr, size);
 
 	dmaMemory = new DmaMemory;
 	dmaMemory->description = description;
-	dmaMemory->command = command;
-	dmaMemory->map = map;
+	dmaMemory->md = memDesc;
 	dmaMemory->size = size;
 	dmaMemory->physAddr = segAddr;
-	dmaMemory->virtAddr = virtAddr;
+	dmaMemory->virtAddr = reinterpret_cast<IOVirtualAddress>(virtAddr);
 
-//	logMsg("%s: allocated %lld bytes DMA memory (phys: 0x%llx, virt: 0x%x)\n",
-//			dmaMemory->description, dmaMemory->size, dmaMemory->physAddr, dmaMemory->virtAddr);
+//	logMsg("%s: allocated %llu bytes DMA memory (phys: %#llx, virt: %p)\n",
+//			dmaMemory->description, dmaMemory->size, dmaMemory->physAddr, virtAddr);
 
 	return dmaMemory;
 
 failed:
-	RELEASE(command);
 	RELEASE(memDesc);
 	DELETE(dmaMemory);
 
@@ -1653,13 +1639,9 @@ void VoodooHDADevice::freeDmaMemory(DmaMemory *dmaMemory)
 	dmaMemory->physAddr = 0;
 	dmaMemory->virtAddr = 0;
 
-	RELEASE(dmaMemory->map);
-
-	if (dmaMemory->command) {
-		dmaMemory->command->clearMemoryDescriptor();
-		dmaMemory->command->release();
-		dmaMemory->command = NULL;
-	}
+	if (dmaMemory->md)
+		dmaMemory->md->complete();
+	RELEASE(dmaMemory->md);
 
 	DELETE(dmaMemory);
 }
@@ -1713,7 +1695,6 @@ void VoodooHDADevice::sendCommands(CommandList *commands, nid_t cad)
 		if (codec->numVerbsSent != commands->numCommands) {
 			/* Queue as many verbs as possible */
 			corbReadPtr = readData16(HDAC_CORBRP);
-			mCorbMem->command->synchronize(kIODirectionOut); // xxx
 			while ((codec->numVerbsSent != commands->numCommands) &&
 					(((mCorbWritePtr + 1) % mCorbSize) != corbReadPtr)) {
 				mCorbWritePtr++;
@@ -1722,10 +1703,18 @@ void VoodooHDADevice::sendCommands(CommandList *commands, nid_t cad)
 			}
 
 			/* Send the verbs to the codecs */
-			mCorbMem->command->synchronize(kIODirectionIn); // xxx
 			writeData16(HDAC_CORBWP, mCorbWritePtr);
 		}
 
+#if 0
+		/*
+		 * Lock testing code
+		 */
+		if (IOLockTryLock(mLock)) {
+			IOLog("%s: Was unlocked, should have been locked!!\n", __FUNCTION__);
+			IOLockUnlock(mLock);
+		}
+#endif
 		timeout = 200;
 		while ((rirbFlush() == 0) && --timeout)
 			IODelay(10);
@@ -1836,12 +1825,6 @@ void VoodooHDADevice::initRirb()
 #else
 	writeData8(HDAC_RIRBCTL, HDAC_RIRBCTL_RINTCTL);
 #endif
-
-	/* Make sure that the Host CPU cache doesn't contain any dirty
-	 * cache lines that falls in the rirb. If I understood correctly, it
-	 * should be sufficient to do this only once as the rirb is purely
-	 * read-only from now on. */
-	mRirbMem->command->synchronize(kIODirectionOut); // xxx
 }
 
 /*
@@ -1877,7 +1860,6 @@ int VoodooHDADevice::rirbFlush()
 
 	rirbBase = (RirbResponse *) mRirbMem->virtAddr;
 	rirbWritePtr = readData8(HDAC_RIRBWP);
-		//mRirbMem->command->synchronize(kIODirectionIn); // xxx
 
 	ret = 0;
 	while (mRirbReadPtr != rirbWritePtr) {
@@ -2047,6 +2029,7 @@ void VoodooHDADevice::handleInterrupt()
 	UNLOCK();
 }
 
+//__attribute__((visibility("hidden")))
 void VoodooHDADevice::timeoutOccurred(OSObject *owner, IOTimerEventSource *source)
 {
 	VoodooHDADevice *device = OSDynamicCast(VoodooHDADevice, owner);
@@ -2738,7 +2721,7 @@ int VoodooHDADevice::bdlAlloc(Channel *channel)
 	ASSERT(pcmDevice);
 	ASSERT(pcmDevice->chanNumBlocks);
 
-	channel->bdlMem = allocateDmaMemory(sizeof (BdlEntry) * pcmDevice->chanNumBlocks, "bdlMem");
+	channel->bdlMem = allocateDmaMemory(sizeof (BdlEntry) * pcmDevice->chanNumBlocks, "bdlMem", kIOMapWriteThruCache);
 	if (!channel->bdlMem) {
 		errorMsg("error: couldn't allocate bdl\n");
 		return -1;

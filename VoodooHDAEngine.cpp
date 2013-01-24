@@ -12,6 +12,7 @@
 #include <IOKit/audio/IOAudioSelectorControl.h>
 #include <IOKit/audio/IOAudioLevelControl.h>
 #include <IOKit/audio/IOAudioToggleControl.h>
+#include <IOKit/pci/IOPCIDevice.h>
 
 #ifdef TIGER
 #include "TigerAdditionals.h"
@@ -96,7 +97,7 @@ void VoodooHDAEngine::free()
 
 	RELEASE(mPort);
 
-	RELEASE(mDevice);
+	mDevice = NULL;
 
 	super::free();
 }
@@ -156,12 +157,14 @@ done:
 	return mPortName;
 }
 
-const char *VoodooHDAEngine::getDescription()
+const char *VoodooHDAEngine::getDescription(char* callerBuffer, unsigned length)
 {
+	if (!callerBuffer)
+		return 0;
 	PcmDevice *pcmDevice = mChannel->pcmDevice;
-	snprintf(&mDescription[0], sizeof mDescription, "%s PCM #%d", (pcmDevice->digital ? "Digital" : "Analog"),
+	snprintf(callerBuffer, length, "%s PCM #%d", (pcmDevice->digital ? "Digital" : "Analog"),
 			 pcmDevice->index);
-	return &mDescription[0];
+	return callerBuffer;
 }
 
 void VoodooHDAEngine::identifyPaths()
@@ -263,7 +266,6 @@ int VoodooHDAEngine::getActiveOssDev()
 bool VoodooHDAEngine::initHardware(IOService *provider)
 {
 	bool result = false;
-	const char *description;
 	const char *portName;
 	UInt32 portType;
 	UInt32 subType;
@@ -275,18 +277,15 @@ bool VoodooHDAEngine::initHardware(IOService *provider)
 		errorMsg("error: IOAudioEngine::initHardware failed\n");
 		goto done;
 	}
-	IOSleep(50);
 	mDevice = OSDynamicCast(VoodooHDADevice, provider);
 	ASSERT(mDevice);
-	mDevice->retain();
 
 	mVerbose = mDevice->mVerbose;
+#if 0
 	identifyPaths();
+#endif
 	getPortName();
 
-	description = getDescription();
-	ASSERT(description);
-	
 	//logMsg("setDesc portName = %s\n", mPortName);
 	setDescription(mPortName);
 
@@ -414,7 +413,7 @@ bool VoodooHDAEngine::createAudioStream(IOAudioStreamDirection direction, void *
 		UInt32 supPcmSizeRates, UInt32 supStreamFormats, UInt32 channels)
 {
 	bool result = false;
-//	const char *description;
+	UInt32 defaultSampleRate = 0U;
 
 	IOAudioStreamFormat format = {
 		channels,										// number of channels
@@ -455,6 +454,8 @@ bool VoodooHDAEngine::createAudioStream(IOAudioStreamDirection direction, void *
 
     for(int i = 0; pcmRates[i]; i++) {
         sampleRate.whole = pcmRates[i];
+		if (sampleRate.whole <= 48000U && defaultSampleRate < sampleRate.whole)
+			defaultSampleRate = sampleRate.whole;
         if(HDA_PARAM_SUPP_STREAM_FORMATS_AC3(supStreamFormats)) {
             format.fBitDepth = 16;
             format.fBitWidth = 16;
@@ -466,32 +467,23 @@ bool VoodooHDAEngine::createAudioStream(IOAudioStreamDirection direction, void *
         }
         format.fSampleFormat = kIOAudioStreamSampleFormatLinearPCM;
         formatEx.fFramesPerPacket = 1;
+		format.fIsMixable = true;
 	if (HDA_PARAM_SUPP_PCM_SIZE_RATE_16BIT(supPcmSizeRates)) {
 		format.fBitDepth = 16;
 		format.fBitWidth = 16;
             formatEx.fBytesPerPacket = format.fNumChannels * (format.fBitWidth / 8);
-            format.fIsMixable = false;
-            mStream->addAvailableFormat(&format, &formatEx, &sampleRate, &sampleRate);
-            format.fIsMixable = true;
             mStream->addAvailableFormat(&format, &formatEx, &sampleRate, &sampleRate);
 	}
 	if (HDA_PARAM_SUPP_PCM_SIZE_RATE_24BIT(supPcmSizeRates)) {
 		format.fBitDepth = 24;
 		format.fBitWidth = 32;
-//		format.fBitWidth = 24;
             formatEx.fBytesPerPacket = format.fNumChannels * (format.fBitWidth / 8);
-            format.fIsMixable = false;
-            mStream->addAvailableFormat(&format, &formatEx, &sampleRate, &sampleRate);
-            format.fIsMixable = true;
             mStream->addAvailableFormat(&format, &formatEx, &sampleRate, &sampleRate);
 	}
 	if (HDA_PARAM_SUPP_PCM_SIZE_RATE_32BIT(supPcmSizeRates)) {
 		format.fBitDepth = 32;
 		format.fBitWidth = 32;
             formatEx.fBytesPerPacket = format.fNumChannels * (format.fBitWidth / 8);
-            format.fIsMixable = false;
-            mStream->addAvailableFormat(&format, &formatEx, &sampleRate, &sampleRate);
-            format.fIsMixable = true;
             mStream->addAvailableFormat(&format, &formatEx, &sampleRate, &sampleRate);
         }
 	}
@@ -501,11 +493,12 @@ bool VoodooHDAEngine::createAudioStream(IOAudioStreamDirection direction, void *
 		goto done;
     }
 
+	sampleRate.whole = defaultSampleRate;
 	setSampleRate(&sampleRate);
-	mStream->setFormat(&format); // set widest format as default
-	performFormatChange(mStream, &format, &sampleRate);
 
 	addAudioStream(mStream);
+
+	mStream->setFormat(&format, &formatEx); // set widest format as default
 
 	result = true;
 done:
@@ -547,6 +540,7 @@ IOReturn VoodooHDAEngine::performAudioEngineStart()
 //	logMsg("VoodooHDAEngine[%p]::performAudioEngineStart\n", this);
 
 //	logMsg("calling channelStart() for channel %d\n", getEngineId());
+	takeTimeStamp(false);
 	mDevice->channelStart(mChannel);
 
 	return kIOReturnSuccess;
@@ -576,20 +570,18 @@ IOReturn VoodooHDAEngine::performFormatChange(IOAudioStream *audioStream,
 	IOReturn result = kIOReturnError;
 	int setResult;
 	UInt32 ossFormat;
-	bool wasRunning = (getState() == kIOAudioEngineRunning);
 
 	// ASSERT(audioStream == mStream);
 
 //	logMsg("VoodooHDAEngine[%p]::peformFormatChange(%p, %p, %p)\n", this, audioStream, newFormat,
 //			newSampleRate);
 
+	if (!newSampleRate)
+		newSampleRate = getSampleRate();
 	if (!newFormat && !newSampleRate) {
 		errorMsg("warning: performFormatChange(%p) called with no effect\n", audioStream);
 		return kIOReturnSuccess;
 	}
-
-	if (wasRunning)
-		stopAudioEngine();
 
 	if (newFormat) {
 	int channels = newFormat->fNumChannels;
@@ -664,9 +656,6 @@ IOReturn VoodooHDAEngine::performFormatChange(IOAudioStream *audioStream,
 		}
 	}
 
-	if (wasRunning)
-		startAudioEngine();
-
 	result = kIOReturnSuccess;
 done:
 	return result;
@@ -675,16 +664,13 @@ done:
 bool VoodooHDAEngine::createAudioControls()
 {
 	bool			result = false;
-	IOAudioControl	*control = new IOAudioControl;
+	IOAudioControl	*control;
 	IOAudioStreamDirection direction;
 	UInt32			usage;
 	UInt64			minMaxDb;
 	IOFixed			minDb,
 					maxDb;
-	int				initOssDev, initOssMask;
-	
-	if (control == NULL)
-		return false;
+	int				initOssDev, initOssMask, idupper;
 	
 	if (mChannel->funcGroup->audio.assocs[mChannel->assocNum].digital) {   //digital has no control
 		return true;
@@ -716,6 +702,8 @@ bool VoodooHDAEngine::createAudioControls()
 		maxDb = 0 << 16;
 	}
 	
+	idupper = mChannel->streamId << 16;
+
 	/* Create Volume controls */
 	/* Left channel */
 	control = IOAudioLevelControl::createVolumeControl(mDevice->mMixerDefaults[initOssDev],
@@ -725,7 +713,7 @@ bool VoodooHDAEngine::createAudioControls()
 													   maxDb,
 													   kIOAudioControlChannelIDDefaultLeft,
 													   kIOAudioControlChannelNameLeft,
-													   0,
+													   idupper | 0U,
 													   usage);
     if (!control) {
 		errorMsg("error: createVolumeControl failed\n");
@@ -744,7 +732,7 @@ bool VoodooHDAEngine::createAudioControls()
 													   maxDb,
 													   kIOAudioControlChannelIDDefaultRight,
 													   kIOAudioControlChannelNameRight,
-													   0,
+													   idupper | 1U,
 													   usage);
     if (!control) {
 		errorMsg("error: createVolumeControl failed\n");
@@ -759,7 +747,7 @@ bool VoodooHDAEngine::createAudioControls()
     control = IOAudioToggleControl::createMuteControl(false,	// initial state - unmuted
 													  kIOAudioControlChannelIDAll,	// Affects all channels
 													  kIOAudioControlChannelNameAll,
-													  0,
+													  idupper | 2U,
 													  usage);
     if (!control) {
 		errorMsg("error: createMuteControl failed\n");
@@ -770,6 +758,7 @@ bool VoodooHDAEngine::createAudioControls()
     this->addDefaultAudioControl(control);
     control->release();
 
+#if 0
     // Create a left & right input gain control with an int range from 0 to 65535
     // and a db range from 0 to 22.5
     control = IOAudioLevelControl::createVolumeControl(80,	// Initial value
@@ -779,7 +768,7 @@ bool VoodooHDAEngine::createAudioControls()
 													   (22 << 16) + (32768),	// 22.5 in IOFixed (16.16)
 													   kIOAudioControlChannelIDDefaultLeft,
 													   kIOAudioControlChannelNameLeft,
-													   0,		// control ID - driver-defined
+													   idupper | 3U,		// control ID - driver-defined
 													   kIOAudioControlUsageInput);
     if (!control) {
         goto Done;
@@ -796,7 +785,7 @@ bool VoodooHDAEngine::createAudioControls()
 													   (22 << 16) + (32768),	// max 22.5 in IOFixed (16.16)
 													   kIOAudioControlChannelIDDefaultRight,	// Affects right channel
 													   kIOAudioControlChannelNameRight,
-													   0,		// control ID - driver-defined
+													   idupper | 4U,		// control ID - driver-defined
 													   kIOAudioControlUsageInput);
     if (!control) {
         goto Done;
@@ -806,17 +795,16 @@ bool VoodooHDAEngine::createAudioControls()
     this->addDefaultAudioControl(control);
     control->release();
 	
-    
 	if(usage == kIOAudioControlUsageOutput) {
-		mSelControl = IOAudioSelectorControl::createOutputSelector(0, kIOAudioControlChannelIDAll);
+		mSelControl = IOAudioSelectorControl::createOutputSelector(0, kIOAudioControlChannelIDAll, kIOAudioControlChannelNameAll, idupper | 5U);
 	}else{
-		mSelControl = IOAudioSelectorControl::createInputSelector(0, kIOAudioControlChannelIDAll, kIOAudioControlChannelNameAll, 6);
+		mSelControl = IOAudioSelectorControl::createInputSelector(0, kIOAudioControlChannelIDAll, kIOAudioControlChannelNameAll, idupper | 5U);
 	}
 	if(mSelControl != 0) {
 		this->addDefaultAudioControl(mSelControl);
 		//enumiratePinNames();
 	}
-	
+#endif
 	
 	result = true;
 
@@ -826,18 +814,18 @@ Done:
 
 void VoodooHDAEngine::setPinName(/*UInt32 type,*/ const char* name)
 {
+	setDescription(name);
 	if(mSelControl == 0) 
 		return;
 	
 	mSelControl->addAvailableSelection('test', "test");
 	OSNumber* nom = OSNumber::withNumber('test', 32);
 	mSelControl->hardwareValueChanged(nom);
-	setDescription(name);
 	mSelControl->flushValue();
 	mSelControl->removeAvailableSelection('test');
-	setDescription(name);
 }
 
+//__attribute__((visibility("hidden")))
 IOReturn VoodooHDAEngine::volumeChangeHandler(IOService *target, IOAudioControl *volumeControl, SInt32 oldValue, SInt32 newValue)
 {
     IOReturn result = kIOReturnBadArgument;
@@ -981,14 +969,13 @@ IOReturn VoodooHDAEngine::gainChanged(IOAudioControl *gainControl, SInt32 oldVal
 OSString *VoodooHDAEngine::getLocalUniqueID()
 {
 	if (!mDevice || !mDevice->mPciNub)
-			return IOAudioEngine::getLocalUniqueID();
+			return super::getLocalUniqueID();
 	
-	OSString *ioName = OSDynamicCast(OSString, reinterpret_cast<IORegistryEntry *>(mDevice->mPciNub)->getProperty("IOName"));
+	OSString *ioName = OSDynamicCast(OSString, mDevice->mPciNub->getProperty("IOName"));
 	if (!ioName)
-			return IOAudioEngine::getLocalUniqueID();
+			return super::getLocalUniqueID();
 	
 	char str[64] = "";
-	snprintf(str, sizeof(str), "%s:%lx", ioName->getCStringNoCopy(), (long unsigned int)IOAudioEngine::index);
+	snprintf(str, sizeof str, "%s:%lx", ioName->getCStringNoCopy(), (long unsigned int)index);
 	return OSString::withCString(str);
 }
-

@@ -24,8 +24,8 @@ const char * const gDeviceTypes[16] = { "Line-out", "Speaker", "Headphones", "CD
 extern __attribute__((visibility("hidden")))
 const char * const gConnTypes[4] = { "Jack", "None", "Fixed", "Both" };
 
-const char * const gJacks[11] = {"Unknown", "1/8", "1/4", "ATAPI", "RCA", "Optic", "Digital", "Analog",
-	"Multi", "XLR", "RJ-11"};
+const char * const gJacks[16] = {"Unknown", "1/8", "1/4", "ATAPI", "RCA", "Optic", "Digital", "Analog",
+	"Multi", "XLR", "RJ-11", "Combo", "Res.F", "Res.G", "Res.H", "Other"};
 
 const ChannelCaps gDefaultChanCaps = { 48000, 48000, (UInt32 []) { AFMT_STEREO | AFMT_S16_LE, 0 }, 0, 2};
 
@@ -222,7 +222,7 @@ void VoodooHDADevice::probeFunction(Codec *codec, nid_t nid)
 
 	if ((funcGroup->audio.quirks & HDA_QUIRK_DMAPOS) && !mDmaPosMemAllocated) {
 		errorMsg("XXX\nXXX dma pos quirk untested\nXXX\n");
-		mDmaPosMem = allocateDmaMemory((mInStreamsSup + mOutStreamsSup + mBiStreamsSup) * 8, "dmaPosMem");
+		mDmaPosMem = allocateDmaMemory((mInStreamsSup + mOutStreamsSup + mBiStreamsSup) * 8, "dmaPosMem", kIOMapInhibitCache);
 		if (!mDmaPosMem)
 			errorMsg("error: failed to allocate DMA pos buffer (non-fatal)\n");
 		else
@@ -610,8 +610,8 @@ void VoodooHDADevice::vendorPatchParse(FunctionGroup *funcGroup)
 		widget = widgetGet(funcGroup, i);
 		if (!widget || (widget->enable == 0)) // || !(widget->type == 4))
 			continue;
-		dumpMsg("VHDevice NID=%d Config=%08lx Type=%08lx Cap=%08lx Ctrl=%08lx", i, (long unsigned int)widget->pin.config,
-		(long unsigned int)widget->type, (long unsigned int)widget->pin.cap, (long unsigned int)widget->pin.ctrl); 
+		dumpMsg("VHDevice NID=%2d Config=%08lx (%-14s) Cap=%08lx Ctrl=%08lx", i, (long unsigned int)widget->pin.config,
+				&widget->name[0], (long unsigned int)widget->pin.cap, (long unsigned int)widget->pin.ctrl);
 		dumpMsg(" -- Conns:");
 		widget->connsenabled = 0;
 		for (int j = 0; j < widget->nconns; j++){
@@ -2498,18 +2498,42 @@ void VoodooHDADevice::dumpPin(Widget *widget)
 	dumpMsg("\n");
 }
 
+static
+char const* location_name(unsigned loc_code, char* buf)
+{
+	switch (loc_code & 15U) {
+		case 0U: strlcpy(buf, "N/A    ", 8); break;
+		case 1U: strlcpy(buf, "Rear   ", 8); break;
+		case 2U: strlcpy(buf, "Front  ", 8); break;
+		case 3U: strlcpy(buf, "Left   ", 8); break;
+		case 4U: strlcpy(buf, "Right  ", 8); break;
+		case 5U: strlcpy(buf, "Top    ", 8); break;
+		case 6U: strlcpy(buf, "Bottom ", 8); break;
+		default: strlcpy(buf, "Special", 8); break;
+	}
+	switch ((loc_code >> 4) & 3U) {
+		case 0U: strncat(buf, " External", 20); break;
+		case 1U: strncat(buf, " Internal", 20); break;
+		case 2U: strncat(buf, " Separate", 20); break;
+		default: strncat(buf, " Other", 20); break;
+	}
+	return buf;
+}
+
 void VoodooHDADevice::dumpPinConfig(Widget *widget, UInt32 conf)
 {
-	dumpMsg(" nid %2d 0x%08lx as %2ld seq %2ld %13s %5s jack %2ld loc %2ld color %7s misc %ld%s\n",
+	char loc_buf[32];
+	dumpMsg(" nid %2d 0x%08lx as %2ld seq %2ld %-13s %-5s %-7s %-16s %-7s misc %ld%s%s\n",
 			widget->nid, (long unsigned int)conf,
 			(long int)HDA_CONFIG_DEFAULTCONF_ASSOCIATION(conf),
 			(long int)HDA_CONFIG_DEFAULTCONF_SEQUENCE(conf),
 			gDeviceTypes[HDA_CONFIG_DEFAULTCONF_DEVICE(conf)],
 			gConnTypes[HDA_CONFIG_DEFAULTCONF_CONNECTIVITY(conf)],
-			(long int)HDA_CONFIG_DEFAULTCONF_CONNECTION_TYPE(conf),
-			(long int)HDA_CONFIG_DEFAULTCONF_LOCATION(conf),
+			gJacks[HDA_CONFIG_DEFAULTCONF_CONNECTION_TYPE(conf)],
+			location_name(HDA_CONFIG_DEFAULTCONF_LOCATION(conf), &loc_buf[0]),
 			gColorTypes[HDA_CONFIG_DEFAULTCONF_COLOR(conf)],
-			(long int)HDA_CONFIG_DEFAULTCONF_MISC(conf),
+			(long int)HDA_CONFIG_DEFAULTCONF_MISC(conf) >> 1,
+			(HDA_CONFIG_DEFAULTCONF_MISC(conf) & 1U) ? " NoPresenceDetect": "",
 			(widget->enable == 0) ? " [DISABLED]" : "");
 }
 
@@ -3350,26 +3374,26 @@ UInt32 VoodooHDADevice::widgetGetCaps(Widget *widget, int *waspin)
 	case HDA_CODEC_ALC260:
 		beeper = 23;
 		break;
-	case HDA_CODEC_ALC262:
-	case HDA_CODEC_ALC268:
-	case HDA_CODEC_ALC880:
-	case HDA_CODEC_ALC882:
-	case HDA_CODEC_ALC883:
-	case HDA_CODEC_ALC885:
-	case HDA_CODEC_ALC888:
-	case HDA_CODEC_ALC889:
+	case HDA_CODEC_STAC9228X:
+		beeper = 35;
+		break;
+	default:
+		if (HDA_PARAM_VENDOR_ID_VENDOR_ID(id) == REALTEK_VENDORID)
 		beeper = 29;
 		break;
-	case HDA_CODEC_STAC9228X:
-		beeper = 0x23;
-		break;
-		
 	}
 	if (nid == beeper) {
 		caps &= ~HDA_PARAM_AUDIO_WIDGET_CAP_TYPE_MASK;
 		caps |= HDA_PARAM_AUDIO_WIDGET_CAP_TYPE_BEEP_WIDGET << HDA_PARAM_AUDIO_WIDGET_CAP_TYPE_SHIFT;
 		*waspin = 1;
 	}
+
+	/*
+	 * Clear "digital" flag from digital mic input, as its signal then goes
+	 * to "analog" mixer and this separation just limits functionaity.
+	 */
+	if (id == HDA_CODEC_AD1984A && nid == 23)
+		caps &= ~HDA_PARAM_AUDIO_WIDGET_CAP_DIGITAL_MASK;
 
 	if (caps != orig)
 		dumpMsg("Patching widget caps nid=%u 0x%08lx -> 0x%08lx\n", nid, (long unsigned int) orig, (long unsigned int)caps);
@@ -3459,6 +3483,10 @@ void VoodooHDADevice::widgetParse(Widget *widget)
 			widget->params.supStreamFormats = widget->funcGroup->audio.supStreamFormats;
 			widget->params.supPcmSizeRates = widget->funcGroup->audio.supPcmSizeRates;
 		}
+		if (HDA_PARAM_AUDIO_WIDGET_CAP_STRIPE(wcap))
+			widget->stripecap = sendCommand(HDA_CMD_GET_STRIPE_CONTROL(cad, nid), cad) >> 20;
+		else
+			widget->stripecap = 1;
 	} else {
 		widget->params.supStreamFormats = 0;
 		widget->params.supPcmSizeRates = 0;

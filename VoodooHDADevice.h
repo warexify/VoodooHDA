@@ -142,6 +142,7 @@ public:
 	UInt32 mIntStatus;
 	UInt64 mTotalInt;
 	UInt64 mTotalChanInt;
+	UInt64 mIntrTimeStamp;
 
 	UInt32 mVerbose;
 	//Temporary for init driver
@@ -235,7 +236,7 @@ public:
 	static void *reallocMem(void *addr, size_t size);
 	static void freeMem(void *addr);
 
-	DmaMemory *allocateDmaMemory(mach_vm_size_t size, const char *description);
+	DmaMemory *allocateDmaMemory(mach_vm_size_t size, const char *description, UInt32 cacheOption = kIOMapDefaultCache);
 	void freeDmaMemory(DmaMemory *dmaMemory);
 
 	void initCorb();

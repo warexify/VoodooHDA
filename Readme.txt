@@ -66,6 +66,9 @@ known issues
   * need to kextunload two or three times to actually unload the driver, seems to be an audio family
     bug as this happens with sample audio drivers too
   * manual specification of quirks and hints is currently unsupported
+  * When sample rate and bit-width are changed for VoodooHDA using "Audio Midi Setup", the settings
+    are not persisted to disk by coreaudiod in /Library/Preferences/Audio/com.apple.audio.DeviceSettings.plist.
+    As a result, the settings are reset to default on next boot.  Cause is unknown.
 
 license
 -------
@@ -74,6 +77,91 @@ see license.txt for details and copyright notices
 
 changelog
 ---------
+
+v2.8.2d4, r82
+- Simplified DmaMemory.
+- Moved interrupt timestamp closer to interrupt.
+- Fixed some locking errors.
+- Added 64bit quirk from FreeBSD.
+- removed unneeded
+  VoodooHDADevice::deactivateAllAudioEngines
+  clearSampleBuffer from r80
+  IOSleep(50) in VoodooHDAEngine::initHardware.
+- hide static methods.
+- update HDAC_REVISION.
+
+v2.8.2d2, r81
+- Make AllowMSI false for Nvidia if not in Info.plist. (+applied to tranc)
+- Reverted loose open/close policy from r78. (+applied to tranc)
+- Removed IOMatchCategory in Info.plist - so it be same as AppleHDA.kext.
+
+v2.8.2d1, r80
+- create development branch
+- Update from FreeBSD:
+  HDA models, codec models, misc macros
+  code in VoodooHDADevice::widgetGetCaps, ::widgetParse, ::initRirb
+- Memory caching policy as follows
+  If InhibitCache=true, all memory access is uncacheable.
+  If InhibitCache=false,
+    For PCI bar, CORB, RIRB, DMAPos buffer - uncacheable.
+    For BDL buffer - write-through.
+    For sample input and output buffers - write-back.
+- reports audio device type as "built-in" instead of "other" (same as Apple's audio drivers.)
+- In VoodooHDAEngine
+  eliminate unneeded mDescription.
+  eliminated unneeded duplicate registration of non-mixable format.
+  default sample rate for for audio streams no greater than 48KHz.
+  Added necessary timestamp at audio-engine-start whose lack was causing delay at audio start.
+  in performFormatChange - remove incorrect calls to base class,
+    determine sample rate if not given,
+    clear sample+mix buffer for new format.
+  in createAudioControls - fix memory leak,
+    give controls unique id,
+    remove unusable gain controls.
+    disable selector control for now because it's not correctly initialised with name and type of pins (TODO).
+- Add a bit more detail to dump in Parser.cpp
+
+v2.8.1, r78
+- add mixerResume to restore mixer settings to pre-sleep values on wake.
+- eliminate incorrect calls to base class in VoodooHDADevice::suspend and ::resume.
+- enable PCI power management.
+- sanitised use of mPciNub.
+- Make so InhibitCache=false actually enables caching on DMA buffers.  PCI bar still uncacheable.
+
+v2.8.0, r77
+- Fix prefPane xib file to eliminate duplicate NSPreferencePane object.  All connections are on File's owner now.
+- Eliminate useless methods in VoodooHDAUserClient.
+- Update mPrefPanelMemoryBuf right before send to prefPane so it's always right.
+- Fix prefPane to update if window closed back to System Preferences and then reopened.
+- Vectorize, AllowMSI default to true if don't appear in Info.plist.
+- prefPane to v1.2.1.
+
+v2.8.0, r76
+- eliminate rest of non-const static data for multi-instance safety.
+- fixed bug in VoodooHDADevice::messageHandler - double of use va_list causes panic if verbose level 2.
+- fixed initialisation and updating of mPrefPanelMemoryBuf to be passed to prefPane.
+
+v2.7.6, r74
+- Add support for message-signalled interrupts with AllowMSI option in Info.plist.
+
+v2.7.6, r71
+- in kext, eliminate non-const static data for multi-instance safety.
+- VoodooHDA.prefPane, VoodooHdaSettingsLoader support for configuring multiple instances of VoodooHDADevice.
+- prefPane and SettingsLoader to v1.2.
+- fixed some memory leaks in prefPane, SettingsLoader.
+- format of settings file upgraded to support multi-instance.
+- file now stored in ~/Library/Preferences/VoodooHDA.Settings.plist.
+- SettingsLoader will upgrade old settings file if it exists and new settings file doesn't exist.
+
+v2.7.6, r70
+Fix unsafe release in VoodooHDADevice::free that may panic.
+
+v2.7.6, r69
+Fix memory overrun in VoodooHDADevice::audioAssociationParse that may panic.
+Modified getdump to dump all instances of VoodooHDADevice.
+
+v2.7.5, r68
+Add some macros for build with XCode 4.5.x.
 
 0.2.2 (4/14/09):
 
