@@ -364,14 +364,7 @@ const CodecListItem gCodecList[] = {
 	{ HDA_CODEC_NVIDIAXXXX,		"NVidia (Unknown)" },
 	{ HDA_CODEC_SIIXXXX,		"Silicon Image (Unknown)" },
 	{ HDA_CODEC_STACXXXX,		"Sigmatel (Unknown)" },
-	{ HDA_CODEC_SIIXXXX,		"Silicon Image (Unknown)" },
-	{ HDA_CODEC_AGEREXXXX,		"Lucent/Agere Systems (Unknown)" },
-	{ HDA_CODEC_CXXXXX,			"Conexant (Unknown)" },
 	{ HDA_CODEC_VTXXXX,			"VIA (Unknown)" },
-	{ HDA_CODEC_ATIXXXX,		"ATI (Unknown)" },
-	{ HDA_CODEC_NVIDIAXXXX,		"NVidia (Unknown)" },
-	{ HDA_CODEC_INTELXXXX,		"Intel (Unknown)" },
-	{ HDA_CODEC_IDTXXXX,		"IDT (Unknown)" },
 	{ 0,						NULL }
 };
 
