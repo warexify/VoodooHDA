@@ -407,10 +407,38 @@ IOService *VoodooHDADevice::probe(IOService *provider, SInt32 *score)
 	return result;
 }
 
+__attribute__((noinline, visibility("hidden")))
+void VoodooHDADevice::disablePCIeNoSnoop(UInt16 vendorId)
+{
+	UInt16 snoop16;
+	UInt8 snoop8;
+	switch (vendorId) {
+		case INTEL_VENDORID:
+			/* Defines for Intel SCH HDA snoop control */
+			snoop16 = mPciNub->configRead16( INTEL_SCH_HDA_DEVC );
+			if (snoop16 & INTEL_SCH_HDA_DEVC_NOSNOOP) {
+				mPciNub->configWrite16( INTEL_SCH_HDA_DEVC,	snoop16 & (~INTEL_SCH_HDA_DEVC_NOSNOOP));
+			}
+			break;
+		case ATI_VENDORID:
+			snoop8 = mPciNub->configRead8(0x42U);
+			if (!(snoop8 & 2U)) {
+				mPciNub->configWrite8(0x42U, (snoop8 & 0xf8U) | 2U);
+			}
+			break;
+		case NVIDIA_VENDORID:
+			snoop8 = mPciNub->configRead8(0x4eU);
+			if ((snoop8 & 15U) != 15U) {
+				mPciNub->configWrite8(0x4eU, (snoop8 & 0xf0U) | 15U);
+			}
+			break;
+	}
+}
+
 bool VoodooHDADevice::initHardware(IOService *provider)
 {
 	bool result = false;
-	UInt16 config, vendorId, snoop;
+	UInt16 config, vendorId;
 //moved here from init ----------
   mMsgBufferEnabled = false;
 	mMsgBufferSize = MSG_BUFFER_SIZE;
@@ -483,11 +511,7 @@ bool VoodooHDADevice::initHardware(IOService *provider)
 		mPciNub->configWrite8(0x44, value & 0xf8);
 //		logMsg("TCSEL: %02x -> %02x\n", value, mPciNub->configRead8(0x44));
 	}
-	/* Defines for Intel SCH HDA snoop control */
-	snoop = mPciNub->configRead16( INTEL_SCH_HDA_DEVC );
-	if (snoop & INTEL_SCH_HDA_DEVC_NOSNOOP) {
-		mPciNub->configWrite16( INTEL_SCH_HDA_DEVC,	snoop & (~INTEL_SCH_HDA_DEVC_NOSNOOP));
-	}
+	disablePCIeNoSnoop(vendorId);
 	if (vendorId == NVIDIA_VENDORID &&
 		!OSDynamicCast(OSBoolean, getProperty(kVoodooHDAAllowMSI)))
 		/*
@@ -827,11 +851,7 @@ bool VoodooHDADevice::resume()
 		mPciNub->configWrite8(0x44, value & 0xf8);
 			//		logMsg("TCSEL: %02x -> %02x\n", value, mPciNub->configRead8(0x44));
 	}
-	UInt16 snoop = mPciNub->configRead16( INTEL_SCH_HDA_DEVC );
-	if (snoop & INTEL_SCH_HDA_DEVC_NOSNOOP) {
-		mPciNub->configWrite16( INTEL_SCH_HDA_DEVC,	snoop & (~INTEL_SCH_HDA_DEVC_NOSNOOP));
-	}
-
+	disablePCIeNoSnoop(static_cast<UInt16>(vendorId));
 
 	logMsg("Resetting controller...\n");
 	if (!resetController(true)) {
@@ -1308,7 +1328,7 @@ ChannelInfo *VoodooHDADevice::getChannelInfo() {
 			const char *name;
 			UInt32 ossMask;
 			//name = engine->getOssDevName(ossDev);
-			name = engine->mName;
+			name = engine->mPortName;
 
 			if (engine->getEngineDirection() == kIOAudioStreamDirectionOutput)
 				ossMask = engine->mChannel->pcmDevice->devMask;

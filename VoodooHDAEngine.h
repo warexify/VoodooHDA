@@ -39,14 +39,14 @@ public:
 	float *floatMixBufOld;
 
 	const char *mPortName;
-	const char *mName;
+	UInt32 mPortType;
+#if 0
 	IOAudioPort *mPort;
+#endif
 
 	int mActiveOssDev;
 
 	IOAudioSelectorControl *mSelControl;
-	IOAudioLevelControl *mVolumeControl;
-	IOAudioToggleControl *mMuteControl;
 
 	UInt32					oldOutVolumeLeft;
 	UInt32					oldOutVolumeRight;
@@ -59,7 +59,7 @@ public:
 
 	void messageHandler(UInt32 type, const char *format, ...) __attribute__ ((format (printf, 3, 4)));
 
-	void setPinName(/*UInt32 type, */const char* name);
+	void setPinName(UInt32 pinConfig, const char* name);
 //	void enumiratePinNames(void);
 	const char *getPortName();
 	const char *getDescription(char*, unsigned);

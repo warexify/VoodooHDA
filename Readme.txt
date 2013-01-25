@@ -77,6 +77,9 @@ see license.txt for details and copyright notices
 
 changelog
 ---------
+v2.8.2d5, r84
+- Implement no-snoop for ATI & Nvidia (code from FreeBSD).
+- Implemented Selector Audio Control to set correct "Type" in "Sound" Preference Pane.
 
 v2.8.2d4, r82
 - Simplified DmaMemory.

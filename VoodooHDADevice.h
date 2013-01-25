@@ -415,6 +415,7 @@ public:
 
 	/*********************/
 	void initMixerDefaultValues(void);
+	void disablePCIeNoSnoop(UInt16 vendorId);
 };
 
 #endif
