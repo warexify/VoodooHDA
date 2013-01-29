@@ -77,6 +77,9 @@ see license.txt for details and copyright notices
 
 changelog
 ---------
+v2.8.2d6, r86
+- Fix MSI interrupt concurrency.
+
 v2.8.2d5, r84
 - Implement no-snoop for ATI & Nvidia (code from FreeBSD).
 - Implemented Selector Audio Control to set correct "Type" in "Sound" Preference Pane.
