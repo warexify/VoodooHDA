@@ -1451,10 +1451,14 @@ bool VoodooHDADevice::interruptFilter(OSObject *owner, __unused IOFilterInterrup
 	status = *(UInt32 volatile*) ((UInt8 *) device->mRegBase + HDAC_INTSTS);
 	if (!HDA_FLAG_MATCH(status, HDAC_INTSTS_GIS))
 		return false;
+	/*
+	 * Note: If multiple stream primary interrupts take place
+	 *   before threaded handler, last time-stamp is used.
+	 */
 	if (status & HDAC_INTSTS_SIS_MASK)
 		device->mIntrTimeStamp = mach_absolute_time();
 	*(UInt32 volatile*) ((UInt8 *) device->mRegBase + HDAC_INTSTS) = status;
-	device->mIntStatus = status;
+	OSBitOrAtomic(status, &device->mIntStatus);
 
 	return true;
 }
@@ -1988,9 +1992,7 @@ void VoodooHDADevice::handleInterrupt()
 	UInt32 status, trigger;
 
 	mTotalInt++;
-
-	status = mIntStatus;
-	mIntStatus = 0;
+	status = OSBitAndAtomic(0U, &mIntStatus);
 	if (!HDA_FLAG_MATCH(status, HDAC_INTSTS_GIS)) {
 		errorMsg("warning: reached handler with blank global interrupt status\n");
 		return;
