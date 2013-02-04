@@ -117,11 +117,9 @@ ChannelInfo *updateChannelInfo(NSString* servicePath)
 		NSRunCriticalAlertPanel(
 								NSLocalizedString( @"Error", "MsgBox"),
 								NSLocalizedString( @"Can't allocate memory", "MsgBoxBody" ), nil, nil, nil );
-		IOConnectUnmapMemory(connect, kVoodooHDAChannelNames, mach_task_self(), address);
 		goto failure;
 	}
 	memcpy(info, (void const*) address, (size_t) size);
-	IOConnectUnmapMemory(connect, kVoodooHDAChannelNames, mach_task_self(), address);
 
 failure:
 	if (connect)
