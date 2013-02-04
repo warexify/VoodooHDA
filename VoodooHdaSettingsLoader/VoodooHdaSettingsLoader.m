@@ -174,11 +174,9 @@ ChannelInfo *getChannelInfoFromDriver(io_connect_t connect)
 	info = malloc((size_t) size);
 	if (!info) {
 		NSLog(@"%s: Can't allocate memory\n", __FUNCTION__);
-		IOConnectUnmapMemory(connect, kVoodooHDAChannelNames, mach_task_self(), address);
 		goto failure;
 	}
 	memcpy(info, (void const*) address, (size_t) size);
-	IOConnectUnmapMemory(connect, kVoodooHDAChannelNames, mach_task_self(), address);
 
 failure:
 
