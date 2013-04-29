@@ -78,13 +78,6 @@ done:
 	return result;
 }
 
-void VoodooHDAEngine::stop(IOService *provider)
-{
-//	logMsg("VoodooHDAEngine[%p]::stop\n", this);
-
-	super::stop(provider);
-}
-
 void VoodooHDAEngine::free()
 {
 //	logMsg("VoodooHDAEngine[%p]::free\n", this);
@@ -92,14 +85,39 @@ void VoodooHDAEngine::free()
 	RELEASE(mStream);
 
 	RELEASE(mSelControl);
-	RELEASE(mVolumeControl);
-	RELEASE(mMuteControl);
 
+#if 0
 	RELEASE(mPort);
+#endif
 
 	mDevice = NULL;
 
 	super::free();
+}
+
+static
+UInt32 pinConfigToSelection(UInt32 pinConfig)
+{
+	switch (pinConfig & HDA_CONFIG_DEFAULTCONF_DEVICE_MASK) {
+		case HDA_CONFIG_DEFAULTCONF_DEVICE_LINE_OUT:
+		case HDA_CONFIG_DEFAULTCONF_DEVICE_LINE_IN:
+			return kIOAudioSelectorControlSelectionValueLine;
+		case HDA_CONFIG_DEFAULTCONF_DEVICE_SPEAKER:
+			return kIOAudioSelectorControlSelectionValueExternalSpeaker;
+		case HDA_CONFIG_DEFAULTCONF_DEVICE_HP_OUT:
+			return kIOAudioSelectorControlSelectionValueHeadphones;
+		case HDA_CONFIG_DEFAULTCONF_DEVICE_CD:
+			return kIOAudioSelectorControlSelectionValueCD;
+		case HDA_CONFIG_DEFAULTCONF_DEVICE_SPDIF_OUT:
+		case HDA_CONFIG_DEFAULTCONF_DEVICE_DIGITAL_OTHER_OUT:
+		case HDA_CONFIG_DEFAULTCONF_DEVICE_SPDIF_IN:
+		case HDA_CONFIG_DEFAULTCONF_DEVICE_DIGITAL_OTHER_IN:
+			return kIOAudioSelectorControlSelectionValueSPDIF;
+		case HDA_CONFIG_DEFAULTCONF_DEVICE_MIC_IN:
+			return kIOAudioSelectorControlSelectionValueExternalMicrophone;
+		default:
+			return kIOAudioSelectorControlSelectionValueNone;
+	}
 }
 
 const char *VoodooHDAEngine::getPortName()
@@ -148,11 +166,14 @@ const char *VoodooHDAEngine::getPortName()
 	//Slice - advanced PinName
 
 	mPortName = &widget->name[5]; 
+	mPortType = pinConfigToSelection(widget->pin.config);
 done:
 	mDevice->unlock(__FUNCTION__);
 
 	if (!mPortName)
 		mPortName = "Not connected";
+	if (!mPortType)
+		mPortType = kIOAudioSelectorControlSelectionValueNone;
 	
 	return mPortName;
 }
@@ -266,10 +287,12 @@ int VoodooHDAEngine::getActiveOssDev()
 bool VoodooHDAEngine::initHardware(IOService *provider)
 {
 	bool result = false;
+#if 0
 	const char *portName;
 	UInt32 portType;
 	UInt32 subType;
 	IOReturn ret;
+#endif
 
 //	logMsg("VoodooHDAEngine[%p]::initHardware\n", this);
 
@@ -289,9 +312,15 @@ bool VoodooHDAEngine::initHardware(IOService *provider)
 	//logMsg("setDesc portName = %s\n", mPortName);
 	setDescription(mPortName);
 
+#if 0
 	// xxx: there must be some way to get port name to appear in the "type" column on the sound
 	// preference pane - this used to be the "port" column but apparently this is no longer the
 	// case in recent releases of os x
+	/*
+	 * IOAudioPort is listed as obsolete in Apple's Audio Device Driver Guide dated 2009-03-04.
+	 *    Setting of the type column is done via Selector Audio Controls
+	 *    -- Zenith432 2013-01-24.
+	 */
 
 	portName = mPortName;
 	ASSERT(portName);
@@ -319,6 +348,7 @@ bool VoodooHDAEngine::initHardware(IOService *provider)
 		errorMsg("error: attachAudioPort failed\n");
 		goto done;
 	}
+#endif
 
 	setSampleOffset(SAMPLE_OFFSET);
 	setSampleLatency(SAMPLE_LATENCY);
@@ -661,6 +691,12 @@ done:
 	return result;
 }
 
+static
+IOReturn SelectorChanged(OSObject*, IOAudioControl*, SInt32, SInt32)
+{
+	return kIOReturnSuccess;
+}
+
 bool VoodooHDAEngine::createAudioControls()
 {
 	bool			result = false;
@@ -672,9 +708,9 @@ bool VoodooHDAEngine::createAudioControls()
 					maxDb;
 	int				initOssDev, initOssMask, idupper;
 	
-	if (mChannel->funcGroup->audio.assocs[mChannel->assocNum].digital) {   //digital has no control
+/*	if (mChannel->funcGroup->audio.assocs[mChannel->assocNum].digital) {   //digital has no control
 		return true;
-	}
+	}*/
 	direction = getEngineDirection();
 	if (direction == kIOAudioStreamDirectionOutput) {
 		usage = kIOAudioControlUsageOutput;
@@ -691,6 +727,11 @@ bool VoodooHDAEngine::createAudioControls()
 		goto Done;
 	}
 
+	idupper = mChannel->streamId << 16;
+
+	if (mChannel->funcGroup->audio.assocs[mChannel->assocNum].digital)
+		goto createSelectorControl;
+
 	minMaxDb = getMinMaxDb(initOssMask);
 	minDb = (IOFixed) (minMaxDb >> 32);
 	maxDb = (IOFixed) (minMaxDb & ~0UL);
@@ -702,8 +743,6 @@ bool VoodooHDAEngine::createAudioControls()
 		maxDb = 0 << 16;
 	}
 	
-	idupper = mChannel->streamId << 16;
-
 	/* Create Volume controls */
 	/* Left channel */
 	control = IOAudioLevelControl::createVolumeControl(mDevice->mMixerDefaults[initOssDev],
@@ -794,17 +833,26 @@ bool VoodooHDAEngine::createAudioControls()
     control->setValueChangeHandler((IOAudioControl::IntValueChangeHandler)gainChangeHandler, this);
     this->addDefaultAudioControl(control);
     control->release();
+#endif
 	
+createSelectorControl:
 	if(usage == kIOAudioControlUsageOutput) {
-		mSelControl = IOAudioSelectorControl::createOutputSelector(0, kIOAudioControlChannelIDAll, kIOAudioControlChannelNameAll, idupper | 5U);
+		mSelControl = IOAudioSelectorControl::createOutputSelector(mPortType,
+																   kIOAudioControlChannelIDAll,
+																   kIOAudioControlChannelNameAll,
+																   idupper | 5U);
 	}else{
-		mSelControl = IOAudioSelectorControl::createInputSelector(0, kIOAudioControlChannelIDAll, kIOAudioControlChannelNameAll, idupper | 5U);
+		mSelControl = IOAudioSelectorControl::createInputSelector(mPortType,
+																  kIOAudioControlChannelIDAll,
+																  kIOAudioControlChannelNameAll,
+																  idupper | 5U);
 	}
 	if(mSelControl != 0) {
+		mSelControl->addAvailableSelection(mPortType, mPortName);
+		mSelControl->setValueChangeHandler(SelectorChanged, this);
 		this->addDefaultAudioControl(mSelControl);
 		//enumiratePinNames();
 	}
-#endif
 	
 	result = true;
 
@@ -812,17 +860,25 @@ Done:
 	return result;
 }
 
-void VoodooHDAEngine::setPinName(/*UInt32 type,*/ const char* name)
+void VoodooHDAEngine::setPinName(UInt32 pinConfig, const char* name)
 {
-	setDescription(name);
-	if(mSelControl == 0) 
+	UInt32 previousPortType;
+	if (!name)
 		return;
+	previousPortType = mPortType;
+	mPortName = name;
+	mPortType = pinConfigToSelection(pinConfig);
+	beginConfigurationChange();
+	setDescription(name);
+	if(mSelControl == 0) {
+		completeConfigurationChange();
+		return;
+	}
 	
-	mSelControl->addAvailableSelection('test', "test");
-	OSNumber* nom = OSNumber::withNumber('test', 32);
-	mSelControl->hardwareValueChanged(nom);
-	mSelControl->flushValue();
-	mSelControl->removeAvailableSelection('test');
+	mSelControl->removeAvailableSelection(previousPortType);
+	mSelControl->addAvailableSelection(mPortType, name);
+	mSelControl->setValue(mPortType);
+	completeConfigurationChange();
 }
 
 //__attribute__((visibility("hidden")))

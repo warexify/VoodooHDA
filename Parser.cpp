@@ -4091,6 +4091,10 @@ void VoodooHDADevice::createPcms(FunctionGroup *funcGroup)
 	}
 	funcGroup->audio.numPcmDevices = max(numAnalogRecDevs, numAnalogPlayDevs) +
 			max(numDigitalRecDevs, numDigitalPlayDevs);
+  if (funcGroup->audio.numPcmDevices == 0) {
+      errorMsg("error: numPcmDevices is zero\n");
+      return;
+  }
 	funcGroup->audio.pcmDevices = (PcmDevice *) allocMem(funcGroup->audio.numPcmDevices *
 			sizeof (PcmDevice));
 	if (!funcGroup->audio.pcmDevices) {
@@ -4180,10 +4184,11 @@ void VoodooHDADevice::SwitchHandlerRename(FunctionGroup *funcGroup, nid_t nid, i
 				engine = lookupEngine(channelNum);
 				if(engine != NULL) {
 					logMsg("setDesc  change description %s channel %d assoc %d\n", &widget->name[5], channelNum, assocsNum);
-					engine->beginConfigurationChange();
-					engine->setPinName(/*widget->nid,*/ &widget->name[5]);
+/*					engine->beginConfigurationChange();
+					engine->setPinName( &widget->name[5]);
 					engine->mName = &widget->name[5];
-					engine->completeConfigurationChange();
+					engine->completeConfigurationChange(); */
+					engine->setPinName(widget->pin.config, &widget->name[5]);
 					return;
 				}
 				logMsg("setDesc  can't find engine for %s channel %d assoc %d\n", &widget->name[5], channelNum, assocsNum);

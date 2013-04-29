@@ -47,9 +47,9 @@
 			<key>VoodooHDAEnableMuteFix</key>
 			<false/>
 			<key>InhibitCache</key>
-			<true/>
-			<key>Vectorize</key>
 			<false/>
+			<key>Vectorize</key>
+			<true/>
 			<key>AllowMSI</key>
 			<true/>
 			<key>Noise</key>

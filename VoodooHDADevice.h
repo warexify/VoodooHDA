@@ -189,7 +189,6 @@ public:
 	virtual IOService *probe(IOService *provider, SInt32 *score);
 	virtual bool initHardware(IOService *provider);
 	virtual bool createAudioEngine(Channel *channel);
-	virtual void deactivateAllAudioEngines();
 	virtual void stop(IOService *provider);
 	virtual void free();
 
@@ -416,6 +415,7 @@ public:
 	
 	/*********************/
 	void initMixerDefaultValues(void);
+	void disablePCIeNoSnoop(UInt16 vendorId);
 };
 
 #endif
