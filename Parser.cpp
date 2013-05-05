@@ -4092,6 +4092,10 @@ void VoodooHDADevice::createPcms(FunctionGroup *funcGroup)
 	}
 	funcGroup->audio.numPcmDevices = max(numAnalogRecDevs, numAnalogPlayDevs) +
 			max(numDigitalRecDevs, numDigitalPlayDevs);
+  if (funcGroup->audio.numPcmDevices == 0) {
+      errorMsg("error: numPcmDevices is zero\n");
+      return;
+  }
 	funcGroup->audio.pcmDevices = (PcmDevice *) allocMem(funcGroup->audio.numPcmDevices *
 			sizeof (PcmDevice));
 	if (!funcGroup->audio.pcmDevices) {
