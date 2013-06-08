@@ -2642,6 +2642,11 @@ void VoodooHDADevice::streamStart(Channel *channel)
 	ctl = readData32(HDAC_INTCTL);
 	ctl |= 1 << (channel->off >> 5);
 	writeData32(HDAC_INTCTL, ctl);
+  
+  //FreeBSD update
+//  HDAC_WRITE_1(&sc->mem, off + HDAC_SDSTS, HDAC_SDSTS_DESE | HDAC_SDSTS_FIFOE | HDAC_SDSTS_BCIS);
+  writeData8(channel->off + HDAC_SDSTS, HDAC_SDSTS_DESE | HDAC_SDSTS_FIFOE | HDAC_SDSTS_BCIS);
+  //
 
 	ctl = readData8(channel->off + HDAC_SDCTL0);
 	ctl |= HDAC_SDCTL_IOCE | HDAC_SDCTL_FEIE | HDAC_SDCTL_DEIE | HDAC_SDCTL_RUN;
