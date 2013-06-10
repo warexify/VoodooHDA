@@ -650,8 +650,7 @@ void VoodooHDADevice::stop(IOService *provider)
 		(mPciNub->isOpen(this) || mPciNub->open(this))) {
 		if (oldConfig != UINT16_MAX)
 			mPciNub->configWrite16(kIOPCIConfigCommand, oldConfig); //Slice
-		if (mPciNub->hasPCIPowerManagement(kPCIPMCD3Support))
-			mPciNub->enablePCIPowerManagement(kPCIPMCSPowerStateD0);
+		mPciNub->enablePCIPowerManagement(kPCIPMCSPowerStateD0);
 		mPciNub->close(this);
 	}
 
@@ -938,6 +937,9 @@ bool VoodooHDADevice::resetController(bool wakeup)
 	UInt32 gctl;
 
 	//logMsg("VoodooHDADevice[%p]::resetController(%d)\n", this, wakeup);
+
+	/* Make sure WAKEEN bits are off */
+	writeData16(HDAC_WAKEEN, 0U);
 
 	/* Stop all Streams DMA engine */
 	for (int i = 0; i < mInStreamsSup; i++)
@@ -2648,6 +2650,11 @@ void VoodooHDADevice::streamStart(Channel *channel)
 	ctl = readData32(HDAC_INTCTL);
 	ctl |= 1 << (channel->off >> 5);
 	writeData32(HDAC_INTCTL, ctl);
+
+  //FreeBSD update
+//  HDAC_WRITE_1(&sc->mem, off + HDAC_SDSTS, HDAC_SDSTS_DESE | HDAC_SDSTS_FIFOE | HDAC_SDSTS_BCIS);
+  writeData8(channel->off + HDAC_SDSTS, HDAC_SDSTS_DESE | HDAC_SDSTS_FIFOE | HDAC_SDSTS_BCIS);
+  //
 
 	ctl = readData8(channel->off + HDAC_SDCTL0);
 	ctl |= HDAC_SDCTL_IOCE | HDAC_SDCTL_FEIE | HDAC_SDCTL_DEIE | HDAC_SDCTL_RUN;

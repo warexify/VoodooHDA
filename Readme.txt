@@ -77,6 +77,12 @@ see license.txt for details and copyright notices
 
 changelog
 ---------
+v2.8.3d2, r91
+- Use unwired memory in clientMemoryForType.
+
+v2.8.2d6, r87
+- Remove calls to IOConnectUnmapMemory
+
 v2.8.2d6, r86
 - Fix MSI interrupt concurrency.
 

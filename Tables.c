@@ -9,6 +9,8 @@ const ControllerListItem gControllerList[] = {
 	{ HDA_INTEL_CPT,			"Intel Cougar Point"},
 	{ HDA_INTEL_PATSBURG,		"Intel Patsburg"},
 	{ HDA_INTEL_PPT1,			"Intel Panther Point"},
+  { HDA_INTEL_LPT1,    "Intel Lynx Point"},
+  { HDA_INTEL_LPT2,    "Intel Lynx Point"},
 	{ HDA_INTEL_82801F,			"Intel 82801F" },
 	{ HDA_INTEL_63XXESB,		"Intel 631x/632xESB" },
 	{ HDA_INTEL_82801G,			"Intel 82801G" },
