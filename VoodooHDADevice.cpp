@@ -650,7 +650,7 @@ void VoodooHDADevice::stop(IOService *provider)
 		(mPciNub->isOpen(this) || mPciNub->open(this))) {
 		if (oldConfig != UINT16_MAX)
 			mPciNub->configWrite16(kIOPCIConfigCommand, oldConfig); //Slice
-		if (mPciNub->hasPCIPowerManagement(kPCIPMCD3Support))
+//		if (mPciNub->hasPCIPowerManagement(kPCIPMCD3Support))
 			mPciNub->enablePCIPowerManagement(kPCIPMCSPowerStateD0);
 		mPciNub->close(this);
 	}
@@ -938,6 +938,9 @@ bool VoodooHDADevice::resetController(bool wakeup)
 	UInt32 gctl;
 
 	//logMsg("VoodooHDADevice[%p]::resetController(%d)\n", this, wakeup);
+
+  /* Make sure WAKEEN bits are off */
+  writeData16(HDAC_WAKEEN, 0U);
 
 	/* Stop all Streams DMA engine */
 	for (int i = 0; i < mInStreamsSup; i++)

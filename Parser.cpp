@@ -37,6 +37,7 @@ void VoodooHDADevice::scanCodecs()
 	UInt16 stateStatus;
 
 	stateStatus = readData16(HDAC_STATESTS);
+  writeData16(HDAC_STATESTS, stateStatus);
 	for (int i = 0; i < HDAC_CODEC_MAX; i++) {
 		if (HDAC_STATESTS_SDIWAKE(stateStatus, i)) {
 			/* We have found a codec. */
