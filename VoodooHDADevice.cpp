@@ -1206,7 +1206,7 @@ IOReturn VoodooHDADevice::runAction(UInt32 action, UInt32 *outSize, void **outDa
 	ASSERT(commandGate);
 	ASSERT(mActionHandler);
 
-	return commandGate->runAction(mActionHandler, (void *) action, (UInt32 *) outSize, (void *) outData,
+	return commandGate->runAction(mActionHandler, reinterpret_cast<void *>(action), (UInt32 *) outSize, (void *) outData,
 			extraArg);
 }
 

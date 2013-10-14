@@ -27,7 +27,8 @@ const char * const gConnTypes[4] = { "Jack", "None", "Fixed", "Both" };
 const char * const gJacks[16] = {"Unknown", "1/8", "1/4", "ATAPI", "RCA", "Optic", "Digital", "Analog",
 	"Multi", "XLR", "RJ-11", "Combo", "Res.F", "Res.G", "Res.H", "Other"};
 
-const ChannelCaps gDefaultChanCaps = { 48000, 48000, (UInt32 []) { AFMT_STEREO | AFMT_S16_LE, 0 }, 0, 2};
+const UInt32 gDefaultChanFormats[] = { AFMT_STEREO | AFMT_S16_LE, 0 };
+const ChannelCaps gDefaultChanCaps = { 48000, 48000, &gDefaultChanFormats[0], 0, 2};
 
 /*
  * Scan the bus for available codecs, starting with num.
