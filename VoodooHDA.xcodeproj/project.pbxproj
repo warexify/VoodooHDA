@@ -165,6 +165,7 @@
 			buildConfigurationList = 1DEB91DD08733DB10010E9CD /* Build configuration list for PBXProject "VoodooHDA" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
 				English,
@@ -230,7 +231,7 @@
 				);
 				CURRENT_PROJECT_VERSION = 2.8.4;
 				GCC_MODEL_TUNING = "";
-				GCC_VERSION = com.apple.compilers.llvmgcc42;
+				GCC_VERSION = "";
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(SYSTEM_LIBRARY_DIR)/Extensions";
 				MACOSX_DEPLOYMENT_TARGET = "";
@@ -255,7 +256,8 @@
 					i386,
 					x86_64,
 				);
-				CURRENT_PROJECT_VERSION = 2.8.4;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 2.8.2;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEPLOYMENT_POSTPROCESSING = YES;
 				DYLIB_COMPATIBILITY_VERSION = "$(CURRENT_PROJECT_VERSION)";
@@ -285,6 +287,7 @@
 				);
 				SDKROOT = "";
 				STRIPFLAGS = "-no_uuid";
+				VALID_ARCHS = "i386 x86_64";
 			};
 			name = Release;
 		};

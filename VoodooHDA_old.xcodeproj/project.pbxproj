@@ -304,6 +304,7 @@
 				MODULE_VERSION = 2.7.2;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "";
+				SDKROOT = macosx;
 				VALID_ARCHS = i386;
 			};
 			name = Release_Leo;
@@ -355,7 +356,7 @@
 					i386,
 				);
 				DEAD_CODE_STRIPPING = NO;
-				GCC_AUTO_VECTORIZATION = YES;
+				GCC_AUTO_VECTORIZATION = NO;
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_FAST_MATH = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
@@ -369,13 +370,14 @@
 				INSTALL_GROUP = wheel;
 				INSTALL_OWNER = root;
 				MACOSX_DEPLOYMENT_TARGET = "";
-				MODULE_VERSION = 2.8.1;
+				MODULE_VERSION = 2.8.4;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
 					"-fno-strict-aliasing",
 					"-DMULTICHANNEL",
 				);
 				PRODUCT_NAME = VoodooHDA;
+				SDKROOT = macosx;
 				STRINGS_FILE_OUTPUT_ENCODING = "UTF-8";
 				VALID_ARCHS = "i386 x86_64";
 			};
@@ -386,7 +388,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = YES;
-				CURRENT_PROJECT_VERSION = 2.8;
+				CURRENT_PROJECT_VERSION = 2.8.4;
 				DEAD_CODE_STRIPPING = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				GCC_AUTO_VECTORIZATION = NO;
@@ -394,7 +396,7 @@
 				GCC_ENABLE_OBJC_GC = unsupported;
 				GCC_MODEL_TUNING = "";
 				GCC_OPTIMIZATION_LEVEL = s;
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_VERSION = "";
 				GENERATE_PKGINFO_FILE = YES;
 				INFOPLIST_FILE = Info.plist;
 				INFOPLIST_PREPROCESS = YES;
@@ -405,7 +407,7 @@
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\\\"$(SRCROOT)/build/Release\\\"";
 				MODULE_NAME = org.voodoo.driver.VoodooHDA;
-				MODULE_VERSION = 2.8.1;
+				MODULE_VERSION = 2.8.4;
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = VoodooHDA;
 				SDKROOT = macosx;
@@ -442,6 +444,7 @@
 				MODULE_VERSION = 2.8.1;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "-DMULTICHANNEL";
+				SDKROOT = macosx;
 				VALID_ARCHS = i386;
 			};
 			name = "Release_Leo Multi";
@@ -506,6 +509,7 @@
 					"-DTIGER",
 					"-DMULTICHANNEL",
 				);
+				SDKROOT = macosx;
 				VALID_ARCHS = "ppc i386";
 			};
 			name = "Release_Tiger Multi";
@@ -636,6 +640,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				MODULE_VERSION = 2.7.2;
 				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = YES;
 				VALID_ARCHS = i386;
 			};
@@ -649,7 +654,7 @@
 					i386,
 				);
 				DEAD_CODE_STRIPPING = NO;
-				GCC_AUTO_VECTORIZATION = YES;
+				GCC_AUTO_VECTORIZATION = NO;
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_FAST_MATH = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
@@ -661,10 +666,11 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INSTALL_GROUP = wheel;
 				INSTALL_OWNER = root;
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
-				MODULE_VERSION = 2.7.4;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MODULE_VERSION = 2.8.2;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "";
+				SDKROOT = macosx;
 				VALID_ARCHS = "i386 x86_64";
 			};
 			name = Release;

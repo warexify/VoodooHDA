@@ -55,7 +55,7 @@
 			<key>Noise</key>
 			<integer>0</integer>
 			<key>Boost</key>
-			<integer>0</integer>
+			<integer>1</integer>
 			<key>VoodooHDAVerboseLevel</key>
 			<integer>0</integer>
 			<key>NodesToPatch</key>
