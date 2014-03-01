@@ -557,7 +557,8 @@ void VoodooHDADevice::vendorPatchParse(FunctionGroup *funcGroup)
 			funcGroup->audio.quirks &= ~(gQuirkList[i].unset);
 	}
 //Slice -- begin patching
-	//dumpMsg("Nodes patching. Codec = %d \n", (int)(funcGroup->codec->cad));
+	dumpMsg("Nodes patching. Codec = %d \n", (int)(funcGroup->codec->cad));
+	dumpMsg("NumNodes = %d\n", NumNodes);
 	for (int i = 0; i<NumNodes; i++){
 		N = NodesToPatchArray[i].Node;
 		if (!N)
@@ -573,7 +574,7 @@ void VoodooHDADevice::vendorPatchParse(FunctionGroup *funcGroup)
 			catPinName(widget);
 		}
 		if (NodesToPatchArray[i].Enable & 0x2){
-			//logMsg("Patching nod (%d) with conns = %d\n", N, NodesToPatchArray[i].nConns);
+			dumpMsg("Patching nid (%d) with conns = %d\n", N, (int)NodesToPatchArray[i].nConns);
 			if(NodesToPatchArray[i].nConns){
 				for(unsigned int connsIndex = 0; connsIndex < NodesToPatchArray[i].nConns; connsIndex++) {
 					widget->conns[connsIndex] = NodesToPatchArray[i].Conns[connsIndex];

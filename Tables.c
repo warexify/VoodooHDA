@@ -11,6 +11,7 @@ const ControllerListItem gControllerList[] = {
 	{ HDA_INTEL_PPT1,			"Intel Panther Point"},
   { HDA_INTEL_LPT1,    "Intel Lynx Point"},
   { HDA_INTEL_LPT2,    "Intel Lynx Point"},
+  { HDA_INTEL_HPT1,    "Intel Wellsburg"},
 	{ HDA_INTEL_82801F,			"Intel 82801F" },
 	{ HDA_INTEL_63XXESB,		"Intel 631x/632xESB" },
 	{ HDA_INTEL_82801G,			"Intel 82801G" },
@@ -347,6 +348,7 @@ const CodecListItem gCodecList[] = {
 	{ HDA_CODEC_INTELCPT,		"Intel Cougar Point HDMI" },
 	{ HDA_CODEC_INTELPPT,		"Intel Panther Point HDMI" },
 	{ HDA_CODEC_INTELCL,		"Intel Crestline HDMI" },
+	{ HDA_CODEC_INTELWB,		"Intel Wellsburg HDMI"},
 	{ HDA_CODEC_SII1390,		"Silicon Image SiI1390 HDMI" },
 	{ HDA_CODEC_SII1392,		"Silicon Image SiI1392 HDMI" },
 	/* Unknown codec */
