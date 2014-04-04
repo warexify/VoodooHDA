@@ -7,12 +7,12 @@
 
 typedef struct {
 	UInt32 model;
-	char const *name;
+	char *name;
 } ControllerListItem;
 
 typedef struct {
 	UInt32 id;
-	char const *name;
+	char *name;
 } CodecListItem;
 
 typedef struct {
@@ -24,7 +24,7 @@ typedef struct {
 } RateTableItem;
 
 typedef struct {
-	char const *key;
+	char *key;
 	UInt32 value;
 } QuirkType;
 
@@ -46,6 +46,7 @@ extern const CodecListItem gCodecList[];
 extern const RateTableItem gRateTable[];
 extern const QuirkType gQuirkTypes[];
 extern const QuirkListItem gQuirkList[];
+extern UInt16 gMixerDefaults[];
 extern const MixerValueName MixerValueNamesBind[];
 
 #define HDA_GPIO_MAX			8

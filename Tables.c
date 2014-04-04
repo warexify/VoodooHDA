@@ -4,11 +4,11 @@
 #include "Models.h"
 #include "OssCompat.h"
 
-__attribute__((visibility("hidden")))
 const ControllerListItem gControllerList[] = {
+    { HDA_INTEL_SER8HDMI,       "Intel Series 8 HDMI" },
 	{ HDA_INTEL_CPT,			"Intel Cougar Point"},
   { HDA_INTEL_PATSBURG, "Intel Patsburg"},
-	{ HDA_INTEL_PPT1,			"Intel Panther Point"},
+	{ HDA_INTEL_SCPT,			"Intel Panther Point"},
   { HDA_INTEL_LPT1,    "Intel Lynx Point"},
   { HDA_INTEL_LPT2,    "Intel Lynx Point"},
   { HDA_INTEL_HPT1,    "Intel Wellsburg"},
@@ -92,7 +92,6 @@ const ControllerListItem gControllerList[] = {
 	{ 0,                        NULL }
 };
 
-__attribute__((visibility("hidden")))
 const CodecListItem gCodecList[] = {
 	{ HDA_CODEC_CS4206,			"Cirrus Logic CS4206" },
 	{ HDA_CODEC_CS4207,			"Cirrus Logic CS4207" },
@@ -108,6 +107,7 @@ const CodecListItem gCodecList[] = {
 	{ HDA_CODEC_ALC273,			"Realtek ALC273" },
 	{ HDA_CODEC_ALC275,			"Realtek ALC275" },
 	{ HDA_CODEC_ALC276,			"Realtek ALC276" },
+	{ HDA_CODEC_ALC282,         "Realtek ALC282" },
 	{ HDA_CODEC_ALC660,			"Realtek ALC660" },
 	{ HDA_CODEC_ALC662,			"Realtek ALC662" },
 #if 0
@@ -372,7 +372,6 @@ const CodecListItem gCodecList[] = {
 	{ 0,						NULL }
 };
 
-__attribute__((visibility("hidden")))
 const RateTableItem gRateTable[] = {
 	{   8000, 1, 0x0000, 0x0000, 0x0500 },	/* (48000 * 1) / 6 */
 	{   9600, 0, 0x0000, 0x0000, 0x0400 },	/* (48000 * 1) / 5 */
@@ -412,7 +411,6 @@ const RateTableItem gRateTable[] = {
 	{      0, 0,      0,      0,      0 }
 };
 
-__attribute__((visibility("hidden")))
 const QuirkType gQuirkTypes[] = {
 	{ "gpio0",			HDA_QUIRK_GPIO0 },
 	{ "gpio1",			HDA_QUIRK_GPIO1 },
@@ -441,7 +439,6 @@ const QuirkType gQuirkTypes[] = {
 	{ NULL,				0 }
 };
 
-__attribute__((visibility("hidden")))
 const QuirkListItem gQuirkList[] = {
 	/*
 	 * XXX Force stereo quirk. Monoural recording / playback
@@ -475,7 +472,8 @@ const QuirkListItem gQuirkList[] = {
 	{ 0, 0, 0, 0 }
 };
 
-__attribute__((visibility("hidden")))
+UInt16 gMixerDefaults[SOUND_MIXER_NRDEVICES];
+
 const MixerValueName MixerValueNamesBind[SOUND_MIXER_NRDEVICES] = {
 {"Main",	SOUND_MIXER_VOLUME, 80},		// SOUND_MIXER_VOLUME
 {"Bass",	SOUND_MIXER_BASS, 50},		// SOUND_MIXER_BASS

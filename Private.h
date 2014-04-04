@@ -112,7 +112,9 @@ class IODMACommand;
 
 typedef struct _DmaMemory {
 	const char *description;
-	IOBufferMemoryDescriptor *md;
+//	IODMACommand *command;
+//	IOMemoryMap *map;
+  IOBufferMemoryDescriptor *md;
 	UInt64 size;
 	UInt64 physAddr;
 	IOVirtualAddress virtAddr;
@@ -269,7 +271,7 @@ typedef struct _FunctionGroup {
 
 typedef struct _ChannelCaps {
 	UInt32 minSpeed, maxSpeed;
-	UInt32 const *formats;
+	UInt32 *formats;
 	UInt32 caps;
 	UInt32 channels;
 } ChannelCaps;
