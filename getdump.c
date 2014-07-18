@@ -7,7 +7,8 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#include <IOKit/IOKitLib.h>
+//#include <IOKit/IOKitLib.h>
+#include <IOKitLib.h>
 #define SOUND_MIXER_NRDEVICES 25
 #include "Shared.h"
 

@@ -78,20 +78,18 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 414065590;
-			PBXWorkspaceStateSaveDate = 414065590;
+			PBXPerProjectTemplateStateSaveDate = 409575053;
+			PBXWorkspaceStateSaveDate = 409575053;
 		};
 		perUserProjectItems = {
 			1254163A16B2A1A300F66CA8 /* PBXTextBookmark */ = 1254163A16B2A1A300F66CA8 /* PBXTextBookmark */;
 			1254163B16B2A1A300F66CA8 /* PBXTextBookmark */ = 1254163B16B2A1A300F66CA8 /* PBXTextBookmark */;
-			1279359C18AE298900A2FC3F /* PBXTextBookmark */ = 1279359C18AE298900A2FC3F /* PBXTextBookmark */;
-			1279359D18AE298900A2FC3F /* PBXTextBookmark */ = 1279359D18AE298900A2FC3F /* PBXTextBookmark */;
-			1279359E18AE298900A2FC3F /* PBXTextBookmark */ = 1279359E18AE298900A2FC3F /* PBXTextBookmark */;
-			1279359F18AE298900A2FC3F /* PBXTextBookmark */ = 1279359F18AE298900A2FC3F /* PBXTextBookmark */;
 			12845D0B1830F895007FEA6F /* PBXTextBookmark */ = 12845D0B1830F895007FEA6F /* PBXTextBookmark */;
 			12845D0C1830F895007FEA6F /* PlistBookmark */ = 12845D0C1830F895007FEA6F /* PlistBookmark */;
 			12845D0D1830F895007FEA6F /* PBXTextBookmark */ = 12845D0D1830F895007FEA6F /* PBXTextBookmark */;
+			12B78C1F18699ED200D96530 /* PBXTextBookmark */ = 12B78C1F18699ED200D96530 /* PBXTextBookmark */;
 			12B78C2318699ED300D96530 /* PlistBookmark */ = 12B78C2318699ED300D96530 /* PlistBookmark */;
+			12B78C2418699ED300D96530 /* PBXTextBookmark */ = 12B78C2418699ED300D96530 /* PBXTextBookmark */;
 			12C9CA071702DACC00DC5408 /* PBXTextBookmark */ = 12C9CA071702DACC00DC5408 /* PBXTextBookmark */;
 		};
 		sourceControlManager = 12F6C0C81243DB5B00B39552 /* Source Control */;
@@ -124,43 +122,6 @@
 		rType = 0;
 		vrLen = 1024;
 		vrLoc = 17675;
-	};
-	1279359C18AE298900A2FC3F /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = CE45220E0EF210FD00600B68 /* Models.h */;
-		name = "Models.h: 32";
-		rLen = 14;
-		rLoc = 1438;
-		rType = 0;
-		vrLen = 1532;
-		vrLoc = 298;
-	};
-	1279359D18AE298900A2FC3F /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = CE9337FC0EF226E000776BCD /* Tables.c */;
-		name = "Tables.c: 8";
-		rLen = 15;
-		rLoc = 149;
-		rType = 0;
-		vrLen = 1144;
-		vrLoc = 0;
-	};
-	1279359E18AE298900A2FC3F /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = CE6725A00EF078B100FAFBED /* VoodooHDADevice.cpp */;
-		rLen = 15;
-		rLoc = 12012;
-		rType = 0;
-	};
-	1279359F18AE298900A2FC3F /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = CE6725A00EF078B100FAFBED /* VoodooHDADevice.cpp */;
-		name = "VoodooHDADevice.cpp: 384";
-		rLen = 15;
-		rLoc = 12012;
-		rType = 0;
-		vrLen = 1112;
-		vrLoc = 11429;
 	};
 	12845D0B1830F895007FEA6F /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
@@ -216,6 +177,13 @@
 			sepNavVisRect = "{{0, 897}, {453, 201}}";
 		};
 	};
+	12B78C1F18699ED200D96530 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = CE45220E0EF210FD00600B68 /* Models.h */;
+		rLen = 4;
+		rLoc = 792;
+		rType = 0;
+	};
 	12B78C2318699ED300D96530 /* PlistBookmark */ = {
 		isa = PlistBookmark;
 		fRef = 32D94FCF0562CBF700B6AF17 /* Info.plist */;
@@ -228,7 +196,17 @@
 		);
 		name = /Users/slice/Projects/voodoohda/tranc/Info.plist;
 		rLen = 0;
-		rLoc = 9223372036854775808;
+		rLoc = 9223372036854775807;
+	};
+	12B78C2418699ED300D96530 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = CE45220E0EF210FD00600B68 /* Models.h */;
+		name = "Models.h: 21";
+		rLen = 4;
+		rLoc = 792;
+		rType = 0;
+		vrLen = 1601;
+		vrLoc = 59;
 	};
 	12BDC91012440B5D00B327AE /* AppleAudioClip.cpp */ = {
 		uiCtxt = {
@@ -285,9 +263,9 @@
 	};
 	CE45220E0EF210FD00600B68 /* Models.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {843, 7748}}";
-			sepNavSelRange = "{31117, 18}";
-			sepNavVisRange = "{29186, 2184}";
+			sepNavIntBoundsRect = "{{0, 0}, {843, 7709}}";
+			sepNavSelRange = "{603, 444}";
+			sepNavVisRange = "{86, 2205}";
 			sepNavVisRect = "{{0, 13}, {633, 575}}";
 			sepNavWindowFrame = "{{15, 52}, {678, 689}}";
 		};
@@ -324,17 +302,17 @@
 	};
 	CE5D398A0EF4784000140715 /* Parser.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {843, 62673}}";
-			sepNavSelRange = "{7741, 12}";
-			sepNavVisRange = "{7074, 1361}";
+			sepNavIntBoundsRect = "{{0, 0}, {843, 62387}}";
+			sepNavSelRange = "{127211, 6}";
+			sepNavVisRange = "{126264, 1772}";
 			sepNavWindowFrame = "{{61, 273}, {750, 558}}";
 		};
 	};
 	CE6725A00EF078B100FAFBED /* VoodooHDADevice.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {848, 39156}}";
-			sepNavSelRange = "{12012, 15}";
-			sepNavVisRange = "{11429, 1112}";
+			sepNavIntBoundsRect = "{{0, 0}, {843, 38909}}";
+			sepNavSelRange = "{71972, 9}";
+			sepNavVisRange = "{71430, 1269}";
 			sepNavVisRect = "{{0, 5144}, {734, 195}}";
 			sepNavWindowFrame = "{{84, 252}, {750, 558}}";
 		};

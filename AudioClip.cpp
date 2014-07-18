@@ -116,9 +116,9 @@ IOReturn VoodooHDAEngine::convertInputSamples(const void *sampleBuf, void *destB
 		__unused IOAudioStream *audioStream)
 {
 	UInt32	numSamplesLeft, numSamples;
-	float 	*floatDestBuf;
+	Float32 	*floatDestBuf;
 	
-    floatDestBuf = (float *)destBuf;
+//    floatDestBuf = (float *)destBuf;
 	UInt32 firstSample = firstSampleFrame * streamFormat->fNumChannels;
 	numSamples = numSamplesLeft = numSampleFrames * streamFormat->fNumChannels;
 	long int noiseMask = ~((1 << noiseLevel) - 1);
@@ -129,7 +129,7 @@ IOReturn VoodooHDAEngine::convertInputSamples(const void *sampleBuf, void *destB
 	if ((streamFormat->fSampleFormat == kIOAudioStreamSampleFormatLinearPCM) && streamFormat->fIsMixable) {
 		// it's linear PCM, which means the target is Float32 and we will be calling a blitter, which
 		// works in samples not frames
-		Float32 *floatDestBuf = (Float32 *) destBuf;
+		floatDestBuf = (Float32 *) destBuf;
 
 		if (streamFormat->fNumericRepresentation == kIOAudioStreamNumericRepresentationSignedInt) {
 			// it's some kind of signed integer, which we handle as some kind of even byte length
@@ -143,7 +143,7 @@ IOReturn VoodooHDAEngine::convertInputSamples(const void *sampleBuf, void *destB
 					inputBuf8 = &(((SInt8 *)sampleBuf)[firstSample]);
 #if defined(__ppc__)
 					Int8ToFloat32(inputBuf8, floatDestBuf, numSamplesLeft);
-#elif defined(__i386__)
+#elif defined(__i386__) || defined(__x86_64__)
 					while (numSamplesLeft-- > 0) 
 					{	
 						*(floatDestBuf++) = (float)(*(inputBuf8++) &= (SInt8)noiseMask) * kOneOverMaxSInt8Value;
@@ -161,7 +161,7 @@ IOReturn VoodooHDAEngine::convertInputSamples(const void *sampleBuf, void *destB
 						inputBuf16 = &(((SInt16 *)sampleBuf)[firstSample]);						
 #if defined(__ppc__)
 						SwapInt16ToFloat32(inputBuf16, floatDestBuf, numSamplesLeft, 16);
-#elif defined(__i386__)
+#elif defined(__i386__) || defined(__x86_64__)
 						while (numSamplesLeft-- > 0) 
 						{	
 							*(floatDestBuf++) = (float)(*(inputBuf16++) &= (SInt16)noiseMask) * kOneOverMaxSInt16Value;
@@ -187,7 +187,7 @@ IOReturn VoodooHDAEngine::convertInputSamples(const void *sampleBuf, void *destB
 						
 #if defined(__ppc__)
 						SwapInt24ToFloat32((long *)inputBuf24, floatDestBuf, numSamplesLeft, 24);
-#elif defined(__i386__)
+#elif defined(__i386__) || defined(__x86_64__)
 						register SInt32 inputSample;
 						
 						// [rdar://4311684] - Fixed 24-bit input convert routine. /thw
@@ -225,7 +225,7 @@ IOReturn VoodooHDAEngine::convertInputSamples(const void *sampleBuf, void *destB
 						
 #if defined(__ppc__)
 						SwapInt32ToFloat32(inputBuf32, floatDestBuf, numSamplesLeft, 32);
-#elif defined(__i386__)
+#elif defined(__i386__) || defined(__x86_64__)
 						while (numSamplesLeft-- > 0) {	
 							*(floatDestBuf++) = (float)(*(inputBuf32++) & noiseMask) * kOneOverMaxSInt32Value;
 						}

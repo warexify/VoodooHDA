@@ -221,7 +221,7 @@ IOReturn VoodooHDAUserClient::clientMemoryForType(UInt32 type, IOOptionBits *opt
 			errorMsg("error: ext message buffer size is zero\n");
 			mDevice->unlockExtMsgBuffer();
 			result = kIOReturnUnsupported;
-      RELEASE(memDesc);
+//      RELEASE(memDesc);
 			break;
 		}
 
@@ -235,7 +235,7 @@ IOReturn VoodooHDAUserClient::clientMemoryForType(UInt32 type, IOOptionBits *opt
 					 mDevice->mExtMsgBufferSize);
 			mDevice->unlockExtMsgBuffer();
 			result = kIOReturnVMError;
-      RELEASE(memDesc);
+     		RELEASE(memDesc);
 			break;
 		}
 //		msgBuffer = (char *) memDesc->getBytesNoCopy();

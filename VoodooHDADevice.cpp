@@ -203,7 +203,7 @@ void VoodooHDADevice::initMixerDefaultValues(void)
 					int jjj = 0;
 					if(sscanf(tmpString->getCStringNoCopy(), "0x%08lx", &jj)) {
 						tmpUI16 = jj;
-					}else if(sscanf(tmpString->getCStringNoCopy(), "%d", &jjj)){
+					}else if(sscanf(tmpString->getCStringNoCopy(), "%4d", &jjj)){
 						tmpUI16 = jjj;
 					}
 				}
@@ -224,7 +224,7 @@ IOService *VoodooHDADevice::probe(IOService *provider, SInt32 *score)
 	UInt16 vendorId, deviceId, subVendorId, subDeviceId;
 //	UInt32 classCode;
 //	UInt8 devClass, subClass;
-	bool contIsGeneric = false;
+//	bool contIsGeneric = false;
 	int n;
 
 	//logMsg("VoodooHDADevice[%p]::probe\n", this);
@@ -273,7 +273,7 @@ IOService *VoodooHDADevice::probe(IOService *provider, SInt32 *score)
 									int jjj = 0;
 									if(sscanf(tmpString->getCStringNoCopy(), "0x%08lx", &jj)) {
 										tmpUI32 = jj;
-									}else if(sscanf(tmpString->getCStringNoCopy(), "%d", &jjj)){
+									}else if(sscanf(tmpString->getCStringNoCopy(), "%4d", &jjj)){
 										tmpUI32 = jjj;
 									}
 								}
@@ -385,7 +385,7 @@ IOService *VoodooHDADevice::probe(IOService *provider, SInt32 *score)
 		if (gControllerList[n].model == mDeviceId)
 			break;
 		else if (HDA_DEV_MATCH(gControllerList[n].model, mDeviceId)) {
-			contIsGeneric = true;
+//			contIsGeneric = true;
 			break;
 		}
 	}
@@ -531,13 +531,13 @@ bool VoodooHDADevice::initHardware(IOService *provider)
 		goto done;
 	}
 
-	mCorbMem = allocateDmaMemory(mCorbSize * sizeof (UInt32), "CORB", kIOMapInhibitCache);
+	mCorbMem = allocateDmaMemory(mCorbSize * sizeof (UInt32), "CORB", 0); //kIOMapInhibitCache);
 	if (!mCorbMem) {
 		errorMsg("error: allocateDmaMemory for CORB memory failed\n");
 		goto done;
 	}
 
-	mRirbMem = allocateDmaMemory(mRirbSize * sizeof (RirbResponse), "RIRB", kIOMapInhibitCache);
+	mRirbMem = allocateDmaMemory(mRirbSize * sizeof (RirbResponse), "RIRB", 0); // kIOMapInhibitCache);
 	if (!mRirbMem) {
 		errorMsg("error: allocateDmaMemory for RIRB memory failed\n");
 		goto done;
@@ -1497,8 +1497,8 @@ VoodooHDAEngine *VoodooHDADevice::lookupEngine(int channelId)
 
 	engineIter = OSCollectionIterator::withCollection(audioEngines);
 	engineIter->reset();
-	while ((engine = (VoodooHDAEngine *) engineIter->getNextObject())) {
-		ASSERT(OSDynamicCast(VoodooHDAEngine, engine));
+	while ((engine = OSDynamicCast(VoodooHDAEngine, engineIter->getNextObject()))) {
+//		ASSERT(OSDynamicCast(VoodooHDAEngine, engine));
 		if (engine->getEngineId() == channelId)
 			break;
 	}
@@ -1595,9 +1595,10 @@ DmaMemory *VoodooHDADevice::allocateDmaMemory(mach_vm_size_t size, const char *d
 	else
 		physMask = -HDAC_DMA_ALIGNMENT & UINT32_MAX;
 	cacheOption &= kIOMapCacheMask;
-	if (!cacheOption)
+	if (!cacheOption) {
 		cacheOption = mInhibitCache ? kIOMapInhibitCache : kIOMapDefaultCache;
-		memDesc = IOBufferMemoryDescriptor::inTaskWithPhysicalMask(kernel_task,
+  }
+	memDesc = IOBufferMemoryDescriptor::inTaskWithPhysicalMask(kernel_task,
 			kIOMemoryPhysicallyContiguous | kIODirectionInOut | cacheOption, size, physMask);
 	
 	if (!memDesc) {
@@ -2314,8 +2315,8 @@ int VoodooHDADevice::audioCtlOssMixerGet(PcmDevice *pcmDevice, UInt32 dev, UInt3
 	FunctionGroup *funcGroup = pcmDevice->funcGroup;
 	AudioControl *control;
 	int lvol = 100, rvol = 100;
-	bool bFound = false;
-	int controlIndex;
+//	bool bFound = false;
+//	int controlIndex;
 	//Slice
 	UInt32 mask = (1 << dev);
  
@@ -2337,8 +2338,8 @@ int VoodooHDADevice::audioCtlOssMixerGet(PcmDevice *pcmDevice, UInt32 dev, UInt3
 		audioCtlAmpGetGain(control);
 	
 		if(control->step != 0) {
-			bFound = true;
-			controlIndex = i;
+//			bFound = true;
+//			controlIndex = i;
 			lvol = 100 * control->left / control->step;
 			rvol = 100 * control->right / control->step;
 			

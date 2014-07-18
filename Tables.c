@@ -8,7 +8,7 @@ const ControllerListItem gControllerList[] = {
     { HDA_INTEL_SER8HDMI,       "Intel Series 8 HDMI" },
 	{ HDA_INTEL_CPT,			"Intel Cougar Point"},
   { HDA_INTEL_PATSBURG, "Intel Patsburg"},
-	{ HDA_INTEL_SCPT,			"Intel Panther Point"},
+	{ HDA_INTEL_PPT1,			"Intel Panther Point"},
   { HDA_INTEL_LPT1,    "Intel Lynx Point"},
   { HDA_INTEL_LPT2,    "Intel Lynx Point"},
   { HDA_INTEL_HPT1,    "Intel Wellsburg"},

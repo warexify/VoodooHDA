@@ -224,15 +224,18 @@
 		1DEB91DB08733DB10010E9CD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CURRENT_PROJECT_VERSION = 2.8.4;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CODE_SIGN_IDENTITY = "Developer ID Application: Andy Vandijck (GSF3NR4NQ5)";
+				CURRENT_PROJECT_VERSION = 2.8.6;
 				GCC_MODEL_TUNING = "";
-				GCC_VERSION = "";
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				INFOPLIST_FILE = Info.plist;
-				MACOSX_DEPLOYMENT_TARGET = "";
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				MODULE_NAME = org.voodoo.driver.VoodooHDA;
 				MODULE_VERSION = "$(CURRENT_PROJECT_VERSION)";
 				PRODUCT_NAME = VoodooHDA;
-				SDKROOT = "";
+				PROVISIONING_PROFILE = "";
+				SDKROOT = macosx10.6;
 				STRIP_STYLE = "non-global";
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -246,9 +249,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CODE_SIGN_IDENTITY = "Developer ID Application: Andy Vandijck (GSF3NR4NQ5)";
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 2.8.4;
+				CURRENT_PROJECT_VERSION = 2.8.6;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEPLOYMENT_POSTPROCESSING = YES;
 				DYLIB_COMPATIBILITY_VERSION = "$(CURRENT_PROJECT_VERSION)";
@@ -260,7 +264,7 @@
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_MODEL_TUNING = "";
 				GCC_PREPROCESSOR_DEFINITIONS = MULTICHANNEL;
-				GCC_VERSION = "";
+				GCC_VERSION = "gcc-4.8";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_SIGN_COMPARE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
@@ -268,7 +272,7 @@
 				GCC_WARN_UNUSED_LABEL = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				MODULE_VERSION = 2.8.4;
+				MODULE_VERSION = "$(CURRENT_PROJECT_VERSION)";
 				OTHER_CFLAGS = "-fno-stack-protector";
 				OTHER_LDFLAGS = (
 					"-Xlinker",
@@ -276,7 +280,8 @@
 					"-Xlinker",
 					"-no_data_in_code_info",
 				);
-				SDKROOT = macosx10.8;
+				PROVISIONING_PROFILE = "";
+				SDKROOT = macosx10.6;
 				STRIPFLAGS = "-no_uuid";
 				VALID_ARCHS = "i386 x86_64";
 			};
