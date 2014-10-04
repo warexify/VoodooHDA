@@ -13,6 +13,7 @@
 		8D202CF10486D31800D8A456 /* VoodooHDAPref.m in Sources */ = {isa = PBXBuildFile; fileRef = F506C03D013D9D7901CA16C8 /* VoodooHDAPref.m */; };
 		8D202CF30486D31800D8A456 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7ADFEA557BF11CA2CBB /* Cocoa.framework */; };
 		8D202CF40486D31800D8A456 /* PreferencePanes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F506C035013D953901CA16C8 /* PreferencePanes.framework */; };
+		AB0C8CD218EB2008004FAFDE /* VoodooHDAPref.icns in Resources */ = {isa = PBXBuildFile; fileRef = AB0C8CD118EB2008004FAFDE /* VoodooHDAPref.icns */; };
 		F47190CF0F97D04F00AC2757 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F47190CE0F97D04F00AC2757 /* IOKit.framework */; };
 /* End PBXBuildFile section */
 

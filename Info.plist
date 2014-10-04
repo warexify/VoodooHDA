@@ -25,7 +25,7 @@
 	<key>NSMainNibFile</key>
 	<string>VoodooHDAPref</string>
 	<key>NSPrefPaneIconFile</key>
-	<string>VoodooHDAPref.tiff</string>
+	<string>VoodooHDAPref.icns</string>
 	<key>NSPrefPaneIconLabel</key>
 	<string>VoodooHDA</string>
 	<key>NSPrincipalClass</key>

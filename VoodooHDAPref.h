@@ -99,6 +99,9 @@ enum {
 	NSInteger currentService;
 	UInt8 currentChannel;
 	ChannelInfo *chInfo;
+	io_service_t service;
+	io_connect_t connect;
+
 }
 //- (bool) updateChannelInfo;
 - (bool) updateMath;
