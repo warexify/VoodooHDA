@@ -104,7 +104,7 @@ IOReturn VoodooHDAUserClient::actionMethod(UInt32 *dataIn, UInt32 *dataOut, IOBy
 		return kIOReturnBadArgument;
 	action = *dataIn;
 
-	result = mDevice->runAction(action, &dataSize, &data);
+	result = mDevice->runAction(&action, &dataSize, &data);
 
 	// note: we can only transfer sizeof (io_struct_inband_t) bytes out at a time
 

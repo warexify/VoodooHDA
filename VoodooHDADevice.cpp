@@ -1197,9 +1197,9 @@ void VoodooHDADevice::messageHandler(UInt32 type, const char *format, va_list ar
 		unlockMsgBuffer();
 }
 
-IOReturn VoodooHDADevice::runAction(UInt32 action, UInt32 *outSize, void **outData, void *extraArg)
+IOReturn VoodooHDADevice::runAction(UInt32 *action, UInt32 *outSize, void **outData, void *extraArg)
 {
-	//logMsg("VoodooHDADevice[%p]::runAction(0x%lx, %p, %p, %p)\n", this, action, outSize, outData, extraArg);
+	//logMsg("VoodooHDADevice[%p]::runAction(0x%lx, %p, %p, %p)\n", this, *action, outSize, outData, extraArg);
 
 	ASSERT(outSize);
 	ASSERT(outData);
