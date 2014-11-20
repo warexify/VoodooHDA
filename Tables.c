@@ -476,8 +476,6 @@ const QuirkListItem gQuirkList[] = {
 	{ 0, 0, 0, 0 }
 };
 
-UInt16 gMixerDefaults[SOUND_MIXER_NRDEVICES];
-
 const MixerValueName MixerValueNamesBind[SOUND_MIXER_NRDEVICES] = {
 {"Main",	SOUND_MIXER_VOLUME, 80},		// SOUND_MIXER_VOLUME
 {"Bass",	SOUND_MIXER_BASS, 50},		// SOUND_MIXER_BASS

@@ -77,6 +77,11 @@ see license.txt for details and copyright notices
 
 changelog
 ---------
+v 2.8.7, r103
+- Remove duplicate HDA_CODEC_ALC282 in Models.h.
+- Fixed regression introduced in r97 with use of global const for multi-instance safety.
+- Fixed initialisation of audioCtls in _volSlider.
+
 v2.8.2d5, r84
 - Implement no-snoop for ATI & Nvidia (code from FreeBSD).
 - Implemented Selector Audio Control to set correct "Type" in "Sound" Preference Pane.

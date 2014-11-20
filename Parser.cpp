@@ -12,21 +12,23 @@
 #include "TigerAdditionals.h"
 #endif
 
-const char *gColorTypes[16] = { "Unknown", "Black", "Grey", "Blue", "Green", "Red",
+const char * const gColorTypes[16] = { "Unknown", "Black", "Grey", "Blue", "Green", "Red",
 	"Orange", "Yellow", "Purple", "Pink", "Res.A", "Res.B", "Res.C", "Res.D",
 	"White", "Other" };
 
-const char *gDeviceTypes[16] = { "Line-out", "Speaker", "Headphones", "CD",
+extern __attribute__((visibility("hidden")))
+const char * const gDeviceTypes[16] = { "Line-out", "Speaker", "Headphones", "CD",
 	"SPDIF-out", "Digital-out", "Modem-line", "Modem-handset", "Line-in",
 	"AUX", "Microphone", "Telephony", "SPDIF-in", "Digital-in", "Res.E", "Other" };
 
-const char *gConnTypes[4] = { "Jack", "None", "Fixed", "Both" };
+extern __attribute__((visibility("hidden")))
+const char * const gConnTypes[4] = { "Jack", "None", "Fixed", "Both" };
 
-const char * gJacks[16] = {"Unknown", "1/8", "1/4", "ATAPI", "RCA", "Optic", "Digital", "Analog",
+const char * const gJacks[16] = {"Unknown", "1/8", "1/4", "ATAPI", "RCA", "Optic", "Digital", "Analog",
 	"Multi", "XLR", "RJ-11", "Combo", "Res.F", "Res.G", "Res.H", "Other"};
 
-UInt32 gAFMT[] = { AFMT_STEREO | AFMT_S16_LE, 0 };
-const ChannelCaps gDefaultChanCaps = { 48000, 48000, gAFMT, 0, 2};
+const UInt32 gAFMT[] = { AFMT_STEREO | AFMT_S16_LE, 0 };
+const ChannelCaps gDefaultChanCaps = { 48000, 48000, &gAFMT[0], 0, 2};
 
 /*
  * Scan the bus for available codecs, starting with num.
@@ -2564,7 +2566,7 @@ void VoodooHDADevice::dumpAmp(UInt32 cap, const char *banner)
 
 void VoodooHDADevice::dumpNodes(FunctionGroup *funcGroup)
 {
-	static const char *ossname[] = SOUND_DEVICE_NAMES;
+	static const char * const ossname[] = SOUND_DEVICE_NAMES;
 
 	dumpMsg("\n");
 	dumpMsg("Default Parameter\n");
@@ -3512,7 +3514,7 @@ Widget *VoodooHDADevice::widgetGet(FunctionGroup *funcGroup, nid_t nid)
 char *VoodooHDADevice::audioCtlMixerMaskToString(UInt32 mask, char *buf, size_t len)
 {
 	//Slice - I change (char*) to (const char*) because of warning
-	static const char *ossname[] = SOUND_DEVICE_NAMES;
+	static const char * const ossname[] = SOUND_DEVICE_NAMES;
 
 	bzero(buf, len);
 	for (int i = 0, first = 1; i < SOUND_MIXER_NRDEVICES; i++) {
@@ -4613,7 +4615,7 @@ void VoodooHDADevice::extDumpAmp(UInt32 cap, const char *banner)
 
 void VoodooHDADevice::extDumpNodes(FunctionGroup *funcGroup)
 {
-	static const char *ossname[] = SOUND_DEVICE_NAMES;
+	static const char * const ossname[] = SOUND_DEVICE_NAMES;
 	
 	dumpExtMsg("\n");
 	dumpExtMsg("Default Parameter\n");

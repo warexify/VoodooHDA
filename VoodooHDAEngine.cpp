@@ -214,7 +214,6 @@ void VoodooHDAEngine::identifyPaths()
     if (mVerbose > 3) {
       logMsg("[nid %d] devType = %s, connType = %s\n", i, devType, connType);
     }
-
 	}
 }
 
@@ -1002,7 +1001,7 @@ IOReturn VoodooHDAEngine::muteChanged(IOAudioControl *muteControl, SInt32 oldVal
 IOReturn VoodooHDAEngine::gainChangeHandler(IOService *target, IOAudioControl *gainControl, SInt32 oldValue, SInt32 newValue)
 {
     IOReturn result = kIOReturnBadArgument;
-    VoodooHDAEngine *audioDevice = OSDynamicCast(VoodooHDAEngine, target);;
+	VoodooHDAEngine *audioDevice = OSDynamicCast(VoodooHDAEngine, target);
     
 //    audioDevice = (VoodooHDAEngine *)target;
     if (audioDevice) {

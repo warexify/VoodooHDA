@@ -51,8 +51,7 @@ typedef struct _volSlider{
 		enabled = false;
 		nAudioCtlsCount = 0;
 		pcmDev = 0;
-//		audioCtls = NULL;
-    bzero(&audioCtls, MAX_AUDIO_CTLS);
+		bzero(&audioCtls[0], sizeof audioCtls);
 	}
 }volSlider;
 
