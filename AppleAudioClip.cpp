@@ -39,8 +39,8 @@ class IOMemoryDescriptor;
 
 extern "C" {
 //	floating point types
-typedef	float				Float32;
-typedef double				Float64;
+//typedef	float				Float32;
+//typedef double				Float64;
 
 #define FLOATLIB			FALSE
 
@@ -1231,7 +1231,7 @@ void StereoFilter4thOrderPhaseComp (Float32 *in, Float32 *low, Float32 *high, UI
 }
 
 // aml new routines [3034710]
-#pragma mark ••• New clipping routines
+#pragma mark --- New clipping routines
 #if	defined(__ppc__)
 
 // this behaves incorrectly in Float32ToSwapInt24 if not declared volatile
@@ -3944,7 +3944,7 @@ IOReturn VoodooHDAEngine::convertInputSamples(const void *sampleBuf, void *destB
 	if ((streamFormat->fSampleFormat == kIOAudioStreamSampleFormatLinearPCM) && streamFormat->fIsMixable) {
 		// it's linear PCM, which means the target is Float32 and we will be calling a blitter, which
 		// works in samples not frames
-//		Float32 *floatDestBuf = (Float32 *) destBuf;
+		Float32 *floatDestBuf = (Float32 *) destBuf;
 
 		if (streamFormat->fNumericRepresentation == kIOAudioStreamNumericRepresentationSignedInt) {
 			// it's some kind of signed integer, which we handle as some kind of even byte length

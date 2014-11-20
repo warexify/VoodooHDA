@@ -6,12 +6,17 @@
 
 __attribute__((visibility("hidden")))
 const ControllerListItem gControllerList[] = {
+	{ HDA_INTEL_SER8HDMI,		"Intel Series 8 HDMI" },
 	{ HDA_INTEL_CPT,			"Intel Cougar Point"},
 	{ HDA_INTEL_PATSBURG,		"Intel Patsburg"},
 	{ HDA_INTEL_PPT1,			"Intel Panther Point"},
-  { HDA_INTEL_LPT1,    "Intel Lynx Point"},
-  { HDA_INTEL_LPT2,    "Intel Lynx Point"},
-  { HDA_INTEL_HPT1,    "Intel Wellsburg"},
+	{ HDA_INTEL_LPT1,			"Intel Lynx Point"},
+	{ HDA_INTEL_LPT2,			"Intel Lynx Point"},
+	{ HDA_INTEL_HPT1,			"Intel Lynx Point"},
+	{ HDA_INTEL_HPT2,			"Intel Lynx Point"},
+	{ HDA_INTEL_WPT1,			"Intel Wildcat Point"},
+	{ HDA_INTEL_WELLSBURG1,		"Intel Wellsburg"},
+	{ HDA_INTEL_WELLSBURG2,		"Intel Wellsburg"},
 	{ HDA_INTEL_82801F,			"Intel 82801F" },
 	{ HDA_INTEL_63XXESB,		"Intel 631x/632xESB" },
 	{ HDA_INTEL_82801G,			"Intel 82801G" },
@@ -108,6 +113,7 @@ const CodecListItem gCodecList[] = {
 	{ HDA_CODEC_ALC273,			"Realtek ALC273" },
 	{ HDA_CODEC_ALC275,			"Realtek ALC275" },
 	{ HDA_CODEC_ALC276,			"Realtek ALC276" },
+	{ HDA_CODEC_ALC282,			"Realtek ALC282" },
 	{ HDA_CODEC_ALC660,			"Realtek ALC660" },
 	{ HDA_CODEC_ALC662,			"Realtek ALC662" },
 #if 0

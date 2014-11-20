@@ -77,6 +77,9 @@ see license.txt for details and copyright notices
 
 changelog
 ---------
+v2.8.8d1, r102
+- Merge all changes tranc@95 through tranc@101 to branches/zdev.
+
 v2.8.3d2, r91
 - Use unwired memory in clientMemoryForType.
 

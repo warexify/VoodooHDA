@@ -104,7 +104,7 @@ IOReturn VoodooHDAUserClient::actionMethod(UInt32 *dataIn, UInt32 *dataOut, IOBy
 		return kIOReturnBadArgument;
 	action = *dataIn;
 
-	result = mDevice->runAction(action, &dataSize, &data);
+	result = mDevice->runAction(&action, &dataSize, &data);
 
 	// note: we can only transfer sizeof (io_struct_inband_t) bytes out at a time
 
@@ -220,7 +220,6 @@ IOReturn VoodooHDAUserClient::clientMemoryForType(UInt32 type, IOOptionBits *opt
 		memDesc = IOBufferMemoryDescriptor::inTaskWithOptions(0,
 															  kIOMemoryPageable | kIODirectionIn,
 															  mDevice->mExtMsgBufferSize);
-		//memDesc = IOBufferMemoryDescriptor::withOptions(kIOMemoryKernelUserShared,	8);
 		if (!memDesc ||
 			memDesc->prepare() != kIOReturnSuccess) {
 			errorMsg("error: couldn't allocate buffer memory descriptor (size: %ld)\n",
@@ -231,7 +230,6 @@ IOReturn VoodooHDAUserClient::clientMemoryForType(UInt32 type, IOOptionBits *opt
 			break;
 		}
 		memDesc->writeBytes(0U, mDevice->mExtMsgBuffer, mDevice->mExtMsgBufferSize);
-		//bcopy("test\n\0\0\0\0", msgBuffer, 8);
 		mDevice->unlockExtMsgBuffer();
 		memDesc->complete();
 		*options |= kIOMapReadOnly;

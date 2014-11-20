@@ -211,7 +211,9 @@ void VoodooHDAEngine::identifyPaths()
 		config = widget->pin.config;
 		devType = gDeviceTypes[HDA_CONFIG_DEFAULTCONF_DEVICE(config)];
 		connType = gConnTypes[HDA_CONFIG_DEFAULTCONF_CONNECTIVITY(config)];
-//		logMsg("[nid %d] devType = %s, connType = %s\n", i, devType, connType);
+		if (mVerbose > 3) {
+			logMsg("[nid %d] devType = %s, connType = %s\n", i, devType, connType);
+		}
 	}
 }
 
@@ -881,15 +883,15 @@ void VoodooHDAEngine::setPinName(UInt32 pinConfig, const char* name)
 __attribute__((visibility("hidden")))
 IOReturn VoodooHDAEngine::volumeChangeHandler(IOService *target, IOAudioControl *volumeControl, SInt32 oldValue, SInt32 newValue)
 {
-    IOReturn result = kIOReturnBadArgument;
-    VoodooHDAEngine *audioEngine;
+	IOReturn result = kIOReturnBadArgument;
+	VoodooHDAEngine *audioEngine = OSDynamicCast(VoodooHDAEngine, target);
 
-    audioEngine = (VoodooHDAEngine *)target;
-    if (audioEngine) {
-        result = audioEngine->volumeChanged(volumeControl, oldValue, newValue);
-    }
+//	audioEngine = (VoodooHDAEngine *)target;
+	if (audioEngine) {
+		result = audioEngine->volumeChanged(volumeControl, oldValue, newValue);
+	}
 
-    return result;
+	return result;
 }
 
 IOReturn VoodooHDAEngine::volumeChanged(IOAudioControl *volumeControl, SInt32 oldValue, SInt32 newValue)
@@ -897,10 +899,10 @@ IOReturn VoodooHDAEngine::volumeChanged(IOAudioControl *volumeControl, SInt32 ol
 	if(mVerbose >2)
 		errorMsg("VoodooHDAEngine[%p]::volumeChanged(%p, %ld, %ld)\n", this, volumeControl, (long int)oldValue, (long int)newValue);
 
-    if (volumeControl) {
+	if (volumeControl) {
 
 		int ossDev = ( getEngineDirection() == kIOAudioStreamDirectionOutput) ? SOUND_MIXER_VOLUME:
-																				SOUND_MIXER_MIC;
+		SOUND_MIXER_MIC;
 
 		PcmDevice *pcmDevice = mChannel->pcmDevice;
 
@@ -943,21 +945,21 @@ IOReturn VoodooHDAEngine::volumeChanged(IOAudioControl *volumeControl, SInt32 ol
 
 	}
 
-    return kIOReturnSuccess;
+	return kIOReturnSuccess;
 }
 
 __attribute__((visibility("hidden")))
 IOReturn VoodooHDAEngine::muteChangeHandler(IOService *target, IOAudioControl *muteControl, SInt32 oldValue, SInt32 newValue)
 {
-    IOReturn result = kIOReturnBadArgument;
-    VoodooHDAEngine *audioEngine;
+	IOReturn result = kIOReturnBadArgument;
+	VoodooHDAEngine *audioEngine = OSDynamicCast(VoodooHDAEngine, target);
 
-    audioEngine = (VoodooHDAEngine *)target;
-    if (audioEngine) {
-        result = audioEngine->muteChanged(muteControl, oldValue, newValue);
-    }
+//	audioEngine = (VoodooHDAEngine *)target;
+	if (audioEngine) {
+		result = audioEngine->muteChanged(muteControl, oldValue, newValue);
+	}
 
-    return result;
+	return result;
 }
 
 IOReturn VoodooHDAEngine::muteChanged(IOAudioControl *muteControl, SInt32 oldValue, SInt32 newValue)
@@ -997,15 +999,15 @@ IOReturn VoodooHDAEngine::muteChanged(IOAudioControl *muteControl, SInt32 oldVal
 __attribute__((visibility("hidden")))
 IOReturn VoodooHDAEngine::gainChangeHandler(IOService *target, IOAudioControl *gainControl, SInt32 oldValue, SInt32 newValue)
 {
-    IOReturn result = kIOReturnBadArgument;
-    VoodooHDAEngine *audioDevice;
+	IOReturn result = kIOReturnBadArgument;
+	VoodooHDAEngine *audioDevice = OSDynamicCast(VoodooHDAEngine, target);
 
-    audioDevice = (VoodooHDAEngine *)target;
-    if (audioDevice) {
-        result = audioDevice->gainChanged(gainControl, oldValue, newValue);
-    }
+//	audioDevice = (VoodooHDAEngine *)target;
+	if (audioDevice) {
+		result = audioDevice->gainChanged(gainControl, oldValue, newValue);
+	}
 
-    return result;
+	return result;
 }
 
 IOReturn VoodooHDAEngine::gainChanged(IOAudioControl *gainControl, SInt32 oldValue, SInt32 newValue)

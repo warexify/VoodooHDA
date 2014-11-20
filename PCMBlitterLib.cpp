@@ -9,7 +9,9 @@
 #define TARGET_OS_MAC 1
 #endif
 #if defined(__i386__) || defined(__x86_64__)
+#undef	TARGET_CPU_X86
 #define TARGET_CPU_X86 1
+#undef	TARGET_RT_LITTLE_ENDIAN
 #define TARGET_RT_LITTLE_ENDIAN 0
 #endif
 

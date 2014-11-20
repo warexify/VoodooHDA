@@ -51,6 +51,7 @@ typedef struct _volSlider{
 		enabled = false;
 		nAudioCtlsCount = 0;
 		pcmDev = 0;
+		bzero(&audioCtls[0], sizeof audioCtls);
 	}
 }volSlider;
 
@@ -207,7 +208,7 @@ public:
 	void dumpMsg(const char *format, ...) __attribute__ ((format (printf, 2, 3)));
 	void messageHandler(UInt32 type, const char *format, va_list args);
 
-	IOReturn runAction(UInt32 action, UInt32 *outSize, void **outData, void *extraArg = 0);
+	IOReturn runAction(UInt32 *action, UInt32 *outSize, void **outData, void *extraArg = 0);
 	static IOReturn handleAction(OSObject *owner, void *arg0 = 0, void *arg1 = 0, void *arg2 = 0,
 			void *arg3 = 0);
 	ChannelInfo *getChannelInfo();

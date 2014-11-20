@@ -27,8 +27,8 @@ const char * const gConnTypes[4] = { "Jack", "None", "Fixed", "Both" };
 const char * const gJacks[16] = {"Unknown", "1/8", "1/4", "ATAPI", "RCA", "Optic", "Digital", "Analog",
 	"Multi", "XLR", "RJ-11", "Combo", "Res.F", "Res.G", "Res.H", "Other"};
 
-const UInt32 gDefaultChanFormats[] = { AFMT_STEREO | AFMT_S16_LE, 0 };
-const ChannelCaps gDefaultChanCaps = { 48000, 48000, &gDefaultChanFormats[0], 0, 2};
+const UInt32 gAFMT[] = { AFMT_STEREO | AFMT_S16_LE, 0 };
+const ChannelCaps gDefaultChanCaps = { 48000, 48000, &gAFMT[0], 0, 2};
 
 /*
  * Scan the bus for available codecs, starting with num.
@@ -225,7 +225,7 @@ void VoodooHDADevice::probeFunction(Codec *codec, nid_t nid)
 
 	if ((funcGroup->audio.quirks & HDA_QUIRK_DMAPOS) && !mDmaPosMemAllocated) {
 		errorMsg("XXX\nXXX dma pos quirk untested\nXXX\n");
-		mDmaPosMem = allocateDmaMemory((mInStreamsSup + mOutStreamsSup + mBiStreamsSup) * 8, "dmaPosMem", kIOMapInhibitCache);
+		mDmaPosMem = allocateDmaMemory((mInStreamsSup + mOutStreamsSup + mBiStreamsSup) * 8, "dmaPosMem", 0 /* kIOMapInhibitCache */);
 		if (!mDmaPosMem)
 			errorMsg("error: failed to allocate DMA pos buffer (non-fatal)\n");
 		else
@@ -1063,6 +1063,7 @@ double_break:
 void VoodooHDADevice::audioBuildTree(FunctionGroup *funcGroup)
 {
 	AudioAssoc *assocs = funcGroup->audio.assocs;
+//	audioTraceAssociationExtra(funcGroup);
 
 	/* Trace all associations in order of their numbers, */
 	for (int j = 0; j < funcGroup->audio.numAssocs; j++) {
@@ -1290,29 +1291,30 @@ void VoodooHDADevice::audioDisableCrossAssociations(FunctionGroup *funcGroup)
 /*
  * Trace path from DAC to pin.
  */
-nid_t VoodooHDADevice::audioTraceDac(FunctionGroup *funcGroup, int assocNum, int seq, nid_t nid,
+nid_t VoodooHDADevice::audioTraceDac(FunctionGroup *funcGroup, int assocNum,
+									 int seq, nid_t nid,
 									 int dupseq, int min, int only, int depth)
 {
 	Widget *widget;
 	int im = -1;
 	nid_t m = 0, ret;
-	nid_t pinNid;
+//	nid_t pinNid;
 	nid_t favoritDAC = 0;
 
 	if (depth > HDA_PARSE_MAXDEPTH)
 		return 0;
 
 	//Получаю номер DAC к которому желательно привести данный поиск
-	pinNid = funcGroup->audio.assocs[assocNum].pins[seq];
+//	pinNid = funcGroup->audio.assocs[assocNum].pins[seq];
 	widget = widgetGet(funcGroup, nid);
 	if(widget)
 		favoritDAC = widget->favoritDAC;
 
-	widget = widgetGet(funcGroup, nid);
+//	widget = widgetGet(funcGroup, nid);
 	if (!widget || (widget->enable == 0))
 		return 0;
-	if (!only)
-		dumpMsg(" %*stracing via nid %d\n", depth + 1, "", widget->nid);
+//	if (!only)
+//		dumpMsg(" %*stracing via nid %d\n", depth + 1, "", widget->nid);
 	/* Use only unused widgets */
 	if ((widget->bindAssoc >= 0) && (widget->bindAssoc != assocNum)) {
 		if (!only)
@@ -3016,6 +3018,7 @@ getconns_out:
 
 // todo: get this out of the driver!
 
+__attribute__((visibility("hidden")))
 char *voodoo_strsep(char **stringp, const char *delim)
 {
 	char *s;
@@ -4214,14 +4217,14 @@ void VoodooHDADevice::micSwitchHandler(FunctionGroup *funcGroup, nid_t nid, UInt
 	Widget *widget;
 	//UInt32 res;
 	nid_t defaultNid; //, jackNid;
-	nid_t cad;
+//	nid_t cad;
 	int assocsNum;
 	UInt32 maskJack, maskDef;
 
 	if (!funcGroup || !funcGroup->codec)
 		return;
 
-	cad = funcGroup->codec->cad;
+//	cad = funcGroup->codec->cad;
 	assocs = funcGroup->audio.assocs;
 	widget = widgetGet(funcGroup, nid);
 	if (!widget || (widget->enable == 0) || (widget->type != HDA_PARAM_AUDIO_WIDGET_CAP_TYPE_PIN_COMPLEX))
@@ -4417,7 +4420,7 @@ void VoodooHDADevice::switchInit(FunctionGroup *funcGroup)
 {
 	AudioAssoc *assocs = funcGroup->audio.assocs;
 //    UInt32 id;
-    int enable = 0, poll = 0;
+    int enable = 0 /* , poll = 0 */;
     nid_t cad;
 //	int jackPin;
 
@@ -4442,8 +4445,8 @@ void VoodooHDADevice::switchInit(FunctionGroup *funcGroup)
 		if (HDA_PARAM_AUDIO_WIDGET_CAP_UNSOL_CAP(widget->params.widgetCap)) {
 			sendCommand(HDA_CMD_SET_UNSOLICITED_RESPONSE(cad, j,
 					HDA_CMD_SET_UNSOLICITED_RESPONSE_ENABLE | HDAC_UNSOLTAG_EVENT_HP), cad);
-		} else
-			poll = 1;
+		} /* else
+			poll = 1; */
 		//Slice - test initial state
 		int res = sendCommand(HDA_CMD_GET_PIN_SENSE(cad, j), cad);
 		res = HDA_CMD_GET_PIN_SENSE_PRESENCE_DETECT(res);
