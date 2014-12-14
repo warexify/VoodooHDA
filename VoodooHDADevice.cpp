@@ -1216,11 +1216,7 @@ IOReturn VoodooHDADevice::handleAction(OSObject *owner, void *arg0, void *arg1, 
 {
 	VoodooHDADevice *device;
 	IOReturn result = kIOReturnSuccess;
-#if __LP64__
-    UInt32 action = (UInt32)(UInt64) arg0;
-#else
-    UInt32 action = (UInt32) arg0;
-#endif
+	UInt32 action = *static_cast<UInt32 const*>(arg0);
 	UInt32 *outSize = (UInt32 *) arg1;
 	void **outData = (void **) arg2;
 
