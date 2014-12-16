@@ -1,5 +1,4 @@
 * text=auto !eol
-English.lproj/InfoPlist.strings -text
 English.lproj/VoodooHDAPref.xib -text
 /Info.plist -text
 VoodooHDA-old.xcodeproj/project.pbxproj -text
@@ -11,6 +10,6 @@ VoodooHDA.xcodeproj/project.xcworkspace/xcuserdata/Slice.xcuserdatad/UserInterfa
 VoodooHDA.xcodeproj/xcuserdata/Slice.xcuserdatad/xcschemes/VoodooHDA.xcscheme -text
 VoodooHDA.xcodeproj/xcuserdata/Slice.xcuserdatad/xcschemes/xcschememanagement.plist -text
 /VoodooHDAPref.h -text
+/VoodooHDAPref.icns -text
 /VoodooHDAPref.m -text
-/VoodooHDAPref.tiff -text
 /VoodooHDA_Prefix.pch -text
