@@ -9,8 +9,7 @@ VoodooHdaSettingsLoader/AppDelegate.m -text
 VoodooHdaSettingsLoader/VoodooHdaSettingsLoader-Info.plist -text
 VoodooHdaSettingsLoader/VoodooHdaSettingsLoader-Prefix.pch -text
 VoodooHdaSettingsLoader/VoodooHdaSettingsLoader.h -text
+VoodooHdaSettingsLoader/VoodooHdaSettingsLoader.icns -text
 VoodooHdaSettingsLoader/VoodooHdaSettingsLoader.m -text
-VoodooHdaSettingsLoader/en.lproj/Credits.rtf -text
-VoodooHdaSettingsLoader/en.lproj/InfoPlist.strings -text
 VoodooHdaSettingsLoader/en.lproj/MainMenu.xib -text
 VoodooHdaSettingsLoader/main.m -text
