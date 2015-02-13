@@ -82,7 +82,12 @@ const ControllerListItem gControllerList[] = {
 	{ HDA_ATI_RV940,			"ATI RV940"},
 	{ HDA_ATI_RV970,			"ATI RV970"},
 	{ HDA_ATI_R1000,			"ATI R1000"},
-	{ HDA_RDC_M3010,			"RDC M3010"},
+  { HDA_ATI_OLAND,			"AMD OLAND"},
+  { HDA_ATI_BONAIR,			"AMD BONAIR"},
+  { HDA_ATI_TAHITI,			"AMD TAHITI"},
+  { HDA_ATI_HAWAII,			"AMD HAWAII"},
+
+  { HDA_RDC_M3010,			"RDC M3010"},
 	{ HDA_VIA_VT82XX,			"VIA VT8251/8237A" },
 	{ HDA_SIS_966,				"SiS 966" },
 	{ HDA_ULI_M5461,			"ULI M5461" },
