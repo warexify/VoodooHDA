@@ -2,19 +2,21 @@
 <archive type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="8.00">
 	<data>
 		<int key="IBDocument.SystemTarget">1060</int>
-		<string key="IBDocument.SystemVersion">12C60</string>
-		<string key="IBDocument.InterfaceBuilderVersion">2844</string>
-		<string key="IBDocument.AppKitVersion">1187.34</string>
-		<string key="IBDocument.HIToolboxVersion">625.00</string>
+		<string key="IBDocument.SystemVersion">11G63</string>
+		<string key="IBDocument.InterfaceBuilderVersion">2549</string>
+		<string key="IBDocument.AppKitVersion">1138.51</string>
+		<string key="IBDocument.HIToolboxVersion">569.00</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginVersions">
 			<string key="NS.key.0">com.apple.InterfaceBuilder.CocoaPlugin</string>
-			<string key="NS.object.0">2844</string>
+			<string key="NS.object.0">2549</string>
 		</object>
 		<array key="IBDocument.IntegratedClassDependencies">
 			<string>NSBox</string>
 			<string>NSButton</string>
 			<string>NSButtonCell</string>
 			<string>NSCustomObject</string>
+			<string>NSImageCell</string>
+			<string>NSImageView</string>
 			<string>NSMenu</string>
 			<string>NSMenuItem</string>
 			<string>NSPopUpButton</string>
@@ -96,7 +98,6 @@
 									</object>
 								</object>
 							</object>
-							<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 						</object>
 						<object class="NSTextField" id="767422732">
 							<reference key="NSNextResponder" ref="1037298196"/>
@@ -119,7 +120,6 @@
 								<reference key="NSBackgroundColor" ref="603142737"/>
 								<reference key="NSTextColor" ref="37676573"/>
 							</object>
-							<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 						</object>
 						<object class="NSBox" id="492275364">
 							<reference key="NSNextResponder" ref="1037298196"/>
@@ -152,7 +152,6 @@
 												<bool key="NSAllowsTickMarkValuesOnly">NO</bool>
 												<bool key="NSVertical">NO</bool>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSSlider" id="691643580">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -177,7 +176,6 @@
 												<bool key="NSAllowsTickMarkValuesOnly">NO</bool>
 												<bool key="NSVertical">NO</bool>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSSlider" id="826119241">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -202,7 +200,6 @@
 												<bool key="NSAllowsTickMarkValuesOnly">NO</bool>
 												<bool key="NSVertical">NO</bool>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSSlider" id="522940040">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -227,7 +224,6 @@
 												<bool key="NSAllowsTickMarkValuesOnly">NO</bool>
 												<bool key="NSVertical">NO</bool>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSSlider" id="816114753">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -252,7 +248,6 @@
 												<bool key="NSAllowsTickMarkValuesOnly">NO</bool>
 												<bool key="NSVertical">NO</bool>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSSlider" id="226566266">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -277,7 +272,6 @@
 												<bool key="NSAllowsTickMarkValuesOnly">NO</bool>
 												<bool key="NSVertical">NO</bool>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSSlider" id="492137362">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -302,7 +296,6 @@
 												<bool key="NSAllowsTickMarkValuesOnly">NO</bool>
 												<bool key="NSVertical">NO</bool>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSSlider" id="73570094">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -327,7 +320,6 @@
 												<bool key="NSAllowsTickMarkValuesOnly">NO</bool>
 												<bool key="NSVertical">NO</bool>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSSlider" id="1063797807">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -352,7 +344,6 @@
 												<bool key="NSAllowsTickMarkValuesOnly">NO</bool>
 												<bool key="NSVertical">NO</bool>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSSlider" id="531541674">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -377,7 +368,6 @@
 												<bool key="NSAllowsTickMarkValuesOnly">NO</bool>
 												<bool key="NSVertical">NO</bool>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSSlider" id="392393696">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -402,7 +392,6 @@
 												<bool key="NSAllowsTickMarkValuesOnly">NO</bool>
 												<bool key="NSVertical">NO</bool>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSSlider" id="346194990">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -427,7 +416,6 @@
 												<bool key="NSAllowsTickMarkValuesOnly">NO</bool>
 												<bool key="NSVertical">NO</bool>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSTextField" id="73181280">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -446,7 +434,6 @@
 												<reference key="NSBackgroundColor" ref="603142737"/>
 												<reference key="NSTextColor" ref="37676573"/>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSTextField" id="562590808">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -465,7 +452,6 @@
 												<reference key="NSBackgroundColor" ref="603142737"/>
 												<reference key="NSTextColor" ref="37676573"/>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSTextField" id="738296260">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -484,7 +470,6 @@
 												<reference key="NSBackgroundColor" ref="603142737"/>
 												<reference key="NSTextColor" ref="37676573"/>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSTextField" id="7136505">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -503,7 +488,6 @@
 												<reference key="NSBackgroundColor" ref="603142737"/>
 												<reference key="NSTextColor" ref="37676573"/>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSTextField" id="438017329">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -522,7 +506,6 @@
 												<reference key="NSBackgroundColor" ref="603142737"/>
 												<reference key="NSTextColor" ref="37676573"/>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSTextField" id="959517643">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -541,7 +524,6 @@
 												<reference key="NSBackgroundColor" ref="603142737"/>
 												<reference key="NSTextColor" ref="37676573"/>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSTextField" id="830129976">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -560,7 +542,6 @@
 												<reference key="NSBackgroundColor" ref="603142737"/>
 												<reference key="NSTextColor" ref="37676573"/>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSTextField" id="428858966">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -579,7 +560,6 @@
 												<reference key="NSBackgroundColor" ref="603142737"/>
 												<reference key="NSTextColor" ref="37676573"/>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSTextField" id="781920464">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -598,7 +578,6 @@
 												<reference key="NSBackgroundColor" ref="603142737"/>
 												<reference key="NSTextColor" ref="37676573"/>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSTextField" id="640039418">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -617,7 +596,6 @@
 												<reference key="NSBackgroundColor" ref="603142737"/>
 												<reference key="NSTextColor" ref="37676573"/>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSTextField" id="818281511">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -636,7 +614,6 @@
 												<reference key="NSBackgroundColor" ref="603142737"/>
 												<reference key="NSTextColor" ref="37676573"/>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSTextField" id="299704172">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -655,7 +632,6 @@
 												<reference key="NSBackgroundColor" ref="603142737"/>
 												<reference key="NSTextColor" ref="37676573"/>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSSlider" id="165959297">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -680,7 +656,6 @@
 												<bool key="NSAllowsTickMarkValuesOnly">NO</bool>
 												<bool key="NSVertical">NO</bool>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSSlider" id="338697302">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -705,7 +680,6 @@
 												<bool key="NSAllowsTickMarkValuesOnly">NO</bool>
 												<bool key="NSVertical">NO</bool>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSSlider" id="1067125904">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -730,7 +704,6 @@
 												<bool key="NSAllowsTickMarkValuesOnly">NO</bool>
 												<bool key="NSVertical">NO</bool>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSSlider" id="769099037">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -755,7 +728,6 @@
 												<bool key="NSAllowsTickMarkValuesOnly">NO</bool>
 												<bool key="NSVertical">NO</bool>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSSlider" id="376370877">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -780,7 +752,6 @@
 												<bool key="NSAllowsTickMarkValuesOnly">NO</bool>
 												<bool key="NSVertical">NO</bool>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSSlider" id="485657445">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -805,7 +776,6 @@
 												<bool key="NSAllowsTickMarkValuesOnly">NO</bool>
 												<bool key="NSVertical">NO</bool>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSSlider" id="202894040">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -830,7 +800,6 @@
 												<bool key="NSAllowsTickMarkValuesOnly">NO</bool>
 												<bool key="NSVertical">NO</bool>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSSlider" id="63182063">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -855,7 +824,6 @@
 												<bool key="NSAllowsTickMarkValuesOnly">NO</bool>
 												<bool key="NSVertical">NO</bool>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSSlider" id="103559200">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -880,7 +848,6 @@
 												<bool key="NSAllowsTickMarkValuesOnly">NO</bool>
 												<bool key="NSVertical">NO</bool>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSSlider" id="1029012282">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -905,7 +872,6 @@
 												<bool key="NSAllowsTickMarkValuesOnly">NO</bool>
 												<bool key="NSVertical">NO</bool>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSSlider" id="586121103">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -930,7 +896,6 @@
 												<bool key="NSAllowsTickMarkValuesOnly">NO</bool>
 												<bool key="NSVertical">NO</bool>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSSlider" id="919670956">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -938,7 +903,7 @@
 											<string key="NSFrame">{{348, 13}, {159, 15}}</string>
 											<reference key="NSSuperview" ref="507536828"/>
 											<reference key="NSWindow"/>
-											<reference key="NSNextKeyView" ref="204638084"/>
+											<reference key="NSNextKeyView" ref="429238213"/>
 											<bool key="NSEnabled">YES</bool>
 											<object class="NSSliderCell" key="NSCell" id="575432113">
 												<int key="NSCellFlags">-2080374784</int>
@@ -955,7 +920,6 @@
 												<bool key="NSAllowsTickMarkValuesOnly">NO</bool>
 												<bool key="NSVertical">NO</bool>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSTextField" id="181834725">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -974,7 +938,6 @@
 												<reference key="NSBackgroundColor" ref="603142737"/>
 												<reference key="NSTextColor" ref="37676573"/>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSTextField" id="4514642">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -993,7 +956,6 @@
 												<reference key="NSBackgroundColor" ref="603142737"/>
 												<reference key="NSTextColor" ref="37676573"/>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSTextField" id="993240050">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -1012,7 +974,6 @@
 												<reference key="NSBackgroundColor" ref="603142737"/>
 												<reference key="NSTextColor" ref="37676573"/>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSTextField" id="171888710">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -1031,7 +992,6 @@
 												<reference key="NSBackgroundColor" ref="603142737"/>
 												<reference key="NSTextColor" ref="37676573"/>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSTextField" id="536055316">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -1050,7 +1010,6 @@
 												<reference key="NSBackgroundColor" ref="603142737"/>
 												<reference key="NSTextColor" ref="37676573"/>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSTextField" id="311889923">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -1069,7 +1028,6 @@
 												<reference key="NSBackgroundColor" ref="603142737"/>
 												<reference key="NSTextColor" ref="37676573"/>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSTextField" id="518080702">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -1088,7 +1046,6 @@
 												<reference key="NSBackgroundColor" ref="603142737"/>
 												<reference key="NSTextColor" ref="37676573"/>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSTextField" id="609233599">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -1107,7 +1064,6 @@
 												<reference key="NSBackgroundColor" ref="603142737"/>
 												<reference key="NSTextColor" ref="37676573"/>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSTextField" id="874477733">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -1126,7 +1082,6 @@
 												<reference key="NSBackgroundColor" ref="603142737"/>
 												<reference key="NSTextColor" ref="37676573"/>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSTextField" id="182633139">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -1145,7 +1100,6 @@
 												<reference key="NSBackgroundColor" ref="603142737"/>
 												<reference key="NSTextColor" ref="37676573"/>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSTextField" id="616369104">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -1164,7 +1118,6 @@
 												<reference key="NSBackgroundColor" ref="603142737"/>
 												<reference key="NSTextColor" ref="37676573"/>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSTextField" id="238751239">
 											<reference key="NSNextResponder" ref="507536828"/>
@@ -1183,16 +1136,15 @@
 												<reference key="NSBackgroundColor" ref="603142737"/>
 												<reference key="NSTextColor" ref="37676573"/>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 									</array>
 									<string key="NSFrame">{{1, 1}, {525, 259}}</string>
 									<reference key="NSSuperview" ref="492275364"/>
 									<reference key="NSWindow"/>
-									<reference key="NSNextKeyView" ref="73181280"/>
+									<reference key="NSNextKeyView" ref="176765936"/>
 								</object>
 							</array>
-							<string key="NSFrame">{{124, 172}, {527, 275}}</string>
+							<string key="NSFrame">{{124, 167}, {527, 275}}</string>
 							<reference key="NSSuperview" ref="1037298196"/>
 							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView" ref="507536828"/>
@@ -1231,7 +1183,7 @@
 							<reference key="NSNextKeyView" ref="654660311"/>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSPopUpButtonCell" key="NSCell" id="850326424">
-								<int key="NSCellFlags">-2076180416</int>
+								<int key="NSCellFlags">-2076049856</int>
 								<int key="NSCellFlags2">2048</int>
 								<reference key="NSSupport" ref="68408957"/>
 								<reference key="NSControlView" ref="372755257"/>
@@ -1292,7 +1244,6 @@
 								<bool key="NSAltersState">YES</bool>
 								<int key="NSArrowPosition">2</int>
 							</object>
-							<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 						</object>
 						<object class="NSPopUpButton" id="654660311">
 							<reference key="NSNextResponder" ref="1037298196"/>
@@ -1300,11 +1251,11 @@
 							<string key="NSFrame">{{6, 379}, {100, 26}}</string>
 							<reference key="NSSuperview" ref="1037298196"/>
 							<reference key="NSWindow"/>
-							<reference key="NSNextKeyView" ref="492275364"/>
+							<reference key="NSNextKeyView" ref="204638084"/>
 							<string key="NSReuseIdentifierKey">_NS:9</string>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSPopUpButtonCell" key="NSCell" id="272474130">
-								<int key="NSCellFlags">-2076180416</int>
+								<int key="NSCellFlags">-2076049856</int>
 								<int key="NSCellFlags2">2048</int>
 								<reference key="NSSupport" ref="68408957"/>
 								<string key="NSCellIdentifier">_NS:9</string>
@@ -1362,7 +1313,6 @@
 								<bool key="NSAltersState">YES</bool>
 								<int key="NSArrowPosition">2</int>
 							</object>
-							<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 						</object>
 						<object class="NSBox" id="770127575">
 							<reference key="NSNextResponder" ref="1037298196"/>
@@ -1394,7 +1344,6 @@
 												<bool key="NSAllowsTickMarkValuesOnly">YES</bool>
 												<bool key="NSVertical">NO</bool>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSTextField" id="633982896">
 											<reference key="NSNextResponder" ref="837444991"/>
@@ -1413,16 +1362,16 @@
 												<reference key="NSBackgroundColor" ref="603142737"/>
 												<reference key="NSTextColor" ref="37676573"/>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSButton" id="785076332">
 											<reference key="NSNextResponder" ref="837444991"/>
 											<int key="NSvFlags">268</int>
-											<array class="NSMutableArray" key="NSSubviews"/>
 											<string key="NSFrame">{{11, 77}, {163, 18}}</string>
 											<reference key="NSSuperview" ref="837444991"/>
+											<reference key="NSWindow"/>
 											<reference key="NSNextKeyView" ref="633982896"/>
 											<bool key="NSViewIsLayerTreeHost">YES</bool>
+											<int key="NSViewLayerContentsRedrawPolicy">2</int>
 											<bool key="NSEnabled">YES</bool>
 											<object class="NSButtonCell" key="NSCell" id="341702851">
 												<int key="NSCellFlags">-2080374784</int>
@@ -1444,7 +1393,6 @@
 												<int key="NSPeriodicDelay">200</int>
 												<int key="NSPeriodicInterval">25</int>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSSlider" id="701024682">
 											<reference key="NSNextResponder" ref="837444991"/>
@@ -1468,7 +1416,6 @@
 												<bool key="NSAllowsTickMarkValuesOnly">YES</bool>
 												<bool key="NSVertical">NO</bool>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSButton" id="260309449">
 											<reference key="NSNextResponder" ref="837444991"/>
@@ -1493,7 +1440,6 @@
 												<int key="NSPeriodicDelay">200</int>
 												<int key="NSPeriodicInterval">25</int>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSTextField" id="424440516">
 											<reference key="NSNextResponder" ref="837444991"/>
@@ -1512,13 +1458,13 @@
 												<reference key="NSBackgroundColor" ref="603142737"/>
 												<reference key="NSTextColor" ref="37676573"/>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSTextField" id="661150143">
 											<reference key="NSNextResponder" ref="837444991"/>
 											<int key="NSvFlags">268</int>
 											<string key="NSFrame">{{392, 14}, {18, 14}}</string>
 											<reference key="NSSuperview" ref="837444991"/>
+											<reference key="NSWindow"/>
 											<reference key="NSNextKeyView"/>
 											<bool key="NSEnabled">YES</bool>
 											<object class="NSTextFieldCell" key="NSCell" id="593716857">
@@ -1530,7 +1476,6 @@
 												<reference key="NSBackgroundColor" ref="603142737"/>
 												<reference key="NSTextColor" ref="37676573"/>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 										<object class="NSTextField" id="866715893">
 											<reference key="NSNextResponder" ref="837444991"/>
@@ -1549,7 +1494,6 @@
 												<reference key="NSBackgroundColor" ref="603142737"/>
 												<reference key="NSTextColor" ref="37676573"/>
 											</object>
-											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 										</object>
 									</array>
 									<string key="NSFrame">{{1, 1}, {525, 112}}</string>
@@ -1586,7 +1530,7 @@
 							<string key="NSFrame">{{17, 154}, {89, 17}}</string>
 							<reference key="NSSuperview" ref="1037298196"/>
 							<reference key="NSWindow"/>
-							<reference key="NSNextKeyView" ref="429238213"/>
+							<reference key="NSNextKeyView" ref="492275364"/>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSTextFieldCell" key="NSCell" id="867576889">
 								<int key="NSCellFlags">68157504</int>
@@ -1597,7 +1541,6 @@
 								<reference key="NSBackgroundColor" ref="603142737"/>
 								<reference key="NSTextColor" ref="37676573"/>
 							</object>
-							<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 						</object>
 						<object class="NSSlider" id="429238213">
 							<reference key="NSNextResponder" ref="1037298196"/>
@@ -1622,7 +1565,35 @@
 								<bool key="NSVertical">NO</bool>
 								<int key="NSSliderType">1</int>
 							</object>
-							<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
+						</object>
+						<object class="NSImageView" id="176765936">
+							<reference key="NSNextResponder" ref="1037298196"/>
+							<set class="NSMutableSet" key="NSDragTypes">
+								<string>Apple PDF pasteboard type</string>
+								<string>Apple PICT pasteboard type</string>
+								<string>Apple PNG pasteboard type</string>
+								<string>NSFilenamesPboardType</string>
+								<string>NeXT Encapsulated PostScript v1.2 pasteboard type</string>
+								<string>NeXT TIFF v4.0 pasteboard type</string>
+							</set>
+							<string key="NSFrame">{{10, 179}, {102, 82}}</string>
+							<reference key="NSSuperview" ref="1037298196"/>
+							<reference key="NSWindow"/>
+							<reference key="NSNextKeyView" ref="73181280"/>
+							<bool key="NSEnabled">YES</bool>
+							<object class="NSImageCell" key="NSCell" id="955428499">
+								<int key="NSCellFlags">130560</int>
+								<int key="NSCellFlags2">33685504</int>
+								<object class="NSCustomResource" key="NSContents">
+									<string key="NSClassName">NSImage</string>
+									<string key="NSResourceName">VoodooHDAPref</string>
+								</object>
+								<int key="NSAlign">0</int>
+								<int key="NSScale">3</int>
+								<int key="NSStyle">0</int>
+								<bool key="NSAnimates">YES</bool>
+							</object>
+							<bool key="NSEditable">YES</bool>
 						</object>
 					</array>
 					<string key="NSFrameSize">{668, 513}</string>
@@ -1630,7 +1601,7 @@
 					<reference key="NSWindow"/>
 					<reference key="NSNextKeyView" ref="767422732"/>
 				</object>
-				<string key="NSScreenRect">{{0, 0}, {1440, 878}}</string>
+				<string key="NSScreenRect">{{0, 0}, {1280, 1002}}</string>
 				<string key="NSMinSize">{224.66399999999999, 32}</string>
 				<string key="NSMaxSize">{10000000000000, 10000000000000}</string>
 				<bool key="NSWindowIsRestorable">YES</bool>
@@ -2174,6 +2145,14 @@
 					</object>
 					<int key="connectionID">426</int>
 				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">nextKeyView</string>
+						<reference key="source" ref="176765936"/>
+						<reference key="destination" ref="1037298196"/>
+					</object>
+					<int key="connectionID">429</int>
+				</object>
 			</array>
 			<object class="IBMutableOrderedSet" key="objectRecords">
 				<array key="orderedObjects">
@@ -2209,13 +2188,14 @@
 						<reference key="object" ref="1037298196"/>
 						<array class="NSMutableArray" key="children">
 							<reference ref="767422732"/>
-							<reference ref="492275364"/>
 							<reference ref="372755257"/>
 							<reference ref="594159614"/>
 							<reference ref="770127575"/>
 							<reference ref="204638084"/>
 							<reference ref="429238213"/>
 							<reference ref="654660311"/>
+							<reference ref="492275364"/>
+							<reference ref="176765936"/>
 						</array>
 						<reference key="parent" ref="660800786"/>
 					</object>
@@ -3157,6 +3137,19 @@
 						<reference key="object" ref="447193487"/>
 						<reference key="parent" ref="443646226"/>
 					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">427</int>
+						<reference key="object" ref="176765936"/>
+						<array class="NSMutableArray" key="children">
+							<reference ref="955428499"/>
+						</array>
+						<reference key="parent" ref="1037298196"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">428</int>
+						<reference key="object" ref="955428499"/>
+						<reference key="parent" ref="176765936"/>
+					</object>
 				</array>
 			</object>
 			<dictionary class="NSMutableDictionary" key="flattenedProperties">
@@ -3300,13 +3293,15 @@
 				<string key="352.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="353.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="354.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="427.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="428.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="6.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 			</dictionary>
 			<dictionary class="NSMutableDictionary" key="unlocalizedProperties"/>
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">426</int>
+			<int key="maxID">429</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -3556,6 +3551,7 @@
 			<string key="NSMenuCheckmark">{11, 11}</string>
 			<string key="NSMenuMixedState">{10, 3}</string>
 			<string key="NSSwitch">{15, 15}</string>
+			<string key="VoodooHDAPref">{512, 512}</string>
 		</dictionary>
 	</data>
 </archive>
