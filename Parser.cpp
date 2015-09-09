@@ -4552,7 +4552,7 @@ void VoodooHDADevice::updateExtDump(void)
 	
 	for(int cad = 0; cad < 15; cad++) {
 		Codec *codec = mCodecs[cad];
-		if(codec == 0) break;
+		if(codec == 0) continue;
 	
 		dumpExtMsg("\n");
 		dumpExtMsg("\n");

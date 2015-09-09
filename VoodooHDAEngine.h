@@ -36,7 +36,7 @@ public:
 	VoodooHDADevice *mDevice;
 	IOAudioStream *mStream;
 	bool emptyStream;
-	float *floatMixBufOld;
+//	float *floatMixBufOld;
 
 	const char *mPortName;
 	UInt32 mPortType;
