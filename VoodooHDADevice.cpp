@@ -44,6 +44,7 @@ OSDefineMetaClassAndStructors(VoodooHDADevice, IOAudioDevice)
 #define kVoodooHDAEnableHalfMicVolumeFixKey "VoodooHDAEnableHalfMicVolumeFix"
 #define kVoodooHDAEnableMuteFixKey "VoodooHDAEnableMuteFix"
 #define kVoodooHDAAllowMSI "AllowMSI"
+#define kDisableInputMonitor "DisableInputMonitor"
 
 bool VoodooHDADevice::init(OSDictionary *dict)
 {
@@ -99,7 +100,7 @@ bool VoodooHDADevice::init(OSDictionary *dict)
 		mEnableMuteFix = (bool)osBool->getValue();
 	} else {
 		mEnableMuteFix = false;
-	}    
+	} 
 
 //Slice - some chipsets needed Inhibit Cache
 	osBool = OSDynamicCast(OSBoolean, dict->getObject("InhibitCache"));
@@ -108,6 +109,15 @@ bool VoodooHDADevice::init(OSDictionary *dict)
 	} else {
 		mInhibitCache = false;
 	}
+  
+  //DisableInputMonitor
+	osBool = OSDynamicCast(OSBoolean, dict->getObject("DisableInputMonitor"));
+	if (osBool) {
+		mDisableInputMonitor = (bool)osBool->getValue();
+	} else {
+		mDisableInputMonitor = false;
+	}
+  
 
 	osBool = OSDynamicCast(OSBoolean, dict->getObject("Vectorize"));
 	if (osBool) {
@@ -741,6 +751,7 @@ bool VoodooHDADevice::createAudioEngine(Channel *channel)
     // VertexBZ: set Mute fix on the engine
 	audioEngine->mEnableMuteFix = mEnableMuteFix;
 	
+//  audioEngine->mDisableInputMonitor = mDisableInputMonitor;
 	audioEngine->Boost = Boost;
 	// Active the audio engine - this will cause the audio engine to have start() and
 	// initHardware() called on it. After this function returns, that audio engine should

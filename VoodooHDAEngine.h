@@ -52,6 +52,7 @@ public:
 	UInt32					oldOutVolumeRight;
 	UInt32					oldInputGain;
 
+//  bool mDisableInputMonitor;
 	// cue8chalk: flag for volume change fix
 	bool mEnableVolumeChangeFix;
     // VertexBZ: flag for mute fix

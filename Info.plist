@@ -50,6 +50,8 @@
 			<true/>
 			<key>AllowMSI</key>
 			<true/>
+			<key>DisableInputMonitor</key>
+			<true/>
 			<key>Noise</key>
 			<integer>0</integer>
 			<key>Boost</key>
@@ -57,15 +59,52 @@
 			<key>VoodooHDAVerboseLevel</key>
 			<integer>0</integer>
 			<key>NodesToPatch</key>
-			<array/>
+			<array>
+				<dict>
+					<key>Comment</key>
+					<string>Example of possible values</string>
+					<key>Codec</key>
+					<integer>4</integer>
+					<key>Config</key>
+					<string>0x90a70120</string>
+					<key>Node</key>
+					<integer>12</integer>
+					<key>Enable</key>
+					<string>1</string>
+					<key>Caps</key>
+					<string>0x373e</string>
+					<key>Type</key>
+					<string>4</string>
+					<key>Control</key>
+					<string>20</string>
+					<key>Conns</key>
+					<string>12,13,24</string>
+					<key>Select</key>
+					<string>13</string>
+					<key>DAC</key>
+					<string>2</string>
+					<key>SwitchCh</key>
+					<string>0</string>
+				</dict>
+				<dict>
+					<key>Comment</key>
+					<string>To disable back sound on ALC codec set enable=0</string>
+					<key>Codec</key>
+					<integer>2</integer>
+					<key>Node</key>
+					<integer>11</integer>
+					<key>Enable</key>
+					<string>1</string>
+				</dict>
+			</array>
 			<key>MixerValues</key>
 			<dict>
 				<key>Rec</key>
-				<integer>70</integer>
+				<integer>90</integer>
 				<key>PCM</key>
 				<integer>90</integer>
 				<key>iMix</key>
-				<integer>0</integer>
+				<integer>90</integer>
 				<key>iGain</key>
 				<integer>90</integer>
 			</dict>

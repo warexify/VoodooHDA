@@ -1,5 +1,5 @@
 /* to compile
-  gcc getdump.c -o getdump -framework IOKit -framework CoreFoundation -Wall -Wextra -Werror
+  clang getdump.c -o getdump -framework IOKit -framework CoreFoundation -Wall -Wextra -Werror
  */
 
 #include <stdlib.h>
@@ -7,8 +7,8 @@
 #include <stdio.h>
 #include <stdint.h>
 
-//#include <IOKit/IOKitLib.h>
-#include <IOKitLib.h>
+#include <IOKit/IOKitLib.h>
+//#include <IOKitLib.h>
 #define SOUND_MIXER_NRDEVICES 25
 #include "Shared.h"
 
