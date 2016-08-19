@@ -222,7 +222,7 @@
 			buildSettings = {
 				INFOPLIST_FILE = "VoodooHdaSettingsLoader/VoodooHdaSettingsLoader-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx10.8;
+				SDKROOT = macosx10.7;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
