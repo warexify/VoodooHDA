@@ -26,6 +26,8 @@ English.lproj/InfoPlist.strings -text
 VoodooHDA.xcodeproj/project.pbxproj -text
 VoodooHDA.xcodeproj/project.xcworkspace/contents.xcworkspacedata -text
 VoodooHDA.xcodeproj/project.xcworkspace/xcuserdata/Slice.xcuserdatad/UserInterfaceState.xcuserstate -text
+VoodooHDA.xcodeproj/xcshareddata/xcshemes/VoodooHDA.xcscheme -text
+VoodooHDA.xcodeproj/xcshareddata/xcshemes/xcschememanagement.plist -text
 /VoodooHDADevice.cpp -text
 /VoodooHDADevice.h -text
 /VoodooHDAEngine.cpp -text
