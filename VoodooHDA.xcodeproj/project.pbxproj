@@ -160,7 +160,7 @@
 		089C1669FE841209C02AAC07 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0610;
+				LastUpgradeCheck = 0620;
 			};
 			buildConfigurationList = 1DEB91DD08733DB10010E9CD /* Build configuration list for PBXProject "VoodooHDA" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -224,7 +224,6 @@
 		1DEB91DB08733DB10010E9CD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				CODE_SIGN_IDENTITY = "";
 				CURRENT_PROJECT_VERSION = 2.8.9;
 				GCC_MODEL_TUNING = "";
@@ -234,7 +233,7 @@
 				MODULE_NAME = org.voodoo.driver.VoodooHDA;
 				MODULE_VERSION = "$(CURRENT_PROJECT_VERSION)";
 				PRODUCT_NAME = VoodooHDA;
-				SDKROOT = macosx10.7;
+				SDKROOT = macosx;
 				STRIP_STYLE = "non-global";
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -248,11 +247,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_STATIC_ANALYZER_MODE = deep;
 				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 2.8.9;
+				CURRENT_PROJECT_VERSION = 2.8.8;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEPLOYMENT_POSTPROCESSING = YES;
 				DYLIB_COMPATIBILITY_VERSION = "$(CURRENT_PROJECT_VERSION)";
@@ -271,17 +270,20 @@
 				GCC_WARN_UNUSED_FUNCTION = NO;
 				GCC_WARN_UNUSED_LABEL = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				MODULE_VERSION = "$(CURRENT_PROJECT_VERSION)";
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = "-fno-stack-protector";
+				OTHER_CFLAGS = (
+					"-fno-stack-protector",
+					"-DMULTICHANNEL",
+				);
 				OTHER_LDFLAGS = (
 					"-Xlinker",
 					"-no_function_starts",
 					"-Xlinker",
 					"-no_data_in_code_info",
 				);
-				SDKROOT = macosx10.7;
+				SDKROOT = macosx10.8;
 				STRIPFLAGS = "-no_uuid";
 				VALID_ARCHS = "i386 x86_64";
 			};
