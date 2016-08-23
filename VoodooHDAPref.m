@@ -436,8 +436,6 @@ NSString* trimIORegistryPathForDisplay(NSString* path)
 {
 	[super mainViewDidLoad];
 	services = getServices();
-	if (services)
-		[services retain];
 	if (services.count > 0U)
 		currentService = 0;
 	else
@@ -733,10 +731,8 @@ failure:
 		chInfo = 0;
 	}
 	if (services) {
-		[services release];
 		services = nil;
 	}
-	[super dealloc];
 }
 
 @end
