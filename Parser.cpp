@@ -2193,6 +2193,19 @@ void VoodooHDADevice::audioPreparePinCtrl(FunctionGroup *funcGroup)
 			continue;
 		if (widget->type != HDA_PARAM_AUDIO_WIDGET_CAP_TYPE_PIN_COMPLEX)
 			continue;
+    
+    // Alejandro
+    bool patchEnabled = false;                                  // Alejandro
+		for(int n = 0; n < NumNodes; n++) {                         //
+			if(widget->nid == (int) NodesToPatchArray[n].Node) {    //
+				if(NodesToPatchArray[n].Enable & 0x20) {            //
+					patchEnabled = true;                            //
+				}                                                   //
+				break;                                              //
+			}                                                       //
+		}                                                           //
+		if(patchEnabled)                                            //
+			continue;                                               //
 
 		pincap = widget->pin.cap;
 

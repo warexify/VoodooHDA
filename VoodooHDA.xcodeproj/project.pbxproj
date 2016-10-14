@@ -270,7 +270,7 @@
 				GCC_WARN_UNUSED_FUNCTION = NO;
 				GCC_WARN_UNUSED_LABEL = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				MODULE_VERSION = "$(CURRENT_PROJECT_VERSION)";
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
@@ -283,7 +283,7 @@
 					"-Xlinker",
 					"-no_data_in_code_info",
 				);
-				SDKROOT = macosx10.8;
+				SDKROOT = "";
 				STRIPFLAGS = "-no_uuid";
 				VALID_ARCHS = "i386 x86_64";
 			};
