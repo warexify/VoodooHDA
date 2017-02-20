@@ -116,7 +116,7 @@ const CodecListItem gCodecList[] = {
 	{ HDA_CODEC_ALC273,			"Realtek ALC273" },
 	{ HDA_CODEC_ALC275,			"Realtek ALC275" },
 	{ HDA_CODEC_ALC276,			"Realtek ALC276" },
-	{ HDA_CODEC_ALC282,         "Realtek ALC282" },
+	{ HDA_CODEC_ALC282,     "Realtek ALC282" },
 	{ HDA_CODEC_ALC660,			"Realtek ALC660" },
 	{ HDA_CODEC_ALC662,			"Realtek ALC662" },
 #if 0
@@ -147,6 +147,8 @@ const CodecListItem gCodecList[] = {
 	{ HDA_CODEC_ALC889,			"Realtek ALC889" },
 	{ HDA_CODEC_ALC892,			"Realtek ALC892" },
 	{ HDA_CODEC_ALC899,			"Realtek ALC899" },
+  { HDA_CODEC_ALC1150,		"Realtek ALC1150" },
+  { HDA_CODEC_ALC1220,		"Realtek ALC1220" },
 	{ HDA_CODEC_AD1882,			"Analog Devices AD1882" },
 	{ HDA_CODEC_AD1882A,		"Analog Devices AD1882A" },
 	{ HDA_CODEC_AD1883,			"Analog Devices AD1883" },
