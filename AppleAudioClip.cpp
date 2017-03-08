@@ -3802,18 +3802,19 @@ IOReturn VoodooHDAEngine::clipOutputSamples(const void *mixBuf, void *sampleBuf,
 				floatMixBuf[i+1] -= (floatMixBuf[i]/10.0) * base;
 			}
 	}
-	if (Boost) {
-		for (int i=firstSample; i<lastSample; i++) {
-			floatMixBuf2[i] *= Boost;
-		}
-	}
-	floatMixBufOld = floatMixBuf2 + numSamples - base * 2;
 	emptyStream = FALSE;
 
 	// figure out what sort of blit we need to do
 	if ((streamFormat->fSampleFormat == kIOAudioStreamSampleFormatLinearPCM) && streamFormat->fIsMixable) {
 		// it's mixable linear PCM, which means we will be calling a blitter, which works in samples
 		// not frames
+		if (Boost) {
+			for (int i=firstSample; i<lastSample; i++) {
+				floatMixBuf2[i] *= Boost;
+			}
+		}
+//		floatMixBufOld = floatMixBuf2 + numSamples - base * 2;
+
 
 		if (streamFormat->fNumericRepresentation == kIOAudioStreamNumericRepresentationSignedInt) {
 			// it's some kind of signed integer, which we handle as some kind of even byte length

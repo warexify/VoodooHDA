@@ -426,10 +426,10 @@ bool VoodooHDAEngine::createAudioStream()
 		errorMsg("error: createAudioStream failed channels=%d\n", (int)channels);
 		goto done;
 	}
-#if 0
+#if 0 //AC3_SUPPORTED
 	if (HDA_PARAM_SUPP_STREAM_FORMATS_AC3(mChannel->supStreamFormats)) {
-//		logMsg("adding AC3 audio stream\n");
-		if (!createAudioStream(direction, sampleBuffer, mBufferSize, minSampleRate, maxSampleRate,
+		logMsg("adding AC3 audio stream\n");
+		if (!createAudioStream(direction, sampleBuffer, mBufferSize, /*minSampleRate, maxSampleRate, */
 							   mChannel->supPcmSizeRates, kIOAudioStreamSampleFormatAC3, channels)) {
 			errorMsg("error: createAudioStream AC3 failed\n");
 		}
@@ -510,12 +510,18 @@ bool VoodooHDAEngine::createAudioStream(IOAudioStreamDirection direction, void *
 		format.fBitDepth = 24;
 		format.fBitWidth = 32;
             formatEx.fBytesPerPacket = format.fNumChannels * (format.fBitWidth / 8);
+            format.fIsMixable = false;
+            mStream->addAvailableFormat(&format, &formatEx, &sampleRate, &sampleRate);
+            format.fIsMixable = true;
             mStream->addAvailableFormat(&format, &formatEx, &sampleRate, &sampleRate);
 	}
 	if (HDA_PARAM_SUPP_PCM_SIZE_RATE_32BIT(supPcmSizeRates)) {
 		format.fBitDepth = 32;
 		format.fBitWidth = 32;
             formatEx.fBytesPerPacket = format.fNumChannels * (format.fBitWidth / 8);
+            format.fIsMixable = false;
+            mStream->addAvailableFormat(&format, &formatEx, &sampleRate, &sampleRate);
+            format.fIsMixable = true;
             mStream->addAvailableFormat(&format, &formatEx, &sampleRate, &sampleRate);
         }
 	}
@@ -602,11 +608,13 @@ IOReturn VoodooHDAEngine::performFormatChange(IOAudioStream *audioStream,
 	IOReturn result = kIOReturnError;
 	int setResult;
 	UInt32 ossFormat;
+	//AC3 - test
+	bool wasRunning = (getState() == kIOAudioEngineRunning);
 
 	// ASSERT(audioStream == mStream);
 
-//	logMsg("VoodooHDAEngine[%p]::peformFormatChange(%p, %p, %p)\n", this, audioStream, newFormat,
-//			newSampleRate);
+	logMsg("VoodooHDAEngine[%p]::peformFormatChange(%p, %p, %p)\n", this, audioStream, newFormat,
+			newSampleRate);
 
 	if (!newSampleRate)
 		newSampleRate = getSampleRate();
@@ -614,6 +622,9 @@ IOReturn VoodooHDAEngine::performFormatChange(IOAudioStream *audioStream,
 		errorMsg("warning: performFormatChange(%p) called with no effect\n", audioStream);
 		return kIOReturnSuccess;
 	}
+//AC3 -test
+	if (wasRunning)
+		stopAudioEngine();
 
 	if (newFormat) {
 	int channels = newFormat->fNumChannels;
@@ -658,8 +669,8 @@ IOReturn VoodooHDAEngine::performFormatChange(IOAudioStream *audioStream,
 		//IOLog("ossFormat=%08x\n", (unsigned int)ossFormat);
 
 		setResult = mDevice->channelSetFormat(mChannel, ossFormat);
-	//	logMsg("channelSetFormat(0x%08lx) for channel %d returned %d\n", ossFormat, getEngineId(),
-	//			setResult);
+		logMsg("channelSetFormat(0x%08lx) for channel %d returned %d\n", ossFormat, getEngineId(),
+				setResult);
 		if (setResult != 0) {
 			errorMsg("error: couldn't set format 0x%lx (%d-bit depth)\n", (long unsigned int)ossFormat, newFormat->fBitDepth);
 			goto done;
@@ -687,6 +698,9 @@ IOReturn VoodooHDAEngine::performFormatChange(IOAudioStream *audioStream,
 			goto done;
 		}
 	}
+//AC3 - test 
+	if (wasRunning)
+		startAudioEngine();
 
 	result = kIOReturnSuccess;
 done:
@@ -709,7 +723,10 @@ bool VoodooHDAEngine::createAudioControls()
 	IOFixed			minDb,
 					maxDb;
 	int				initOssDev, initOssMask, idupper;
-
+//AC3 - test	
+	if (mChannel->funcGroup->audio.assocs[mChannel->assocNum].digital) {   //digital has no control
+		return true;
+	}
 	direction = getEngineDirection();
 	if (direction == kIOAudioStreamDirectionOutput) {
 		usage = kIOAudioControlUsageOutput;
@@ -754,7 +771,7 @@ bool VoodooHDAEngine::createAudioControls()
 													   idupper | 0U,
 													   usage);
     if (!control) {
-		errorMsg("error: createVolumeControl failed\n");
+        errorMsg("error: createVolumeControl failed\n");
         goto Done;
     }
 
@@ -773,7 +790,7 @@ bool VoodooHDAEngine::createAudioControls()
 													   idupper | 1U,
 													   usage);
     if (!control) {
-		errorMsg("error: createVolumeControl failed\n");
+        errorMsg("error: createVolumeControl failed\n");
         goto Done;
     }
 
@@ -850,7 +867,7 @@ createSelectorControl:
 		mSelControl->addAvailableSelection(mPortType, mPortName);
 		mSelControl->setValueChangeHandler(SelectorChanged, this);
 		this->addDefaultAudioControl(mSelControl);
-		//enumiratePinNames();
+		//enumeratePinNames();
 	}
 
 	result = true;

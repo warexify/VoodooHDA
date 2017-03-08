@@ -48,6 +48,8 @@
 			<true/>
 			<key>AllowMSI</key>
 			<true/>
+			<key>DisableInputMonitor</key>
+			<true/>
 			<key>Noise</key>
 			<integer>0</integer>
 			<key>Boost</key>

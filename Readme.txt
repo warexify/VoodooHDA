@@ -77,6 +77,9 @@ see license.txt for details and copyright notices
 
 changelog
 ---------
+v2.8.10d1, r116
+- Merge all changes tranc@106 through tranc@115 to branches/zdev.
+
 v2.8.8d1, r102
 - Merge all changes tranc@95 through tranc@101 to branches/zdev.
 

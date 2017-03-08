@@ -44,6 +44,7 @@ OSDefineMetaClassAndStructors(VoodooHDADevice, IOAudioDevice)
 #define kVoodooHDAEnableHalfMicVolumeFixKey "VoodooHDAEnableHalfMicVolumeFix"
 #define kVoodooHDAEnableMuteFixKey "VoodooHDAEnableMuteFix"
 #define kVoodooHDAAllowMSI "AllowMSI"
+#define kDisableInputMonitor "DisableInputMonitor"
 
 bool VoodooHDADevice::init(OSDictionary *dict)
 {
@@ -108,6 +109,15 @@ bool VoodooHDADevice::init(OSDictionary *dict)
 	} else {
 		mInhibitCache = false;
 	}
+  
+  //DisableInputMonitor
+	osBool = OSDynamicCast(OSBoolean, dict->getObject("DisableInputMonitor"));
+	if (osBool) {
+		mDisableInputMonitor = (bool)osBool->getValue();
+	} else {
+		mDisableInputMonitor = false;
+	}
+  
 
 	osBool = OSDynamicCast(OSBoolean, dict->getObject("Vectorize"));
 	if (osBool) {
@@ -740,6 +750,7 @@ bool VoodooHDADevice::createAudioEngine(Channel *channel)
     // VertexBZ: set Mute fix on the engine
 	audioEngine->mEnableMuteFix = mEnableMuteFix;
 
+//  audioEngine->mDisableInputMonitor = mDisableInputMonitor;
 	audioEngine->Boost = Boost;
 	// Active the audio engine - this will cause the audio engine to have start() and
 	// initHardware() called on it. After this function returns, that audio engine should
@@ -1217,6 +1228,12 @@ IOReturn VoodooHDADevice::handleAction(OSObject *owner, void *arg0, void *arg1, 
 	VoodooHDADevice *device;
 	IOReturn result = kIOReturnSuccess;
 	UInt32 action = *static_cast<UInt32 const*>(arg0);
+#if __LP64__
+   // UInt32 action = (UInt32)(UInt64) arg0;
+#else
+   // UInt32 action = (UInt32) arg0;
+#endif
+
 	UInt32 *outSize = (UInt32 *) arg1;
 	void **outData = (void **) arg2;
 

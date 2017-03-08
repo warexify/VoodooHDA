@@ -1,5 +1,5 @@
 /* to compile
-  gcc getdump.c -o getdump -framework IOKit -framework CoreFoundation -Wall -Wextra -Werror
+  clang getdump.c -o getdump -framework IOKit -framework CoreFoundation -Wall -Wextra -Werror
  */
 
 #include <stdlib.h>

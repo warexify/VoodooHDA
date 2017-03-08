@@ -614,6 +614,12 @@ void VoodooHDADevice::vendorPatchParse(FunctionGroup *funcGroup)
 		widget = widgetGet(funcGroup, i);
 		if (!widget || (widget->enable == 0)) // || !(widget->type == 4))
 			continue;
+		if ((funcGroup->codec->vendorId == 0x10ec) && mDisableInputMonitor && (i == 11)) {
+			widget->enable = 0;
+			dumpMsg("VHDevice NID=11 disabled by user info.list\n");
+			continue;
+		}
+
 		dumpMsg("VHDevice NID=%2d Config=%08lx (%-14s) Cap=%08lx Ctrl=%08lx", i, (long unsigned int)widget->pin.config,
 				&widget->name[0], (long unsigned int)widget->pin.cap, (long unsigned int)widget->pin.ctrl);
 		dumpMsg(" -- Conns:");
@@ -1072,16 +1078,19 @@ void VoodooHDADevice::audioBuildTree(FunctionGroup *funcGroup)
 			continue;
 		dumpMsg("Tracing association %d (%d)\n", j, assocs[j].index);
 		if (assocs[j].dir == HDA_CTL_OUT) {
-retry:
-			res = audioTraceAssociationOut(funcGroup, j, 0);
-			if ((res == 0) && (assocs[j].hpredir >= 0) && (assocs[j].fakeredir == 0)) {
-				/* If codec can't do analog HP redirection
-				   try to make it using one more DAC. */
-				assocs[j].fakeredir = 1;
-				goto retry;
-			}
-		} else
+			do {
+				res = audioTraceAssociationOut(funcGroup, j, 0);
+				if ((res == 0) && (assocs[j].hpredir >= 0) && (assocs[j].fakeredir == 0)) {
+					/* If codec can't do analog HP redirection
+					   try to make it using one more DAC. */
+					assocs[j].fakeredir = 1;
+					continue;
+				}
+				break;
+			} while (true);
+		} else {
 			res = audioTraceAssociationIn(funcGroup, j);
+		}
 		if (res)
 			dumpMsg("Association %d (%d) trace succeeded\n", j, assocs[j].index);
 		else {
@@ -1600,6 +1609,7 @@ int VoodooHDADevice::audioTraceToOut(FunctionGroup *funcGroup, nid_t nid, int de
 	if ((depth > 0) && (widget->bindAssoc != -1)) {
 		if ((widget->bindAssoc < 0) || (assocs[widget->bindAssoc].dir == HDA_CTL_OUT)) {
 			dumpMsg(" %*snid %d found output association %d\n", depth + 1, "", widget->nid, widget->bindAssoc);
+
 			if (widget->bindAssoc >= 0)
 				widget->pflags |= HDA_ADC_MONITOR;
 			return 1;
@@ -1656,38 +1666,46 @@ void VoodooHDADevice::audioTraceAssociationExtra(FunctionGroup *funcGroup)
 	/* Find mixer associated with input, but supplying signal
 	   for output associations. Hope it will be input monitor. */
 	dumpMsg("Tracing input monitor\n");
-	for (int j = funcGroup->startNode; j < funcGroup->endNode; j++) {
-		Widget *widget = widgetGet(funcGroup, j);
-		if (!widget || (widget->enable == 0))
-			continue;
-		if (widget->type != HDA_PARAM_AUDIO_WIDGET_CAP_TYPE_AUDIO_MIXER)
-			continue;
-		if ((widget->bindAssoc < 0) || (assocs[widget->bindAssoc].dir != HDA_CTL_IN))
-			continue;
-		dumpMsg(" Tracing nid %d to out\n", j);
-		if (audioTraceToOut(funcGroup, widget->nid, 0)) {
+	if (0 && mDisableInputMonitor) {
+		dumpMsg(" disabled by Info.plist set\n");
+	} else {
+		for (int j = funcGroup->startNode; j < funcGroup->endNode; j++) {
+			Widget *widget = widgetGet(funcGroup, j);
+			if (!widget || (widget->enable == 0))
+				continue;
+			if (widget->type != HDA_PARAM_AUDIO_WIDGET_CAP_TYPE_AUDIO_MIXER)
+				continue;
+			if ((widget->bindAssoc < 0) || (assocs[widget->bindAssoc].dir != HDA_CTL_IN))
+				continue;
+			dumpMsg(" Tracing nid mix %d to out\n", j);
+			if (audioTraceToOut(funcGroup, widget->nid, 0)) {
 			//if(mVerbose > 0)
 				dumpMsg(" nid %d is input monitor\n", widget->nid);
-			widget->pflags |= HDA_ADC_MONITOR;
-			widget->ossdev = SOUND_MIXER_IGAIN; //SOUND_MIXER_IMIX;
+				if (0 && mDisableInputMonitor) {
+					audioUndoTrace(funcGroup, widget->bindAssoc, -1);
+				} else {
+					widget->pflags |= HDA_ADC_MONITOR;
+					widget->ossdev = SOUND_MIXER_IGAIN; //SOUND_MIXER_IMIX;
+				}
+			}
 		}
-	}
-	/* Other inputs monitor */
-	/* Find input pins supplying signal for output associations.
-	 Hope it will be input monitoring. */
-	dumpMsg("Tracing other input monitors\n");
-	for (int j = funcGroup->startNode; j < funcGroup->endNode; j++) {
-		Widget *widget = widgetGet(funcGroup, j);
-		if (!widget || (widget->enable == 0))
-			continue;
-		if (widget->type != HDA_PARAM_AUDIO_WIDGET_CAP_TYPE_PIN_COMPLEX)
-			continue;
-		if (widget->bindAssoc < 0 || assocs[widget->bindAssoc].dir != HDA_CTL_IN)
-			continue;
-		dumpMsg(" Tracing nid %d to out\n", j);
+		/* Other inputs monitor */
+		/* Find input pins supplying signal for output associations.
+		   Hope it will be input monitoring. */
+		dumpMsg("Tracing other input monitors\n");
+		for (int j = funcGroup->startNode; j < funcGroup->endNode; j++) {
+			Widget *widget = widgetGet(funcGroup, j);
+			if (!widget || (widget->enable == 0))
+				continue;
+			if (widget->type != HDA_PARAM_AUDIO_WIDGET_CAP_TYPE_PIN_COMPLEX)
+				continue;
+			if (widget->bindAssoc < 0 || assocs[widget->bindAssoc].dir != HDA_CTL_IN)
+				continue;
+			dumpMsg(" Tracing nid complex %d to out\n", j);
 
-		if (audioTraceToOut(funcGroup, widget->nid, 0))  {
-			dumpMsg( " nid %d is input monitor\n", widget->nid);
+			if (audioTraceToOut(funcGroup, widget->nid, 0)) {
+				dumpMsg( " nid %d is input monitor\n", widget->nid);
+			}
 		}
 	}
 
@@ -2176,6 +2194,19 @@ void VoodooHDADevice::audioPreparePinCtrl(FunctionGroup *funcGroup)
 			continue;
 		if (widget->type != HDA_PARAM_AUDIO_WIDGET_CAP_TYPE_PIN_COMPLEX)
 			continue;
+
+	// Alejandro
+		bool patchEnabled = false;                                  // Alejandro
+		for(int n = 0; n < NumNodes; n++) {                         //
+			if(widget->nid == (int) NodesToPatchArray[n].Node) {    //
+				if(NodesToPatchArray[n].Enable & 0x20) {            //
+					patchEnabled = true;                            //
+				}                                                   //
+				break;                                              //
+			}                                                       //
+		}                                                           //
+		if(patchEnabled)                                            //
+			continue;                                               //
 
 		pincap = widget->pin.cap;
 
@@ -4550,7 +4581,7 @@ void VoodooHDADevice::updateExtDump(void)
 
 	for(int cad = 0; cad < 15; cad++) {
 		Codec *codec = mCodecs[cad];
-		if(codec == 0) break;
+		if(codec == 0) continue;
 
 		dumpExtMsg("\n");
 		dumpExtMsg("\n");
