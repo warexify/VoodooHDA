@@ -3901,7 +3901,7 @@ int VoodooHDADevice::pcmChannelSetup(Channel *channel)
 				channel->formats[i++] = AFMT_S16_LE;
 				if (channel->bit32 == 4)
 					channel->formats[i++] = AFMT_S32_LE;
-				else if (channel->bit32) channel->formats[i++] = AFMT_S32_LE; //AFMT_S24_LE;
+				else if (channel->bit32) channel->formats[i++] = AFMT_S32_LE;
 			}
 			if (channels >= 2) {
 				channel->formats[i++] = AFMT_S16_LE | AFMT_STEREO;
@@ -4032,6 +4032,8 @@ int VoodooHDADevice::pcmChannelSetup(Channel *channel)
 	}
 	channel->io[ret] = -1;
 
+	if (assocs[channel->assocNum].fakeredir)
+		ret--;
 	channel->supStreamFormats = fmtcap;
 	channel->supPcmSizeRates = pcmcap;
 
@@ -4064,8 +4066,8 @@ int VoodooHDADevice::pcmChannelSetup(Channel *channel)
 				channel->formats[i++] = AFMT_S32_LE | AFMT_STEREO;
 			} else if (channel->bit32) {
 				if (!(funcGroup->audio.quirks & HDA_QUIRK_FORCESTEREO))
-					channel->formats[i++] = AFMT_S24_LE;
-				channel->formats[i++] = AFMT_S24_LE  | AFMT_STEREO;
+					channel->formats[i++] = AFMT_S32_LE;
+				channel->formats[i++] = AFMT_S32_LE  | AFMT_STEREO;
 			}
 		}
 		if (HDA_PARAM_SUPP_STREAM_FORMATS_AC3(fmtcap))

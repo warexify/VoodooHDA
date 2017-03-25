@@ -656,10 +656,19 @@ IOReturn VoodooHDAEngine::performFormatChange(IOAudioStream *audioStream,
 				ossFormat |= AFMT_S16_LE;
 				break;
 			case 20:
+				ASSERT(newFormat->fBitWidth == 32);
+				ossFormat |= AFMT_S32_LE;
+				mChannel->bit32 = 2;
+				break;
             case 24:
+				ASSERT(newFormat->fBitWidth == 32);
+				ossFormat |= AFMT_S32_LE;
+				mChannel->bit32 = 3;
+				break;
 			case 32:
 				ASSERT(newFormat->fBitWidth == 32);
 				ossFormat |= AFMT_S32_LE;
+				mChannel->bit32 = 4;
 				break;
 			default:
 				BUG("unsupported bit depth");

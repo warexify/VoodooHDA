@@ -77,6 +77,12 @@ see license.txt for details and copyright notices
 
 changelog
 ---------
+v2.8.10d1, r118
+- Fix setting of 20, 24, 32 bit widths.
+
+v2.8.10d1, r117
+- Update for XCode 8.2.1, Add some models.
+
 v2.8.10d1, r116
 - Merge all changes tranc@106 through tranc@115 to branches/zdev.
 
