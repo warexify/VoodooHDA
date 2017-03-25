@@ -669,7 +669,7 @@ IOReturn VoodooHDAEngine::performFormatChange(IOAudioStream *audioStream,
 		//IOLog("ossFormat=%08x\n", (unsigned int)ossFormat);
 
 		setResult = mDevice->channelSetFormat(mChannel, ossFormat);
-		logMsg("channelSetFormat(0x%08lx) for channel %d returned %d\n", ossFormat, getEngineId(),
+		logMsg("channelSetFormat(0x%08lx) for channel %d returned %d\n", static_cast<long unsigned int>(ossFormat), getEngineId(),
 				setResult);
 		if (setResult != 0) {
 			errorMsg("error: couldn't set format 0x%lx (%d-bit depth)\n", (long unsigned int)ossFormat, newFormat->fBitDepth);
@@ -755,7 +755,7 @@ bool VoodooHDAEngine::createAudioControls()
 //		   (SInt16) (maxDb >> 16), maxDb);
 	if ((minDb == ~0L) || (maxDb == ~0L)) {
 		//logMsg("warning: found invalid min/max dB (using default -22.5 -> 0.0dB range)\n"); //-22.5 -> 0.0
-		minDb = (-22 << 16) + (65536 / 2);
+		minDb = static_cast<int>(static_cast<unsigned>(-22) << 16) + (65536 / 2);
 		maxDb = 0 << 16;
 	}
 

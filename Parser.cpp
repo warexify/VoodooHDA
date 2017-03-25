@@ -3093,7 +3093,7 @@ UInt32 VoodooHDADevice::widgetPinPatch(UInt32 config, const char *str)
 		value = voodoo_strsep(&rest, " \t");
 		if (!value)
 			break;
-		ival = strtol(value, &bad, 10);
+		ival = static_cast<int>(strtol(value, &bad, 10));
 		if (strcmp(key, "seq") == 0) {
 			config &= ~HDA_CONFIG_DEFAULTCONF_SEQUENCE_MASK;
 			config |= ((ival << HDA_CONFIG_DEFAULTCONF_SEQUENCE_SHIFT) & HDA_CONFIG_DEFAULTCONF_SEQUENCE_MASK);
@@ -3822,7 +3822,7 @@ int VoodooHDADevice::pcmChannelSetup(Channel *channel)
 		/* Check as is correct */
 		if (channel->assocNum < 0)
 			break;
-		/* Cound only present DACs */
+		/* Count only present DACs */
 		if (assocs[channel->assocNum].dacs[i] <= 0)
 			continue;
 		/* Ignore duplicates */

@@ -282,7 +282,7 @@ IOService *VoodooHDADevice::probe(IOService *provider, SInt32 *score)
 									long unsigned int jj = 0;
 									int jjj = 0;
 									if(sscanf(tmpString->getCStringNoCopy(), "0x%08lx", &jj)) {
-										tmpUI32 = jj;
+										tmpUI32 = static_cast<UInt32>(jj);
 									}else if(sscanf(tmpString->getCStringNoCopy(), "%4d", &jjj)){
 										tmpUI32 = jjj;
 									}
@@ -305,7 +305,7 @@ IOService *VoodooHDADevice::probe(IOService *provider, SInt32 *score)
 							tmpString = OSDynamicCast(OSString, tmpDict->getObject(dictKey));
 							long unsigned int jj = 0;
 							if(sscanf(tmpString->getCStringNoCopy(), "0x%08lx", &jj)) {
-								tmpUI32 = jj;
+								tmpUI32 = static_cast<UInt32>(jj);
 								tmpUIArray[0]= tmpUI32;
 								nArrayCount = 1;
 							}
