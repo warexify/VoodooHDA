@@ -510,18 +510,12 @@ bool VoodooHDAEngine::createAudioStream(IOAudioStreamDirection direction, void *
 		format.fBitDepth = 24;
 		format.fBitWidth = 32;
             formatEx.fBytesPerPacket = format.fNumChannels * (format.fBitWidth / 8);
-            format.fIsMixable = false;
-            mStream->addAvailableFormat(&format, &formatEx, &sampleRate, &sampleRate);
-            format.fIsMixable = true;
             mStream->addAvailableFormat(&format, &formatEx, &sampleRate, &sampleRate);
 	}
 	if (HDA_PARAM_SUPP_PCM_SIZE_RATE_32BIT(supPcmSizeRates)) {
 		format.fBitDepth = 32;
 		format.fBitWidth = 32;
             formatEx.fBytesPerPacket = format.fNumChannels * (format.fBitWidth / 8);
-            format.fIsMixable = false;
-            mStream->addAvailableFormat(&format, &formatEx, &sampleRate, &sampleRate);
-            format.fIsMixable = true;
             mStream->addAvailableFormat(&format, &formatEx, &sampleRate, &sampleRate);
         }
 	}
@@ -608,8 +602,6 @@ IOReturn VoodooHDAEngine::performFormatChange(IOAudioStream *audioStream,
 	IOReturn result = kIOReturnError;
 	int setResult;
 	UInt32 ossFormat;
-	//AC3 - test
-	bool wasRunning = (getState() == kIOAudioEngineRunning);
 
 	// ASSERT(audioStream == mStream);
 
@@ -622,9 +614,6 @@ IOReturn VoodooHDAEngine::performFormatChange(IOAudioStream *audioStream,
 		errorMsg("warning: performFormatChange(%p) called with no effect\n", audioStream);
 		return kIOReturnSuccess;
 	}
-//AC3 -test
-	if (wasRunning)
-		stopAudioEngine();
 
 	if (newFormat) {
 	int channels = newFormat->fNumChannels;
@@ -707,9 +696,6 @@ IOReturn VoodooHDAEngine::performFormatChange(IOAudioStream *audioStream,
 			goto done;
 		}
 	}
-//AC3 - test 
-	if (wasRunning)
-		startAudioEngine();
 
 	result = kIOReturnSuccess;
 done:
@@ -732,10 +718,6 @@ bool VoodooHDAEngine::createAudioControls()
 	IOFixed			minDb,
 					maxDb;
 	int				initOssDev, initOssMask, idupper;
-//AC3 - test	
-	if (mChannel->funcGroup->audio.assocs[mChannel->assocNum].digital) {   //digital has no control
-		return true;
-	}
 	direction = getEngineDirection();
 	if (direction == kIOAudioStreamDirectionOutput) {
 		usage = kIOAudioControlUsageOutput;
