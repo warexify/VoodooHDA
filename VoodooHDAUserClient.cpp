@@ -25,6 +25,7 @@ OSDefineMetaClassAndStructors(VoodooHDAUserClient, IOUserClient);
 #define errorMsg(fmt, args...)	messageHandler(kVoodooHDAMessageTypeError, fmt, ##args)
 #define dumpMsg(fmt, args...)	messageHandler(kVoodooHDAMessageTypeDump, fmt, ##args)
 
+__attribute__((visibility("hidden")))
 void VoodooHDAUserClient::messageHandler(UInt32 type, const char *format, ...)
 {
 	va_list args;
@@ -90,6 +91,7 @@ IOExternalMethod *VoodooHDAUserClient::getTargetAndMethodForIndex(IOService **ta
 		return NULL;
 }
 
+__attribute__((visibility("hidden")))
 IOReturn VoodooHDAUserClient::actionMethod(UInt32 *dataIn, UInt32 *dataOut, IOByteCount inputSize,
 		IOByteCount *outputSize)
 {
@@ -125,11 +127,6 @@ IOReturn VoodooHDAUserClient::clientMemoryForType(UInt32 type, IOOptionBits *opt
 {
 	IOReturn result;
 	IOBufferMemoryDescriptor *memDesc;
-	/*
-	ChannelInfo *channelInfoBuffer;
-	UInt32		channelInfoBufferSize = 0;
-	 */
-
 
 //	logMsg("VoodooHDAUserClient[%p]::clientMemoryForType(0x%lx)\n", this, type);
 
@@ -191,24 +188,11 @@ IOReturn VoodooHDAUserClient::clientMemoryForType(UInt32 type, IOOptionBits *opt
 		memDesc->writeBytes(0U, mDevice->mPrefPanelMemoryBuf,  mDevice->mPrefPanelMemoryBufSize);
 		mDevice->unlockPrefPanelMemoryBuf();
 		memDesc->complete();
-		//*options |= kIOMapReadOnly;
 		*memory = memDesc; // automatically released after memory is mapped into task
 		result = kIOReturnSuccess;
 		break;
 			//Разделяемая память для буфера с текущеми настройками усиления
 	case kVoodooHDAMemoryExtMessageBuffer:
-
-		/*
-		channelInfoBuffer = mDevice->getChannelInfo();
-		if (!channelInfoBuffer)
-			return kIOReturnError;
-
-		channelInfoBufferSize = sizeof(*channelInfoBuffer) * channelInfoBuffer->numChannels;
-		//IOLog("infoBufferSize %ld\n", channelInfoBufferSize);
-		if (!channelInfoBufferSize)
-			return kIOReturnError;
-		*/
-
 		mDevice->lockExtMsgBuffer();
 		if (!mDevice->mExtMsgBufferSize) {
 			errorMsg("error: ext message buffer size is zero\n");

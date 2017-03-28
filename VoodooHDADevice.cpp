@@ -2597,7 +2597,7 @@ void VoodooHDADevice::streamSetup(Channel *channel)
 //		if ((assoc->hpredir >= 0) && (i == assoc->pincnt))
 //			chn = 0;
 		/* If HP redirection is enabled, but failed to use same DAC make last DAC one to duplicate first one. */
-		if (assoc->hpredir >= 0 && i == assoc->pincnt)
+		if (assoc->fakeredir && i == (assoc->pincnt - 1))
 			c = (channel->streamId << 4);
 		else {
 			if (map >= 0) /* Map known speaker setups. */

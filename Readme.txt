@@ -77,6 +77,18 @@ see license.txt for details and copyright notices
 
 changelog
 ---------
+v2.8.10d2, r120
+- Fixed handling of hpredir that prevented analog multichannel from working (Parser.cpp, VoodooHDADevice.cpp).
+- Upgraded project to Xcode 8.3, and bumped version to 2.8.10d2.
+- Assign analog 4/5.1/7.1 multichannel engines pretty names (VoodooHDAEngine.cpp).
+- Lower default bit depth to 24 for engines that support both 24 and 32 (VoodooHDAEngine.cpp).
+- Add mute control for digital outputs that support them (VoodooHDAEngine.cpp).
+- Discard obsolete code from VoodooHDAEngine, VoodooHDAUserClient.
+- Make non-virtual member functions in VoodooHDAEngine, VoodooHDAUserClient hidden.
+
+v2.8.10d1, r119
+- Revert some of rev 107.
+
 v2.8.10d1, r118
 - Fix setting of 20, 24, 32 bit widths.
 

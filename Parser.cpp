@@ -970,6 +970,7 @@ void VoodooHDADevice::audioAssociationParse(FunctionGroup *funcGroup)
 	/* Scan associations skipping as=0. */
 	for (int j = 1, cnt = 0; j < 16; j++) {  //assocs
 		int first = 16;
+		int hpredir = 0;
 		for (int i = funcGroup->startNode; i < funcGroup->endNode; i++) { //nodes in assocs[cnt]
 			Widget *widget;
 			int type, dir, assoc, seq;
@@ -1033,6 +1034,8 @@ void VoodooHDADevice::audioAssociationParse(FunctionGroup *funcGroup)
 				assocs[cnt].defaultPin = seq;
 			} else {
 				assocs[cnt].jackPin = seq; //Last seq will be jack
+				/* Redirection only for headphones. */
+				hpredir = (type == HDA_CONFIG_DEFAULTCONF_DEVICE_HP_OUT);
 			}
 
 			assocs[cnt].pins[seq] = widget->nid;
@@ -1042,7 +1045,7 @@ void VoodooHDADevice::audioAssociationParse(FunctionGroup *funcGroup)
 				cnt++;
 		}
 		if ((j != 15) && cnt < max && (assocs[cnt].pincnt > 0)) {
-			if ((assocs[cnt].jackPin >= 0) && (assocs[cnt].pincnt > 1))
+			if (hpredir && (assocs[cnt].pincnt > 1))
 				assocs[cnt].hpredir = first;  //Slice - dunno if it needed
 			if (assocs[cnt].defaultPin < 0) // && (assocs[cnt].pincnt > 1))
 				assocs[cnt].defaultPin = first;
@@ -1504,7 +1507,7 @@ int VoodooHDADevice::audioTraceAssociationOut(FunctionGroup *funcGroup, int asso
 	if (i == 16)
 		return 1;
 
-	hpredir = ((i == 15) && (assocs[assocNum].fakeredir == 0)) ? assocs[assocNum].hpredir : -1;
+	hpredir = ((i == assocs[assocNum].jackPin) && (assocs[assocNum].fakeredir == 0)) ? assocs[assocNum].hpredir : -1;
 	min = 0;
 	res = 0;
 	do {
@@ -3857,7 +3860,7 @@ int VoodooHDADevice::pcmChannelSetup(Channel *channel)
 		channel->io[ret++] = assocs[channel->assocNum].dacs[i];
 
 		/* Do not count redirection pin/dac channels. */
-		if ((ret>1) && (assocs[channel->assocNum].hpredir >= 0))  //Slice exclude (i==15)
+		if ((i == assocs[channel->assocNum].jackPin) && (assocs[channel->assocNum].hpredir >= 0))  //Slice exclude (i==15)
 			continue;
 		channels += HDA_PARAM_AUDIO_WIDGET_CAP_CC(widget->params.widgetCap) + 1;
 		if (HDA_PARAM_AUDIO_WIDGET_CAP_CC(widget->params.widgetCap) != 1)
