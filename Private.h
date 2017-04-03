@@ -112,8 +112,6 @@ class IODMACommand;
 
 typedef struct _DmaMemory {
 	const char *description;
-//	IODMACommand *command;
-//	IOMemoryMap *map;
   IOBufferMemoryDescriptor *md;
 	UInt64 size;
 	UInt64 physAddr;
@@ -214,9 +212,9 @@ typedef struct _AudioAssoc {
 	UInt8 index;
 	UInt8 dir;
 	UInt8 pincnt;
-	UInt8 pinset;
 	UInt8 fakeredir;
 	UInt8 digital;
+	UInt16 pinset;
 	nid_t hpredir;
 	nid_t pins[16];
 	nid_t dacs[16];

@@ -77,14 +77,38 @@ see license.txt for details and copyright notices
 
 changelog
 ---------
-v 2.8.7, r103
-- Remove duplicate HDA_CODEC_ALC282 in Models.h.
-- Fixed regression introduced in r97 with use of global const for multi-instance safety.
-- Fixed initialisation of audioCtls in _volSlider.
+v2.8.10d2, r120
+- Fixed handling of hpredir that prevented analog multichannel from working (Parser.cpp, VoodooHDADevice.cpp).
+- Upgraded project to Xcode 8.3, and bumped version to 2.8.10d2.
+- Assign analog 4/5.1/7.1 multichannel engines pretty names (VoodooHDAEngine.cpp).
+- Lower default bit depth to 24 for engines that support both 24 and 32 (VoodooHDAEngine.cpp).
+- Add mute control for digital outputs that support them (VoodooHDAEngine.cpp).
+- Discard obsolete code from VoodooHDAEngine, VoodooHDAUserClient.
+- Make non-virtual member functions in VoodooHDAEngine, VoodooHDAUserClient hidden.
 
-v2.8.2d5, r84
-- Implement no-snoop for ATI & Nvidia (code from FreeBSD).
-- Implemented Selector Audio Control to set correct "Type" in "Sound" Preference Pane.
+v2.8.10d1, r119
+- Revert some of rev 107.
+
+v2.8.10d1, r118
+- Fix setting of 20, 24, 32 bit widths.
+
+v2.8.10d1, r117
+- Update for XCode 8.2.1, Add some models.
+
+v2.8.10d1, r116
+- Merge all changes tranc@106 through tranc@115 to branches/zdev.
+
+v2.8.8d1, r102
+- Merge all changes tranc@95 through tranc@101 to branches/zdev.
+
+v2.8.3d2, r91
+- Use unwired memory in clientMemoryForType.
+
+v2.8.2d6, r87
+- Remove calls to IOConnectUnmapMemory
+
+v2.8.2d6, r86
+- Fix MSI interrupt concurrency.
 
 v2.8.2d5, r84
 - Implement no-snoop for ATI & Nvidia (code from FreeBSD).

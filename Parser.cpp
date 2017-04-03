@@ -58,6 +58,7 @@ void VoodooHDADevice::scanCodecs()
 	}
 }
 
+__attribute__((visibility("hidden")))
 const char *VoodooHDADevice::findCodecName(Codec *codec)
 {
 	UInt32 id;
@@ -224,7 +225,7 @@ void VoodooHDADevice::probeFunction(Codec *codec, nid_t nid)
 
 	if ((funcGroup->audio.quirks & HDA_QUIRK_DMAPOS) && !mDmaPosMemAllocated) {
 		errorMsg("XXX\nXXX dma pos quirk untested\nXXX\n");
-		mDmaPosMem = allocateDmaMemory((mInStreamsSup + mOutStreamsSup + mBiStreamsSup) * 8, "dmaPosMem", 0); //kIOMapInhibitCache);
+		mDmaPosMem = allocateDmaMemory((mInStreamsSup + mOutStreamsSup + mBiStreamsSup) * 8, "dmaPosMem", 0 /* kIOMapInhibitCache */);
 		if (!mDmaPosMem)
 			errorMsg("error: failed to allocate DMA pos buffer (non-fatal)\n");
 		else
@@ -969,6 +970,7 @@ void VoodooHDADevice::audioAssociationParse(FunctionGroup *funcGroup)
 	/* Scan associations skipping as=0. */
 	for (int j = 1, cnt = 0; j < 16; j++) {  //assocs
 		int first = 16;
+		int hpredir = 0;
 		for (int i = funcGroup->startNode; i < funcGroup->endNode; i++) { //nodes in assocs[cnt]
 			Widget *widget;
 			int type, dir, assoc, seq;
@@ -1032,6 +1034,8 @@ void VoodooHDADevice::audioAssociationParse(FunctionGroup *funcGroup)
 				assocs[cnt].defaultPin = seq;
 			} else {
 				assocs[cnt].jackPin = seq; //Last seq will be jack
+				/* Redirection only for headphones. */
+				hpredir = (type == HDA_CONFIG_DEFAULTCONF_DEVICE_HP_OUT);
 			}
 
 			assocs[cnt].pins[seq] = widget->nid;
@@ -1041,7 +1045,7 @@ void VoodooHDADevice::audioAssociationParse(FunctionGroup *funcGroup)
 				cnt++;
 		}
 		if ((j != 15) && cnt < max && (assocs[cnt].pincnt > 0)) {
-			if ((assocs[cnt].jackPin >= 0) && (assocs[cnt].pincnt > 1))
+			if (hpredir && (assocs[cnt].pincnt > 1))
 				assocs[cnt].hpredir = first;  //Slice - dunno if it needed
 			if (assocs[cnt].defaultPin < 0) // && (assocs[cnt].pincnt > 1))
 				assocs[cnt].defaultPin = first;  			
@@ -1503,7 +1507,7 @@ int VoodooHDADevice::audioTraceAssociationOut(FunctionGroup *funcGroup, int asso
 	if (i == 16)
 		return 1;
 
-	hpredir = ((i == 15) && (assocs[assocNum].fakeredir == 0)) ? assocs[assocNum].hpredir : -1;
+	hpredir = ((i == assocs[assocNum].jackPin) && (assocs[assocNum].fakeredir == 0)) ? assocs[assocNum].hpredir : -1;
 	min = 0;
 	res = 0;
 	do {
@@ -3048,6 +3052,7 @@ getconns_out:
 
 // todo: get this out of the driver!
 
+__attribute__((visibility("hidden")))
 char *voodoo_strsep(char **stringp, const char *delim)
 {
 	char *s;
@@ -3091,7 +3096,7 @@ UInt32 VoodooHDADevice::widgetPinPatch(UInt32 config, const char *str)
 		value = voodoo_strsep(&rest, " \t");
 		if (!value)
 			break;
-		ival = strtol(value, &bad, 10);
+		ival = static_cast<int>(strtol(value, &bad, 10));
 		if (strcmp(key, "seq") == 0) {
 			config &= ~HDA_CONFIG_DEFAULTCONF_SEQUENCE_MASK;
 			config |= ((ival << HDA_CONFIG_DEFAULTCONF_SEQUENCE_SHIFT) & HDA_CONFIG_DEFAULTCONF_SEQUENCE_MASK);
@@ -3820,7 +3825,7 @@ int VoodooHDADevice::pcmChannelSetup(Channel *channel)
 		/* Check as is correct */
 		if (channel->assocNum < 0)
 			break;
-		/* Cound only present DACs */
+		/* Count only present DACs */
 		if (assocs[channel->assocNum].dacs[i] <= 0)
 			continue;
 		/* Ignore duplicates */
@@ -3855,7 +3860,7 @@ int VoodooHDADevice::pcmChannelSetup(Channel *channel)
 		channel->io[ret++] = assocs[channel->assocNum].dacs[i];
 
 		/* Do not count redirection pin/dac channels. */
-		if ((ret>1) && (assocs[channel->assocNum].hpredir >= 0))  //Slice exclude (i==15)
+		if ((i == assocs[channel->assocNum].jackPin) && (assocs[channel->assocNum].hpredir >= 0))  //Slice exclude (i==15)
 			continue;
 		channels += HDA_PARAM_AUDIO_WIDGET_CAP_CC(widget->params.widgetCap) + 1;
 		if (HDA_PARAM_AUDIO_WIDGET_CAP_CC(widget->params.widgetCap) != 1)
@@ -3899,7 +3904,7 @@ int VoodooHDADevice::pcmChannelSetup(Channel *channel)
 				channel->formats[i++] = AFMT_S16_LE;
 				if (channel->bit32 == 4)
 					channel->formats[i++] = AFMT_S32_LE;
-				else if (channel->bit32) channel->formats[i++] = AFMT_S32_LE; //AFMT_S24_LE;
+				else if (channel->bit32) channel->formats[i++] = AFMT_S32_LE;
 			}
 			if (channels >= 2) {
 				channel->formats[i++] = AFMT_S16_LE | AFMT_STEREO; 
@@ -4030,6 +4035,8 @@ int VoodooHDADevice::pcmChannelSetup(Channel *channel)
 	}
 	channel->io[ret] = -1;
 
+	if (assocs[channel->assocNum].fakeredir)
+		ret--;
 	channel->supStreamFormats = fmtcap;
 	channel->supPcmSizeRates = pcmcap;
 
@@ -4062,8 +4069,8 @@ int VoodooHDADevice::pcmChannelSetup(Channel *channel)
 				channel->formats[i++] = AFMT_S32_LE | AFMT_STEREO;
 			} else if (channel->bit32) {
 				if (!(funcGroup->audio.quirks & HDA_QUIRK_FORCESTEREO))
-					channel->formats[i++] = AFMT_S24_LE;
-				channel->formats[i++] = AFMT_S24_LE  | AFMT_STEREO;
+					channel->formats[i++] = AFMT_S32_LE;
+				channel->formats[i++] = AFMT_S32_LE  | AFMT_STEREO;
 			}
 		}
 		if (HDA_PARAM_SUPP_STREAM_FORMATS_AC3(fmtcap))
@@ -4220,10 +4227,6 @@ void VoodooHDADevice::SwitchHandlerRename(FunctionGroup *funcGroup, nid_t nid, i
 				engine = lookupEngine(channelNum);
 				if(engine != NULL) {
 					logMsg("setDesc  change description %s channel %d assoc %d\n", &widget->name[5], channelNum, assocsNum);
-/*					engine->beginConfigurationChange();
-					engine->setPinName( &widget->name[5]);
-					engine->mName = &widget->name[5];
-					engine->completeConfigurationChange(); */
 					engine->setPinName(widget->pin.config, &widget->name[5]);
 					return;
 				}
@@ -4453,7 +4456,7 @@ void VoodooHDADevice::switchInit(FunctionGroup *funcGroup)
 {
 	AudioAssoc *assocs = funcGroup->audio.assocs;
 //    UInt32 id;
-    int enable = 0; //, poll = 0;
+    int enable = 0 /* , poll = 0 */;
     nid_t cad;
 //	int jackPin;
 

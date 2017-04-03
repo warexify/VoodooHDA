@@ -25,6 +25,7 @@ OSDefineMetaClassAndStructors(VoodooHDAUserClient, IOUserClient);
 #define errorMsg(fmt, args...)	messageHandler(kVoodooHDAMessageTypeError, fmt, ##args)
 #define dumpMsg(fmt, args...)	messageHandler(kVoodooHDAMessageTypeDump, fmt, ##args)
 
+__attribute__((visibility("hidden")))
 void VoodooHDAUserClient::messageHandler(UInt32 type, const char *format, ...)
 {
 	va_list args;
@@ -90,6 +91,7 @@ IOExternalMethod *VoodooHDAUserClient::getTargetAndMethodForIndex(IOService **ta
 		return NULL;
 }
 
+__attribute__((visibility("hidden")))
 IOReturn VoodooHDAUserClient::actionMethod(UInt32 *dataIn, UInt32 *dataOut, IOByteCount inputSize,
 		IOByteCount *outputSize)
 {
@@ -125,12 +127,6 @@ IOReturn VoodooHDAUserClient::clientMemoryForType(UInt32 type, IOOptionBits *opt
 {
 	IOReturn result;
 	IOBufferMemoryDescriptor *memDesc;
-//	char *msgBuffer;
-	/*
-	ChannelInfo *channelInfoBuffer;
-	UInt32		channelInfoBufferSize = 0;
-	 */
-
 
 //	logMsg("VoodooHDAUserClient[%p]::clientMemoryForType(0x%lx)\n", this, type);
 
@@ -148,8 +144,6 @@ IOReturn VoodooHDAUserClient::clientMemoryForType(UInt32 type, IOOptionBits *opt
 			result = kIOReturnUnsupported;
 			break;
 		}
-//		memDesc = IOBufferMemoryDescriptor::withOptions(kIOMemoryKernelUserShared,
-//				mDevice->mMsgBufferSize);
       memDesc = IOBufferMemoryDescriptor::inTaskWithOptions(0,
 														  kIOMemoryPageable | kIODirectionIn,
                               mDevice->mMsgBufferSize);
@@ -161,8 +155,6 @@ IOReturn VoodooHDAUserClient::clientMemoryForType(UInt32 type, IOOptionBits *opt
       RELEASE(memDesc);
 			break;
 		}
-//		msgBuffer = (char *) memDesc->getBytesNoCopy();
-//		bcopy(mDevice->mMsgBuffer, msgBuffer, mDevice->mMsgBufferSize);
     memDesc->writeBytes(0U, mDevice->mMsgBuffer, mDevice->mMsgBufferSize);  
 		mDevice->unlockMsgBuffer();
     memDesc->complete();
@@ -179,8 +171,6 @@ IOReturn VoodooHDAUserClient::clientMemoryForType(UInt32 type, IOOptionBits *opt
 			result = kIOReturnUnsupported;
 			break;
 		}
-//		memDesc = IOBufferMemoryDescriptor::withOptions(kIOMemoryKernelUserShared,
-//														mDevice->mPrefPanelMemoryBufSize);
       memDesc = IOBufferMemoryDescriptor::inTaskWithOptions(0,
  														  kIOMemoryPageable | kIODirectionInOut,
                               mDevice->mPrefPanelMemoryBufSize);
@@ -192,41 +182,23 @@ IOReturn VoodooHDAUserClient::clientMemoryForType(UInt32 type, IOOptionBits *opt
       RELEASE(memDesc);
 			break;
 		}
-//		msgBuffer = (char *) memDesc->getBytesNoCopy();
 		mDevice->updatePrefPanelMemoryBuf();
     memDesc->writeBytes(0U, mDevice->mPrefPanelMemoryBuf,  mDevice->mPrefPanelMemoryBufSize);  
-//		bcopy(mDevice->mPrefPanelMemoryBuf, msgBuffer, mDevice->mPrefPanelMemoryBufSize);
 		mDevice->unlockPrefPanelMemoryBuf();
     memDesc->complete();
-		//*options |= kIOMapReadOnly;
 		*memory = memDesc; // automatically released after memory is mapped into task
 		result = kIOReturnSuccess;
 		break;
 			//Разделяемая память для буфера с текущеми настройками усиления
 	case kVoodooHDAMemoryExtMessageBuffer:
-
-		/*
-		channelInfoBuffer = mDevice->getChannelInfo();
-		if (!channelInfoBuffer)
-			return kIOReturnError;
-
-		channelInfoBufferSize = sizeof(*channelInfoBuffer) * channelInfoBuffer->numChannels;
-		//IOLog("infoBufferSize %ld\n", channelInfoBufferSize);
-		if (!channelInfoBufferSize)
-			return kIOReturnError;
-		*/
-
 		mDevice->lockExtMsgBuffer();
 		if (!mDevice->mExtMsgBufferSize) {
 			errorMsg("error: ext message buffer size is zero\n");
 			mDevice->unlockExtMsgBuffer();
 			result = kIOReturnUnsupported;
-//      RELEASE(memDesc);
 			break;
 		}
 
-//		memDesc = IOBufferMemoryDescriptor::withOptions(kIOMemoryKernelUserShared,	mDevice->mExtMsgBufferSize);
-		//memDesc = IOBufferMemoryDescriptor::withOptions(kIOMemoryKernelUserShared,	8);
     memDesc = IOBufferMemoryDescriptor::inTaskWithOptions(0,
 														  kIOMemoryPageable | kIODirectionIn,
                               mDevice->mExtMsgBufferSize);
@@ -238,9 +210,6 @@ IOReturn VoodooHDAUserClient::clientMemoryForType(UInt32 type, IOOptionBits *opt
      		RELEASE(memDesc);
 			break;
 		}
-//		msgBuffer = (char *) memDesc->getBytesNoCopy();
-//		bcopy(mDevice->mExtMsgBuffer, msgBuffer, mDevice->mExtMsgBufferSize);
-		
     memDesc->writeBytes(0U, mDevice->mExtMsgBuffer, mDevice->mExtMsgBufferSize);  
 		mDevice->unlockExtMsgBuffer();
     memDesc->complete();  

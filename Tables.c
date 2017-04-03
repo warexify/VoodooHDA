@@ -4,6 +4,7 @@
 #include "Models.h"
 #include "OssCompat.h"
 
+__attribute__((visibility("hidden")))
 const ControllerListItem gControllerList[] = {
   { HDA_INTEL_SER8HDMI,       "Intel Series 8 HDMI" },
 	{ HDA_INTEL_CPT,			"Intel Cougar Point"},
@@ -16,6 +17,14 @@ const ControllerListItem gControllerList[] = {
   { HDA_INTEL_WPT1,    "Intel Wildcat Point"},
   { HDA_INTEL_WELLSBURG1, "Intel Wellsburg"},
   { HDA_INTEL_WELLSBURG2, "Intel Wellsburg"},
+	{ HDA_INTEL_LPTLP1,		"Intel Lynx Point-LP"},
+	{ HDA_INTEL_LPTLP2,		"Intel Lynx Point-LP"},
+	{ HDA_INTEL_BDW2,		"Intel Broadwell"},
+	{ HDA_INTEL_SRPTLP,		"Intel Sunrise Point-LP"},
+	{ HDA_INTEL_KBLKLP,		"Intel Kabylake-LP"},
+	{ HDA_INTEL_SRPT,		"Intel Sunrise Point"},
+	{ HDA_INTEL_KBLK,		"Intel Kabylake"},
+	{ HDA_INTEL_UNPT,			"Intel Union Point"},
 	{ HDA_INTEL_82801F,			"Intel 82801F" },
 	{ HDA_INTEL_63XXESB,		"Intel 631x/632xESB" },
 	{ HDA_INTEL_82801G,			"Intel 82801G" },
@@ -101,6 +110,7 @@ const ControllerListItem gControllerList[] = {
 	{ 0,                        NULL }
 };
 
+__attribute__((visibility("hidden")))
 const CodecListItem gCodecList[] = {
 	{ HDA_CODEC_CS4206,			"Cirrus Logic CS4206" },
 	{ HDA_CODEC_CS4207,			"Cirrus Logic CS4207" },
@@ -351,6 +361,11 @@ const CodecListItem gCodecList[] = {
 	{ HDA_CODEC_NVIDIAGT440, 	  "NVidia GT440 HDMI" },
 	{ HDA_CODEC_NVIDIAGTX550, 	"NVidia GTX550 HDMI" },
 	{ HDA_CODEC_NVIDIAGTX570, 	"NVidia GTX570 HDMI" },
+	{ HDA_CODEC_NVIDIAGT610, 	"NVidia GT610 HDMI" },
+	{ HDA_CODEC_NVIDIATEGRA30,	"NVIDIA Tegra30" },
+	{ HDA_CODEC_NVIDIATEGRA114,	"NVIDIA Tegra114" },
+	{ HDA_CODEC_NVIDIATEGRA124,	"NVIDIA Tegra124" },
+	{ HDA_CODEC_NVIDIATEGRA210,	"NVIDIA Tegra210" },
 	{ HDA_CODEC_INTELIP,		"Intel Ibex Peak HDMI" },
 	{ HDA_CODEC_INTELBL,		"Intel Bearlake HDMI" },
 	{ HDA_CODEC_INTELCA,		"Intel Cantiga HDMI" },
@@ -358,6 +373,10 @@ const CodecListItem gCodecList[] = {
 	{ HDA_CODEC_INTELIP2,		"Intel Ibex Peak HDMI" },
 	{ HDA_CODEC_INTELCPT,		"Intel Cougar Point HDMI" },
 	{ HDA_CODEC_INTELPPT,		"Intel Panther Point HDMI" },
+	{ HDA_CODEC_INTELHSW,		"Intel Haswell HDMI" },
+	{ HDA_CODEC_INTELBDW,		"Intel Broadwell HDMI" },
+	{ HDA_CODEC_INTELSKLK,		"Intel Skylake HDMI" },
+	{ HDA_CODEC_INTELKBLK,		"Intel Kabylake HDMI" },
 	{ HDA_CODEC_INTELCL,		"Intel Crestline HDMI" },
   { HDA_CODEC_INTELWB,    "Intel Wellsburg HDMI"},
 	{ HDA_CODEC_SII1390,		"Silicon Image SiI1390 HDMI" },
@@ -383,6 +402,7 @@ const CodecListItem gCodecList[] = {
 	{ 0,						NULL }
 };
 
+__attribute__((visibility("hidden")))
 const RateTableItem gRateTable[] = {
 	{   8000, 1, 0x0000, 0x0000, 0x0500 },	/* (48000 * 1) / 6 */
 	{   9600, 0, 0x0000, 0x0000, 0x0400 },	/* (48000 * 1) / 5 */
@@ -422,6 +442,7 @@ const RateTableItem gRateTable[] = {
 	{      0, 0,      0,      0,      0 }
 };
 
+__attribute__((visibility("hidden")))
 const QuirkType gQuirkTypes[] = {
 	{ "gpio0",			HDA_QUIRK_GPIO0 },
 	{ "gpio1",			HDA_QUIRK_GPIO1 },
@@ -450,6 +471,7 @@ const QuirkType gQuirkTypes[] = {
 	{ NULL,				0 }
 };
 
+__attribute__((visibility("hidden")))
 const QuirkListItem gQuirkList[] = {
 	/*
 	 * XXX Force stereo quirk. Monoural recording / playback
@@ -483,6 +505,7 @@ const QuirkListItem gQuirkList[] = {
 	{ 0, 0, 0, 0 }
 };
 
+__attribute__((visibility("hidden")))
 const MixerValueName MixerValueNamesBind[SOUND_MIXER_NRDEVICES] = {
 {"Main",	SOUND_MIXER_VOLUME, 80},		// SOUND_MIXER_VOLUME
 {"Bass",	SOUND_MIXER_BASS, 50},		// SOUND_MIXER_BASS

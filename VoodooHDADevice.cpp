@@ -282,7 +282,7 @@ IOService *VoodooHDADevice::probe(IOService *provider, SInt32 *score)
 									long unsigned int jj = 0;
 									int jjj = 0;
 									if(sscanf(tmpString->getCStringNoCopy(), "0x%08lx", &jj)) {
-										tmpUI32 = jj;
+										tmpUI32 = static_cast<UInt32>(jj);
 									}else if(sscanf(tmpString->getCStringNoCopy(), "%4d", &jjj)){
 										tmpUI32 = jjj;
 									}
@@ -305,7 +305,7 @@ IOService *VoodooHDADevice::probe(IOService *provider, SInt32 *score)
 							tmpString = OSDynamicCast(OSString, tmpDict->getObject(dictKey));
 							long unsigned int jj = 0;
 							if(sscanf(tmpString->getCStringNoCopy(), "0x%08lx", &jj)) {
-								tmpUI32 = jj;
+								tmpUI32 = static_cast<UInt32>(jj);
 								tmpUIArray[0]= tmpUI32;
 								nArrayCount = 1;
 							}
@@ -417,7 +417,7 @@ IOService *VoodooHDADevice::probe(IOService *provider, SInt32 *score)
 	return result;
 }
 
-//__attribute__((noinline, visibility("hidden")))
+__attribute__((noinline, visibility("hidden")))
 void VoodooHDADevice::disablePCIeNoSnoop(UInt16 vendorId)
 {
 	UInt16 snoop16;
@@ -541,13 +541,13 @@ bool VoodooHDADevice::initHardware(IOService *provider)
 		goto done;
 	}
 
-	mCorbMem = allocateDmaMemory(mCorbSize * sizeof (UInt32), "CORB", 0); //kIOMapInhibitCache);
+	mCorbMem = allocateDmaMemory(mCorbSize * sizeof (UInt32), "CORB", 0 /* kIOMapInhibitCache */);
 	if (!mCorbMem) {
 		errorMsg("error: allocateDmaMemory for CORB memory failed\n");
 		goto done;
 	}
 
-	mRirbMem = allocateDmaMemory(mRirbSize * sizeof (RirbResponse), "RIRB", 0); // kIOMapInhibitCache);
+	mRirbMem = allocateDmaMemory(mRirbSize * sizeof (RirbResponse), "RIRB", 0 /* kIOMapInhibitCache */);
 	if (!mRirbMem) {
 		errorMsg("error: allocateDmaMemory for RIRB memory failed\n");
 		goto done;
@@ -660,7 +660,6 @@ void VoodooHDADevice::stop(IOService *provider)
 		(mPciNub->isOpen(this) || mPciNub->open(this))) {
 		if (oldConfig != UINT16_MAX)
 			mPciNub->configWrite16(kIOPCIConfigCommand, oldConfig); //Slice
-//		if (mPciNub->hasPCIPowerManagement(kPCIPMCD3Support))
 			mPciNub->enablePCIPowerManagement(kPCIPMCSPowerStateD0);
 		mPciNub->close(this);
 	}
@@ -1218,21 +1217,17 @@ IOReturn VoodooHDADevice::runAction(UInt32 *action, UInt32 *outSize, void **outD
 	ASSERT(commandGate);
 	ASSERT(mActionHandler);
 
-	return commandGate->runAction(mActionHandler, (void *) action, (UInt32 *) outSize, (void *) outData,
+	return commandGate->runAction(mActionHandler, action, (UInt32 *) outSize, (void *) outData,
 			extraArg);
 }
 
+__attribute__((visibility("hidden")))
 IOReturn VoodooHDADevice::handleAction(OSObject *owner, void *arg0, void *arg1, void *arg2,
 		__unused void *arg3)
 {
 	VoodooHDADevice *device;
 	IOReturn result = kIOReturnSuccess;
 	UInt32 action = *static_cast<UInt32 const*>(arg0);
-#if __LP64__
-   // UInt32 action = (UInt32)(UInt64) arg0;
-#else
-   // UInt32 action = (UInt32) arg0;
-#endif
 
 	UInt32 *outSize = (UInt32 *) arg1;
 	void **outData = (void **) arg2;
@@ -1453,6 +1448,7 @@ void VoodooHDADevice::disableEventSources()
 		mInterruptSource->disable();
 }
 
+__attribute__((visibility("hidden")))
 bool VoodooHDADevice::interruptFilter(OSObject *owner, __unused IOFilterInterruptEventSource *source)
 {
 	VoodooHDADevice *device;
@@ -1486,6 +1482,7 @@ bool VoodooHDADevice::interruptFilter(OSObject *owner, __unused IOFilterInterrup
 	return true;
 }
 
+__attribute__((visibility("hidden")))
 void VoodooHDADevice::interruptHandler(OSObject *owner, __unused IOInterruptEventSource *source,
 		__unused int count)
 {
@@ -1569,6 +1566,7 @@ extern "C" {
 	extern void kern_os_free(void *addr);
 }
 
+__attribute__((visibility("hidden")))
 void *VoodooHDADevice::allocMem(size_t size)
 {
 	void *addr = kern_os_malloc(size);
@@ -1576,6 +1574,7 @@ void *VoodooHDADevice::allocMem(size_t size)
 	return addr;
 }
 
+__attribute__((visibility("hidden")))
 void *VoodooHDADevice::reallocMem(void *addr, size_t size)
 {
 	void *newAddr = kern_os_realloc(addr, size);
@@ -1583,6 +1582,7 @@ void *VoodooHDADevice::reallocMem(void *addr, size_t size)
 	return newAddr;
 }
 
+__attribute__((visibility("hidden")))
 void VoodooHDADevice::freeMem(void *addr)
 {
 	ASSERT(addr);
@@ -2055,7 +2055,7 @@ void VoodooHDADevice::handleInterrupt()
 	UNLOCK();
 }
 
-//__attribute__((visibility("hidden")))
+__attribute__((visibility("hidden")))
 void VoodooHDADevice::timeoutOccurred(OSObject *owner, IOTimerEventSource *source)
 {
 	VoodooHDADevice *device = OSDynamicCast(VoodooHDADevice, owner);
@@ -2598,7 +2598,7 @@ void VoodooHDADevice::streamSetup(Channel *channel)
 //		if ((assoc->hpredir >= 0) && (i == assoc->pincnt))
 //			chn = 0;
 		/* If HP redirection is enabled, but failed to use same DAC make last DAC one to duplicate first one. */
-		if (assoc->hpredir >= 0 && i == assoc->pincnt)
+		if (assoc->fakeredir && i == (assoc->pincnt - 1))
 			c = (channel->streamId << 4);
 		else {
 			if (map >= 0) /* Map known speaker setups. */

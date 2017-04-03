@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleIdentifier</key>
-	<string>org.voodoo.driver.${PRODUCT_NAME:identifier}</string>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -27,8 +27,6 @@
 			<key>CFBundleIdentifier</key>
 			<string>org.voodoo.driver.VoodooHDA</string>
 			<key>IOClass</key>
-			<string>VoodooHDADevice</string>
-			<key>IOMatchCategory</key>
 			<string>VoodooHDADevice</string>
 			<key>IOPCIClassMatch</key>
 			<string>0x04020000&amp;0xfffe0000</string>

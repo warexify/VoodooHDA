@@ -26,18 +26,11 @@ OSDefineMetaClassAndStructors(VoodooHDAEngine, IOAudioEngine)
 #define SAMPLE_OFFSET		64	// note: these values definitely need to be tweaked
 #define SAMPLE_LATENCY		32
 
-extern const char * const gDeviceTypes[], * const gConnTypes[];
+//extern const char * const gDeviceTypes[], * const gConnTypes[];
 
 #define kVoodooHDAPortSubTypeBase		'voo\x40'
 #define VOODOO_OSS_TO_SUBTYPE(type)		(kVoodooHDAPortSubTypeBase + 1 + type)
 #define VOODOO_SUBTYPE_TO_OSS(type)		(type - 1 - kVoodooHDAPortSubTypeBase)
-
-const char * const gOssDeviceTypes[SOUND_MIXER_NRDEVICES] = {
-	"Master", "Bass", "Treble", "Synthesizer", "PCM", "Speaker", "Line-in", "Microphone",
-	"CD", "Input mix", "Alternate PCM", "Recording level", "Input gain", "Output gain",
-	"Line #1", "Line #2", "Line #3", "Digital #1", "Digital #2", "Digital #3",
-	"Phone input", "Phone output", "Video", "Radio", "Microphone #2"
-};
 
 /******************************************************************************************/
 /******************************************************************************************/
@@ -47,6 +40,7 @@ const char * const gOssDeviceTypes[SOUND_MIXER_NRDEVICES] = {
 #define errorMsg(fmt, args...)	messageHandler(kVoodooHDAMessageTypeError, fmt, ##args)
 #define dumpMsg(fmt, args...)	messageHandler(kVoodooHDAMessageTypeDump, fmt, ##args)
 
+__attribute__((visibility("hidden")))
 void VoodooHDAEngine::messageHandler(UInt32 type, const char *format, ...)
 {
 	va_list args;
@@ -71,7 +65,7 @@ bool VoodooHDAEngine::initWithChannel(Channel *channel)
 		goto done;
 
 	mChannel = channel;
-	mActiveOssDev = -1;
+//	mActiveOssDev = -1;
 
 	result = true;
 done:
@@ -85,10 +79,6 @@ void VoodooHDAEngine::free()
 	RELEASE(mStream);
 
 	RELEASE(mSelControl);
-
-#if 0
-	RELEASE(mPort);
-#endif
 
 	mDevice = NULL;
 
@@ -120,14 +110,12 @@ UInt32 pinConfigToSelection(UInt32 pinConfig)
 	}
 }
 
+__attribute__((visibility("hidden")))
 const char *VoodooHDAEngine::getPortName()
 {
 	UInt32 numDacs;
 	nid_t dacNid, outputNid;
 	Widget *widget;
-	//UInt32 config;
-//	const char *devType, *connType;
-	//char buf[64]; // = "Unknown";
 	AudioAssoc *assoc;
 
 	if (mPortName)
@@ -143,8 +131,24 @@ const char *VoodooHDAEngine::getPortName()
 	}
 	if (numDacs == 0)
 		goto done;
-	if (numDacs > 1){
-			mPortName = "Complex output";
+	if (numDacs > 1 && mChannel->caps.channels > 2) {
+		switch (mChannel->caps.channels) {
+			case 4:
+				mPortName = "4CH (Green+Black Rear)";
+				mPortType = kIOAudioSelectorControlSelectionValueLine;
+				break;
+			case 6:
+				mPortName = "5.1CH (Green+Orange+Black Rear)";
+				mPortType = kIOAudioSelectorControlSelectionValueLine;
+				break;
+			case 8:
+				mPortName = "7.1CH (Green+Orange+Black+Grey Rear)";
+				mPortType = kIOAudioSelectorControlSelectionValueLine;
+				break;
+			default:
+			    mPortName = "Complex output";
+				break;
+		}
 		goto done;
 	}
 	
@@ -162,7 +166,6 @@ const char *VoodooHDAEngine::getPortName()
 	if (!widget)
 		goto done;
 
-	//config = widget->pin.config;
 	//Slice - advanced PinName
 
 	mPortName = &widget->name[5]; 
@@ -177,7 +180,7 @@ done:
 	
 	return mPortName;
 }
-
+/*
 const char *VoodooHDAEngine::getDescription(char* callerBuffer, unsigned length)
 {
 	if (!callerBuffer)
@@ -232,7 +235,8 @@ UInt32 VoodooHDAEngine::getNumCtls(UInt32 dev)
 
 	return numCtls;
 }
-
+*/
+__attribute__((visibility("hidden")))
 UInt64 VoodooHDAEngine::getMinMaxDb(UInt32 mask)
 {
 	AudioControl *control;
@@ -244,7 +248,7 @@ UInt64 VoodooHDAEngine::getMinMaxDb(UInt32 mask)
 	// xxx: we currently use the values from the first found control (ie. amplifier settings)
 
 	for (int i = 0; (control = mDevice->audioCtlEach(mChannel->funcGroup, &i)); ) {
-		if ((control->enable == 0) || !(control->ossmask & mask)) //(1 << dev)))
+		if ((control->enable == 0) || !(control->ossmask & mask))
 			continue;
 		if (!((control->widget->bindAssoc == mChannel->assocNum) || (control->widget->bindAssoc == -2)))
 			continue;
@@ -258,6 +262,25 @@ UInt64 VoodooHDAEngine::getMinMaxDb(UInt32 mask)
 	return ((UInt64) minDb << 32) | maxDb;
 }
 
+__attribute__((visibility("hidden")))
+bool VoodooHDAEngine::haveDigitalMuteControl(UInt32 mask)
+{
+	AudioControl *control;
+
+	for (int i = 0; (control = mDevice->audioCtlEach(mChannel->funcGroup, &i)); ) {
+		if ((control->enable == 0) || !(control->ossmask & mask))
+			continue;
+		if (!((control->widget->bindAssoc == mChannel->assocNum) || (control->widget->bindAssoc == -2)))
+			continue;
+		if (control->mute)
+			return true;
+	}
+
+	return false;
+}
+
+
+/*
 bool VoodooHDAEngine::validateOssDev(int ossDev)
 {
 	return ((ossDev >= 0) && (ossDev < SOUND_MIXER_NRDEVICES));
@@ -285,16 +308,10 @@ int VoodooHDAEngine::getActiveOssDev()
 	ASSERT(validateOssDev(ossDev));
 	return ossDev;
 }
-
+*/
 bool VoodooHDAEngine::initHardware(IOService *provider)
 {
 	bool result = false;
-#if 0
-	const char *portName;
-	UInt32 portType;
-	UInt32 subType;
-	IOReturn ret;
-#endif
 
 //	logMsg("VoodooHDAEngine[%p]::initHardware\n", this);
 
@@ -306,51 +323,10 @@ bool VoodooHDAEngine::initHardware(IOService *provider)
 	ASSERT(mDevice);
 
 	mVerbose = mDevice->mVerbose;
-#if 0
-	identifyPaths();
-#endif
 	getPortName();
 
 	//logMsg("setDesc portName = %s\n", mPortName);
 	setDescription(mPortName);
-
-#if 0
-	// xxx: there must be some way to get port name to appear in the "type" column on the sound
-	// preference pane - this used to be the "port" column but apparently this is no longer the
-	// case in recent releases of os x
-	/*
-	 * IOAudioPort is listed as obsolete in Apple's Audio Device Driver Guide dated 2009-03-04.
-	 *    Setting of the type column is done via Selector Audio Controls
-	 *    -- Zenith432 2013-01-24.
-	 */
-
-	portName = mPortName;
-	ASSERT(portName);
-
-	if (getEngineDirection() == kIOAudioStreamDirectionOutput) {
-		portType = kIOAudioPortTypeOutput;
-		// TODO: subType
-		subType = kIOAudioOutputPortSubTypeInternalSpeaker;
-	}
-	else {
-		portType = kIOAudioPortTypeInput;
-		// TODO: subType
-		subType =  kIOAudioInputPortSubTypeInternalMicrophone;
-	}
-	
-	//logMsg("setDesc portType = %4c subType = %4c\n", portType, subType);
-	
-	mPort = IOAudioPort::withAttributes(portType, portName, subType);
-	if (!mPort) {
-		errorMsg("error: IOAudioPort::withAttributes failed\n");
-		goto done;
-	}
-	ret = mDevice->attachAudioPort(mPort, this, NULL);
-	if (ret != kIOReturnSuccess) {
-		errorMsg("error: attachAudioPort failed\n");
-		goto done;
-	}
-#endif
 
 	setSampleOffset(SAMPLE_OFFSET);
 	setSampleLatency(SAMPLE_LATENCY);
@@ -377,6 +353,7 @@ done:
 	return result;
 }
 
+__attribute__((visibility("hidden")))
 bool VoodooHDAEngine::createAudioStream()
 {
 	bool result = false;
@@ -426,20 +403,12 @@ bool VoodooHDAEngine::createAudioStream()
 		errorMsg("error: createAudioStream failed channels=%d\n", (int)channels);
 		goto done;
 	}
-#if 0 //AC3_SUPPORTED
-	if (HDA_PARAM_SUPP_STREAM_FORMATS_AC3(mChannel->supStreamFormats)) {
-		logMsg("adding AC3 audio stream\n");
-		if (!createAudioStream(direction, sampleBuffer, mBufferSize, /*minSampleRate, maxSampleRate, */
-							   mChannel->supPcmSizeRates, kIOAudioStreamSampleFormatAC3, channels)) {
-			errorMsg("error: createAudioStream AC3 failed\n");
-		}
-	}
-#endif
 	result = true;
 done:
 	return result;
 }
 
+__attribute__((visibility("hidden")))
 bool VoodooHDAEngine::createAudioStream(IOAudioStreamDirection direction, void *sampleBuffer,
 		UInt32 sampleBufferSize, UInt32 *pcmRates,
 		UInt32 supPcmSizeRates, UInt32 supStreamFormats, UInt32 channels)
@@ -510,18 +479,18 @@ bool VoodooHDAEngine::createAudioStream(IOAudioStreamDirection direction, void *
 		format.fBitDepth = 24;
 		format.fBitWidth = 32;
             formatEx.fBytesPerPacket = format.fNumChannels * (format.fBitWidth / 8);
-            format.fIsMixable = false;
+/*            format.fIsMixable = false;
             mStream->addAvailableFormat(&format, &formatEx, &sampleRate, &sampleRate);
-            format.fIsMixable = true;
+            format.fIsMixable = true; */
             mStream->addAvailableFormat(&format, &formatEx, &sampleRate, &sampleRate);
 	}
 	if (HDA_PARAM_SUPP_PCM_SIZE_RATE_32BIT(supPcmSizeRates)) {
 		format.fBitDepth = 32;
 		format.fBitWidth = 32;
             formatEx.fBytesPerPacket = format.fNumChannels * (format.fBitWidth / 8);
-            format.fIsMixable = false;
+/*            format.fIsMixable = false;
             mStream->addAvailableFormat(&format, &formatEx, &sampleRate, &sampleRate);
-            format.fIsMixable = true;
+            format.fIsMixable = true; */
             mStream->addAvailableFormat(&format, &formatEx, &sampleRate, &sampleRate);
         }
 	}
@@ -536,6 +505,13 @@ bool VoodooHDAEngine::createAudioStream(IOAudioStreamDirection direction, void *
 
 	addAudioStream(mStream);
 
+	if (format.fBitDepth == 32 && HDA_PARAM_SUPP_PCM_SIZE_RATE_24BIT(supPcmSizeRates)) {
+		/*
+		 * Some HDMI/DP audio outputs support 32-bit depth, but digital displays support up to 24-bit depth,
+		 *   so don't use 32-bit depth by default if 24 is available.
+		 */
+		format.fBitDepth = 24;
+	}
 	mStream->setFormat(&format, &formatEx); // set widest format as default
 
 	result = true;
@@ -545,6 +521,7 @@ done:
 	return result;
 }
 
+__attribute__((visibility("hidden")))
 IOAudioStreamDirection VoodooHDAEngine::getEngineDirection()
 {
 	IOAudioStreamDirection direction;
@@ -565,6 +542,7 @@ IOAudioStreamDirection VoodooHDAEngine::getEngineDirection()
 	return direction;
 }
 
+__attribute__((visibility("hidden")))
 int VoodooHDAEngine::getEngineId()
 {
 	if (getEngineDirection() == kIOAudioStreamDirectionOutput)
@@ -599,8 +577,6 @@ UInt32 VoodooHDAEngine::getCurrentSampleFrame()
 	return (mDevice->channelGetPosition(mChannel) / mSampleSize);
 }
 
-// pauseAudioEngine, beginConfigurationChange, completeConfigurationChange, resumeAudioEngine
-
 IOReturn VoodooHDAEngine::performFormatChange(IOAudioStream *audioStream,
 											  const IOAudioStreamFormat *newFormat,
 											  const IOAudioSampleRate *newSampleRate)
@@ -609,7 +585,7 @@ IOReturn VoodooHDAEngine::performFormatChange(IOAudioStream *audioStream,
 	int setResult;
 	UInt32 ossFormat;
 	//AC3 - test
-	bool wasRunning = (getState() == kIOAudioEngineRunning);
+//	bool wasRunning = (getState() == kIOAudioEngineRunning);
 
 	// ASSERT(audioStream == mStream);
 
@@ -623,8 +599,8 @@ IOReturn VoodooHDAEngine::performFormatChange(IOAudioStream *audioStream,
 		return kIOReturnSuccess;
 	}
 //AC3 -test
-	if (wasRunning)
-		stopAudioEngine();
+//	if (wasRunning)
+//		stopAudioEngine();
 
 	if (newFormat) {
 	int channels = newFormat->fNumChannels;
@@ -656,10 +632,19 @@ IOReturn VoodooHDAEngine::performFormatChange(IOAudioStream *audioStream,
 				ossFormat |= AFMT_S16_LE;
 				break;
 			case 20:		
+				ASSERT(newFormat->fBitWidth == 32);
+				ossFormat |= AFMT_S32_LE;
+				mChannel->bit32 = 2;
+				break;
             case 24:
+				ASSERT(newFormat->fBitWidth == 32);
+				ossFormat |= AFMT_S32_LE;
+				mChannel->bit32 = 3;
+				break;
 			case 32:
 				ASSERT(newFormat->fBitWidth == 32); 
 				ossFormat |= AFMT_S32_LE;
+				mChannel->bit32 = 4;
 				break;
 			default:
 				BUG("unsupported bit depth");
@@ -669,7 +654,7 @@ IOReturn VoodooHDAEngine::performFormatChange(IOAudioStream *audioStream,
 		//IOLog("ossFormat=%08x\n", (unsigned int)ossFormat);
 		
 		setResult = mDevice->channelSetFormat(mChannel, ossFormat);
-		logMsg("channelSetFormat(0x%08lx) for channel %d returned %d\n", ossFormat, getEngineId(),
+		logMsg("channelSetFormat(0x%08lx) for channel %d returned %d\n", static_cast<long unsigned int>(ossFormat), getEngineId(),
 				setResult);
 		if (setResult != 0) {
 			errorMsg("error: couldn't set format 0x%lx (%d-bit depth)\n", (long unsigned int)ossFormat, newFormat->fBitDepth);
@@ -677,16 +662,12 @@ IOReturn VoodooHDAEngine::performFormatChange(IOAudioStream *audioStream,
 		}
 
 		ASSERT(mBufferSize);
-/*		if (channels == 0) {
-			channels = 2;
-		} */
 		mSampleSize = channels * (newFormat->fBitWidth / 8);
 		mNumSampleFrames = mBufferSize / mSampleSize;
 		setNumSampleFramesPerBuffer(mNumSampleFrames);
 
 		logMsg("buffer size: %ld, channels: %d, bit depth: %d, # samp. frames: %ld\n", (long int)mBufferSize,
 				channels, newFormat->fBitDepth, (long int)mNumSampleFrames);
-		//goto done;
 	}
 
 	if (newSampleRate) {
@@ -699,8 +680,8 @@ IOReturn VoodooHDAEngine::performFormatChange(IOAudioStream *audioStream,
 		}
 	}
 //AC3 - test 
-	if (wasRunning)
-		startAudioEngine();
+//	if (wasRunning)
+//		startAudioEngine();
 
 	result = kIOReturnSuccess;
 done:
@@ -713,6 +694,7 @@ IOReturn SelectorChanged(OSObject*, IOAudioControl*, SInt32, SInt32)
 	return kIOReturnSuccess;
 }
 
+__attribute__((visibility("hidden")))
 bool VoodooHDAEngine::createAudioControls()
 {
 	bool			result = false;
@@ -724,9 +706,9 @@ bool VoodooHDAEngine::createAudioControls()
 					maxDb;
 	int				initOssDev, initOssMask, idupper;
 //AC3 - test	
-	if (mChannel->funcGroup->audio.assocs[mChannel->assocNum].digital) {   //digital has no control
-		return true;
-	}
+//	if (mChannel->funcGroup->audio.assocs[mChannel->assocNum].digital) {   //digital has no control
+//		return true;
+//	}
 	direction = getEngineDirection();
 	if (direction == kIOAudioStreamDirectionOutput) {
 		usage = kIOAudioControlUsageOutput;
@@ -745,8 +727,15 @@ bool VoodooHDAEngine::createAudioControls()
 
 	idupper = mChannel->streamId << 16;
 
-	if (mChannel->funcGroup->audio.assocs[mChannel->assocNum].digital)
+	if (mChannel->funcGroup->audio.assocs[mChannel->assocNum].digital) {
+		/*
+		 * Some digital pin complexes have mute control
+		 */
+		if (haveDigitalMuteControl(initOssMask))
+			goto createMuteControl;
+		else
 		goto createSelectorControl;
+	}
 
 	minMaxDb = getMinMaxDb(initOssMask);
 	minDb = (IOFixed) (minMaxDb >> 32);
@@ -755,7 +744,7 @@ bool VoodooHDAEngine::createAudioControls()
 //		   (SInt16) (maxDb >> 16), maxDb);
 	if ((minDb == ~0L) || (maxDb == ~0L)) {
 		//logMsg("warning: found invalid min/max dB (using default -22.5 -> 0.0dB range)\n"); //-22.5 -> 0.0
-		minDb = (-22 << 16) + (65536 / 2);
+		minDb = static_cast<int>(static_cast<unsigned>(-22) << 16) + (65536 / 2);
 		maxDb = 0 << 16;
 	}
 	
@@ -799,6 +788,7 @@ bool VoodooHDAEngine::createAudioControls()
     control->release();
     
 	// Create mute control
+createMuteControl:
     control = IOAudioToggleControl::createMuteControl(false,	// initial state - unmuted
 													  kIOAudioControlChannelIDAll,	// Affects all channels
 													  kIOAudioControlChannelNameAll,
@@ -813,44 +803,6 @@ bool VoodooHDAEngine::createAudioControls()
     this->addDefaultAudioControl(control);
     control->release();
 
-#if 0
-    // Create a left & right input gain control with an int range from 0 to 65535
-    // and a db range from 0 to 22.5
-    control = IOAudioLevelControl::createVolumeControl(80,	// Initial value
-													   0,		// min value
-													   100,	// max value
-													   0,		// min 0.0 in IOFixed
-													   (22 << 16) + (32768),	// 22.5 in IOFixed (16.16)
-													   kIOAudioControlChannelIDDefaultLeft,
-													   kIOAudioControlChannelNameLeft,
-													   idupper | 3U,		// control ID - driver-defined
-													   kIOAudioControlUsageInput);
-    if (!control) {
-        goto Done;
-    }
-    
-    control->setValueChangeHandler((IOAudioControl::IntValueChangeHandler)gainChangeHandler, this);
-    this->addDefaultAudioControl(control);
-    control->release();
-    
-    control = IOAudioLevelControl::createVolumeControl(80,	// Initial value
-													   0,		// min value
-													   100,	// max value
-													   0,		// min 0.0 in IOFixed
-													   (22 << 16) + (32768),	// max 22.5 in IOFixed (16.16)
-													   kIOAudioControlChannelIDDefaultRight,	// Affects right channel
-													   kIOAudioControlChannelNameRight,
-													   idupper | 4U,		// control ID - driver-defined
-													   kIOAudioControlUsageInput);
-    if (!control) {
-        goto Done;
-    }
-	
-    control->setValueChangeHandler((IOAudioControl::IntValueChangeHandler)gainChangeHandler, this);
-    this->addDefaultAudioControl(control);
-    control->release();
-#endif
-	
 createSelectorControl:
 	if(usage == kIOAudioControlUsageOutput) {
 		mSelControl = IOAudioSelectorControl::createOutputSelector(mPortType,
@@ -867,7 +819,6 @@ createSelectorControl:
 		mSelControl->addAvailableSelection(mPortType, mPortName);
 		mSelControl->setValueChangeHandler(SelectorChanged, this);
 		this->addDefaultAudioControl(mSelControl);
-		//enumeratePinNames();
 	}
 	
 	result = true;
@@ -876,6 +827,7 @@ Done:
 	return result;
 }
 
+__attribute__((visibility("hidden")))
 void VoodooHDAEngine::setPinName(UInt32 pinConfig, const char* name)
 {
 	UInt32 previousPortType;
@@ -897,13 +849,12 @@ void VoodooHDAEngine::setPinName(UInt32 pinConfig, const char* name)
 	completeConfigurationChange();
 }
 
-//__attribute__((visibility("hidden")))
+__attribute__((visibility("hidden")))
 IOReturn VoodooHDAEngine::volumeChangeHandler(IOService *target, IOAudioControl *volumeControl, SInt32 oldValue, SInt32 newValue)
 {
   IOReturn result = kIOReturnBadArgument;
   VoodooHDAEngine *audioEngine = OSDynamicCast(VoodooHDAEngine, target);
   
-  //    audioEngine = (VoodooHDAEngine *)target;
   if (audioEngine) {
     result = audioEngine->volumeChanged(volumeControl, oldValue, newValue);
   }
@@ -911,6 +862,7 @@ IOReturn VoodooHDAEngine::volumeChangeHandler(IOService *target, IOAudioControl 
   return result;
 }
 
+__attribute__((visibility("hidden")))
 IOReturn VoodooHDAEngine::volumeChanged(IOAudioControl *volumeControl, SInt32 oldValue, SInt32 newValue)
 {
 	if(mVerbose >2)
@@ -965,12 +917,12 @@ IOReturn VoodooHDAEngine::volumeChanged(IOAudioControl *volumeControl, SInt32 ol
   return kIOReturnSuccess;
 }
 
+__attribute__((visibility("hidden")))
 IOReturn VoodooHDAEngine::muteChangeHandler(IOService *target, IOAudioControl *muteControl, SInt32 oldValue, SInt32 newValue)
 {
     IOReturn result = kIOReturnBadArgument;
     VoodooHDAEngine *audioEngine = OSDynamicCast(VoodooHDAEngine, target);
     
-//    audioEngine = (VoodooHDAEngine *)target;
     if (audioEngine) {
         result = audioEngine->muteChanged(muteControl, oldValue, newValue);
     }
@@ -978,6 +930,7 @@ IOReturn VoodooHDAEngine::muteChangeHandler(IOService *target, IOAudioControl *m
     return result;
 }
 
+__attribute__((visibility("hidden")))
 IOReturn VoodooHDAEngine::muteChanged(IOAudioControl *muteControl, SInt32 oldValue, SInt32 newValue)
 {
 	if(mVerbose >2)
@@ -996,6 +949,10 @@ IOReturn VoodooHDAEngine::muteChanged(IOAudioControl *muteControl, SInt32 oldVal
           mDevice->audioCtlOssMixerSet(pcmDevice, ossDev, 0, 0);
         }
 	} else {
+		if (mChannel->funcGroup->audio.assocs[mChannel->assocNum].digital) {
+			oldOutVolumeLeft = oldOutVolumeRight = oldInputGain = 100;
+		}
+
         // VertexBZ: Mute fix
         if(mEnableMuteFix){
             mDevice->audioCtlOssMixerSet(pcmDevice, SOUND_MIXER_PCM,
@@ -1011,7 +968,7 @@ IOReturn VoodooHDAEngine::muteChanged(IOAudioControl *muteControl, SInt32 oldVal
     
     return kIOReturnSuccess;
 }
-
+/*
 IOReturn VoodooHDAEngine::gainChangeHandler(IOService *target, IOAudioControl *gainControl, SInt32 oldValue, SInt32 newValue)
 {
     IOReturn result = kIOReturnBadArgument;
@@ -1037,7 +994,7 @@ IOReturn VoodooHDAEngine::gainChanged(IOAudioControl *gainControl, SInt32 oldVal
 	
     return kIOReturnSuccess;
 }
-
+*/
 OSString *VoodooHDAEngine::getLocalUniqueID()
 {
 	if (!mDevice || !mDevice->mPciNub)
