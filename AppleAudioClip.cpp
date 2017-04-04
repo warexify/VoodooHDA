@@ -3762,7 +3762,7 @@ IOReturn VoodooHDAEngine::clipOutputSamples(const void *mixBuf, void *sampleBuf,
 	SInt8  *theOutputBufferSInt8;
 	UInt8* theOutputBufferSInt24;
 	SInt32* theOutputBufferSInt32;
-	long int noiseMask = ~((long int)(1 << mChannel->noiseLevel) - 1);
+	UInt32 noiseMask = (~0U) << mChannel->noiseLevel;
 #ifndef TIGER
 	bool SSE2 = mChannel->vectorize;
 	UInt8 *sourceBuf = (UInt8 *) sampleBuf;
@@ -3793,16 +3793,20 @@ IOReturn VoodooHDAEngine::clipOutputSamples(const void *mixBuf, void *sampleBuf,
 			 */
 			//Simple mixer
 			for (int i=firstSample; i<lastSample; i+=2) {
-				floatMixBuf2[i] += (floatMixBuf2[i+1]/10.0) * base;
-				floatMixBuf2[i+1] += (floatMixBuf2[i]/10.0) * base;
+				Float32 L = floatMixBuf2[i];
+				Float32 R = floatMixBuf2[i+1];
+				floatMixBuf2[i] += (R/10.0F) * base;
+				floatMixBuf2[i+1] += (L/10.0F) * base;
 			}
 		} else
 			for (int i=0; i<(int)numSamples; i+=2) {
-				floatMixBuf[i] -= (floatMixBuf[i+1]/10.0) * base;
-				floatMixBuf[i+1] -= (floatMixBuf[i]/10.0) * base;
+				Float32 L = floatMixBuf[i];
+				Float32 R = floatMixBuf[i+1];
+				floatMixBuf[i] -= (R/10.0F) * base;
+				floatMixBuf[i+1] -= (L/10.0F) * base;
 			}
 	}
-	emptyStream = FALSE;
+	emptyStream = false;
 
 	// figure out what sort of blit we need to do
 	if ((streamFormat->fSampleFormat == kIOAudioStreamSampleFormatLinearPCM) && streamFormat->fIsMixable) {
@@ -3821,10 +3825,17 @@ IOReturn VoodooHDAEngine::clipOutputSamples(const void *mixBuf, void *sampleBuf,
 			bool nativeEndianInts;
 			nativeEndianInts = (streamFormat->fByteOrder == kIOAudioStreamByteOrderLittleEndian);
 
+			if (streamFormat->fBitDepth < streamFormat->fBitWidth) {
+				noiseMask <<= (streamFormat->fBitWidth - streamFormat->fBitDepth);
+			}
 			switch (streamFormat->fBitWidth) {
 				case 8:
 					theOutputBufferSInt8 = ((SInt8*)sampleBuf) + firstSample;
-						ClipFloat32ToSInt8_4(floatMixBuf, theOutputBufferSInt8, numSamples);
+					ClipFloat32ToSInt8_4(floatMixBuf, theOutputBufferSInt8, numSamples);
+					if ((noiseMask & 0xFFU) != 0xFFU)
+						for (int i=0; i<(int)numSamples; i++) {
+							theOutputBufferSInt8[i] &= static_cast<SInt8>(noiseMask);
+						}
 					break;
 
 				case 16:
@@ -3833,15 +3844,15 @@ IOReturn VoodooHDAEngine::clipOutputSamples(const void *mixBuf, void *sampleBuf,
 #ifndef TIGER
 						if (SSE2) {
 							Float32ToNativeInt16(floatMixBuf, theOutputBufferSInt16, numSamples);
-							for (int i=0; i<(int)numSamples; i++) {
-								theOutputBufferSInt16[i] &= noiseMask;
-							}
-
 						} else
 #endif
 						{
 							ClipFloat32ToSInt16LE_4(floatMixBuf, theOutputBufferSInt16, numSamples);
 						}
+						if ((noiseMask & 0xFFFFU) != 0xFFFFU)
+							for (int i=0; i<(int)numSamples; i++) {
+								theOutputBufferSInt16[i] &= static_cast<SInt16>(noiseMask);
+							}
 					}
 #ifndef TIGER
 					else
@@ -3875,16 +3886,15 @@ IOReturn VoodooHDAEngine::clipOutputSamples(const void *mixBuf, void *sampleBuf,
 #ifndef TIGER
 						if (SSE2) {
 							Float32ToNativeInt32(floatMixBuf, theOutputBufferSInt32, numSamples);
-							for (int i=0; i<(int)numSamples; i++) {
-								theOutputBufferSInt32[i] &= noiseMask;
-							}
-
 						} else
 #endif
 						{
 							ClipFloat32ToSInt32LE_4(floatMixBuf, theOutputBufferSInt32, numSamples);
 						}
-
+						if (noiseMask != ~0U)
+							for (int i=0; i<(int)numSamples; i++) {
+								theOutputBufferSInt32[i] &= static_cast<SInt32>(noiseMask);
+							}
 					}
 #ifndef TIGER
 					else
@@ -3904,7 +3914,7 @@ IOReturn VoodooHDAEngine::clipOutputSamples(const void *mixBuf, void *sampleBuf,
 			if ((streamFormat->fBitWidth == 32) && (streamFormat->fBitDepth == 32) &&
 				(streamFormat->fByteOrder == kIOAudioStreamByteOrderLittleEndian)) {
 				// it's Float32, so we are just going to copy the data
-				memcpy(&((Float32 *) sampleBuf)[firstSample], &floatMixBuf[firstSample],
+				memcpy(&((Float32 *) sampleBuf)[firstSample], &floatMixBuf2[firstSample],
 					   numSamples * sizeof (Float32));
 			} else
 				IOLog("clipOutputSamples: can't handle floats with a bit width of %d, bit depth of %d, "
@@ -3931,7 +3941,7 @@ IOReturn VoodooHDAEngine::convertInputSamples(const void *sampleBuf, void *destB
     floatDestBuf = (float *)destBuf;
 	UInt32 firstSample = firstSampleFrame * streamFormat->fNumChannels;
 	numSamples = numSamplesLeft = numSampleFrames * streamFormat->fNumChannels;
-	long int noiseMask = ~((long int)(1 << mChannel->noiseLevel) - 1);
+	UInt32 noiseMask = (~0U) << mChannel->noiseLevel;
 
 	SInt8 *inputBuf8;
 	SInt16 *inputBuf16;
@@ -3952,12 +3962,15 @@ IOReturn VoodooHDAEngine::convertInputSamples(const void *sampleBuf, void *destB
 			bool nativeEndianInts;
 			nativeEndianInts = (streamFormat->fByteOrder == kIOAudioStreamByteOrderLittleEndian);
 
+			if (streamFormat->fBitDepth < streamFormat->fBitWidth) {
+				noiseMask <<= (streamFormat->fBitWidth - streamFormat->fBitDepth);
+			}
 			switch (streamFormat->fBitWidth) {
 				case 8:
 					inputBuf8  = &(((SInt8 *)sampleBuf)[firstSample]);
 					while (numSamplesLeft-- > 0)
 					{
-						*(floatDestBuf++) = (float)(*(inputBuf8++) &= (SInt8)noiseMask) * kOneOverMaxSInt8Value;
+						*(floatDestBuf++) = (float)(*(inputBuf8++) & (SInt8)noiseMask) * kOneOverMaxSInt8Value;
 					}
 					break;
 				case 16:
@@ -3965,12 +3978,17 @@ IOReturn VoodooHDAEngine::convertInputSamples(const void *sampleBuf, void *destB
 					if (nativeEndianInts) {
 #ifndef TIGER
 						if (SSE2) {
+							if ((noiseMask & 0xFFFFU) != 0xFFFFU)
+								for (int i=0; i<(int)numSamples; i++) {
+									inputBuf16[i] &= static_cast<SInt16>(noiseMask);
+								}
 							NativeInt16ToFloat32(inputBuf16, floatDestBuf, numSamples);
-						} else {
+						} else
 #endif
+						{
 							while (numSamplesLeft-- > 0)
 							{
-								*(floatDestBuf++) = (float)(*(inputBuf16++) &= (SInt16)noiseMask) * kOneOverMaxSInt16Value;
+								*(floatDestBuf++) = (float)(*(inputBuf16++) & (SInt16)noiseMask) * kOneOverMaxSInt16Value;
 							}
 
 						}
@@ -4022,12 +4040,16 @@ IOReturn VoodooHDAEngine::convertInputSamples(const void *sampleBuf, void *destB
 					if (nativeEndianInts) {
 #ifndef TIGER
 						if (SSE2) {
+							if (noiseMask != ~0U)
+								for (int i=0; i<(int)numSamples; i++) {
+									inputBuf32[i] &= static_cast<SInt32>(noiseMask);
+								}
 							NativeInt32ToFloat32(inputBuf32, floatDestBuf, numSamples);
 						} else
 #endif
 						{
 							while (numSamplesLeft-- > 0) {
-								*(floatDestBuf++) = (float)(*(inputBuf32++) & noiseMask) * kOneOverMaxSInt32Value;
+								*(floatDestBuf++) = (float)(*(inputBuf32++) & (SInt32)noiseMask) * kOneOverMaxSInt32Value;
 							}
 						}
 					}
