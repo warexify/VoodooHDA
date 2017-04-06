@@ -77,6 +77,12 @@ see license.txt for details and copyright notices
 
 changelog
 ---------
+v2.8.10d3, r123
+- Review AppleAudioClip.cpp
+    Fix bug in stereo mixer.
+    Fix bug in handling float format.
+    Implement masking for 20, 24 bit depths with 32 bit width.
+
 v2.8.10d2, r120
 - Fixed handling of hpredir that prevented analog multichannel from working (Parser.cpp, VoodooHDADevice.cpp).
 - Upgraded project to Xcode 8.3, and bumped version to 2.8.10d2.
