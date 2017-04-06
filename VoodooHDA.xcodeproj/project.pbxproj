@@ -15,7 +15,7 @@
 		CE6725A60EF078B100FAFBED /* VoodooHDAEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6725A20EF078B100FAFBED /* VoodooHDAEngine.cpp */; };
 		CE709B500EFF2AA400EE77FF /* VoodooHDAUserClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE709B4E0EFF2AA400EE77FF /* VoodooHDAUserClient.cpp */; };
 		CE9337FE0EF226E000776BCD /* Tables.c in Sources */ = {isa = PBXBuildFile; fileRef = CE9337FC0EF226E000776BCD /* Tables.c */; };
-		E5A3BD951E7095C100F91F3D /* PCMBlitterLibX86.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEF7C0A70EF74C2700A14C68 /* PCMBlitterLibX86.cpp */; settings = {COMPILER_FLAGS = "-I ${DT_TOOLCHAIN_DIR}/usr/lib/clang/8.1.0/include -fvisibility=hidden"; }; };
+		E5A3BD951E7095C100F91F3D /* PCMBlitterLibX86.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEF7C0A70EF74C2700A14C68 /* PCMBlitterLibX86.cpp */; settings = {COMPILER_FLAGS = "-I ${DT_TOOLCHAIN_DIR}/usr/lib/clang/8.0.0/include -fvisibility=hidden"; }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -242,7 +242,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_STATIC_ANALYZER_MODE = deep;
 				CLANG_WARN_BOOL_CONVERSION = YES;
