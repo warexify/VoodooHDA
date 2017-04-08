@@ -77,6 +77,9 @@ see license.txt for details and copyright notices
 
 changelog
 ---------
+v2.8.10d3, r127
+- More models, update quirks.
+
 v2.8.10d3, r126
 - Bugfixes in Parser.cpp.
 
