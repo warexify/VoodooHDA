@@ -614,7 +614,7 @@ void VoodooHDADevice::vendorPatchParse(FunctionGroup *funcGroup)
 		widget = widgetGet(funcGroup, i);
 		if (!widget || (widget->enable == 0)) // || !(widget->type == 4))
 			continue;
-    if ((funcGroup->codec->vendorId == 0x10ec) && mDisableInputMonitor && (i == 11)) {
+		if ((funcGroup->codec->vendorId == REALTEK_VENDORID) && mDisableInputMonitor && (i == 11)) {
       widget->enable = 0;
       dumpMsg("VHDevice NID=11 disabled by user info.list\n");
       continue;
@@ -837,8 +837,11 @@ void VoodooHDADevice::audioDisableUseless(FunctionGroup *funcGroup)
 				control->left = 0;
 				control->right = 0;
 				control->enable = 0;
-				if (control->ndir == HDA_CTL_IN)
+				if (control->ndir == HDA_CTL_IN &&
+					control->widget->connsenable[control->index]) {
 					control->widget->connsenable[control->index] = 0;
+					control->widget->connsenabled--;
+				}
 				done = 0;
 				dumpMsg(" Disabling control %d nid %d cnid %d due to disabled widget.\n", i,
 						control->widget->nid, control->childWidget ? control->childWidget->nid : -1);
@@ -968,7 +971,7 @@ void VoodooHDADevice::audioAssociationParse(FunctionGroup *funcGroup)
 	}
 
 	/* Scan associations skipping as=0. */
-	for (int j = 1, cnt = 0; j < 16; j++) {  //assocs
+	for (int j = 1, cnt = 0; j < 16 && cnt < max; j++) {  //assocs
 		int first = 16;
 		int hpredir = 0;
 		for (int i = funcGroup->startNode; i < funcGroup->endNode; i++) { //nodes in assocs[cnt]
@@ -1044,7 +1047,7 @@ void VoodooHDADevice::audioAssociationParse(FunctionGroup *funcGroup)
 			if (j == 15)
 				cnt++;
 		}
-		if ((j != 15) && cnt < max && (assocs[cnt].pincnt > 0)) {
+		if ((j != 15) && (assocs[cnt].pincnt > 0)) {
 			if (hpredir && (assocs[cnt].pincnt > 1))
 				assocs[cnt].hpredir = first;  //Slice - dunno if it needed
 			if (assocs[cnt].defaultPin < 0) // && (assocs[cnt].pincnt > 1))
@@ -1234,6 +1237,7 @@ void VoodooHDADevice::audioDisableCrossAssociations(FunctionGroup *funcGroup)
         if (!childWidget || (childWidget->enable == 0))
           continue;
         if (((childWidget->pflags & HDA_ADC_MONITOR) &&
+			 (widget->bindAssoc >= 0) &&
              (assocs[widget->bindAssoc].dir == HDA_CTL_IN))) {
           widget->connsenable[j] = 0;
           widget->connsenabled--;
@@ -1291,8 +1295,11 @@ void VoodooHDADevice::audioDisableCrossAssociations(FunctionGroup *funcGroup)
 			control->left = 0;
 			control->right = 0;
 			control->enable = 0;
-			if (control->ndir == HDA_CTL_IN)
+			if (control->ndir == HDA_CTL_IN &&
+				control->widget->connsenable[control->index]) {
 				control->widget->connsenable[control->index] = 0;
+				control->widget->connsenabled--;
+			}
 //			dumpMsg(" Disabling crossassociated connection control %d nid %d cnid %d.\n", i,
 //					control->widget->nid, control->childWidget->nid);
 		}
@@ -1480,11 +1487,13 @@ void VoodooHDADevice::audioUndoTrace(FunctionGroup *funcGroup, int assocNum, int
 				if (widget->bindSeqMask == 0) {
 					widget->bindAssoc = -1;
 					widget->selconn = -1;
+					widget->traceDir = TRACE_DIR_NONE;
 				}
 			} else {
 				widget->bindAssoc = -1;
 				widget->bindSeqMask = 0;
 				widget->selconn = -1;
+				widget->traceDir = TRACE_DIR_NONE;
 			}
 		}
 	}
@@ -1849,7 +1858,7 @@ void VoodooHDADevice::audioAssignNames(FunctionGroup *funcGroup)
 			break;
 		//Slice		
 		case HDA_PARAM_AUDIO_WIDGET_CAP_TYPE_AUDIO_MIXER:
-			if (widget->pflags != HDA_ADC_MONITOR) {
+			if (!(widget->pflags & HDA_ADC_MONITOR)) {
 				use = SOUND_MIXER_IMIX;
 			} else  {
 				use = SOUND_MIXER_IGAIN;

@@ -35,11 +35,6 @@ public:
 
 	const char *mPortName;
 	UInt32 mPortType;
-#if 0
-	IOAudioPort *mPort;
-#endif
-
-//	int mActiveOssDev;
 
 	IOAudioSelectorControl *mSelControl;
 	

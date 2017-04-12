@@ -77,6 +77,12 @@ see license.txt for details and copyright notices
 
 changelog
 ---------
+v2.8.10d3, r127
+- More models, update quirks.
+
+v2.8.10d3, r126
+- Bugfixes in Parser.cpp.
+
 v2.8.10d3, r123
 - Review AppleAudioClip.cpp
     Fix bug in stereo mixer.
