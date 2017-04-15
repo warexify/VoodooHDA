@@ -4009,7 +4009,7 @@ int VoodooHDADevice::pcmChannelSetup(Channel *channel)
 		/* Check as is correct */
 		if (channel->assocNum < 0)
 			break;
-		/* Cound only present DACs */
+		/* Count only present DACs */
 		if (assocs[channel->assocNum].dacs[i] <= 0)
 			continue;
 		/* Ignore duplicates */

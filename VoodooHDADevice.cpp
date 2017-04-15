@@ -2543,8 +2543,9 @@ void VoodooHDADevice::streamSetup(Channel *channel)
 	int totalchn;
 	nid_t cad = channel->funcGroup->codec->cad;
 	UInt16 format, digFormat;
-	UInt16 chmap[2][5] = {{ 0x0010, 0x0001, 0x0201, 0x0231, 0x0231 }, /* 5.1 */
-			{ 0x0010, 0x0001, 0x2001, 0x2031, 0x2431 }};/* 7.1 */
+	const static
+	UInt16 chmap[2][5] = {{ 0x0010, 0x0001, 0x0201, 0x0321, 0x0321 }, /* 5.1 */
+			{ 0x0010, 0x0001, 0x2201, 0x3321, 0x4321 }};/* 7.1 */
 	int map = -1;
 
 	totalchn = AFMT_CHANNEL(channel->format);
@@ -2580,7 +2581,7 @@ void VoodooHDADevice::streamSetup(Channel *channel)
 	 else if (assoc->pinset == 0x0017) // Standard 7.1
 		map = 1;
 
-	digFormat = HDA_CMD_SET_DIGITAL_CONV_FMT1_DIGEN;
+	digFormat = HDA_CMD_SET_DIGITAL_CONV_FMT1_DIGEN | HDA_CMD_SET_DIGITAL_CONV_FMT1_COPY;
 	if (channel->format & AFMT_AC3)
 		digFormat |= HDA_CMD_SET_DIGITAL_CONV_FMT1_NAUDIO;
 
@@ -2622,12 +2623,15 @@ void VoodooHDADevice::streamSetup(Channel *channel)
 		if (HDA_PARAM_AUDIO_WIDGET_CAP_DIGITAL(widget->params.widgetCap))
 			sendCommand(HDA_CMD_SET_DIGITAL_CONV_FMT1(cad, channel->io[i], digFormat), cad);
 		sendCommand(HDA_CMD_SET_CONV_STREAM_CHAN(cad, channel->io[i], c), cad);
-#if MULTICHANNEL
 		sendCommand(HDA_CMD_SET_CONV_CHAN_COUNT(cad, channel->io[i], 1), cad);
+#if 0
+		/*
+		 * This should be done on HDMI pin complex, not on HDMI audio output.
+		 * Default mapping is 0x00, 0x11, 0x23, 0x32, 0x44, 0x55, 0x66, 0x77
+		 *   so not necessary to change mapping for HDMI stereo.
+		 */
 		sendCommand(HDA_CMD_SET_HDMI_CHAN_SLOT(cad, channel->io[i], 0x00), cad);
 		sendCommand(HDA_CMD_SET_HDMI_CHAN_SLOT(cad, channel->io[i], 0x11), cad);
-#else
-#warning not MULTICHANNEL
 #endif
 
 		chn += HDA_PARAM_AUDIO_WIDGET_CAP_CC(widget->params.widgetCap) + 1;

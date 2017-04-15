@@ -77,6 +77,15 @@ see license.txt for details and copyright notices
 
 changelog
 ---------
+v2.8.10d4, r129
+- Fix max number of formats (can be overrun by analog multichannel association.)
+- Fix channel->pin mapping for analog multichannel association (pins are arranged
+  in sequence order same as expected channel order.)
+- Turn off copy protection for digital audio output.
+- For S/PDIF-encapsulated AC3, use stereo, and limit rates to 32KHz, 44.1KHz, 48KHz.
+- Do not support 32-bit depth for digital channel as it is used for software-formatted S/PDIF.
+- Allow 20-bit depth if it is available and 24-bit depth is unavailable.
+
 v2.8.10d3, r127
 - More models, update quirks.
 
