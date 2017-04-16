@@ -57,6 +57,7 @@ public:
 	IOAudioStreamDirection getEngineDirection();
 	int getEngineId();
 
+	bool publishChannelLayout(IOAudioStreamDirection direction, UInt32 channels);
 	bool createAudioStream(IOAudioStreamDirection direction, void *sampleBuffer,
 			UInt32 sampleBufferSize, UInt32 *pcmRates,
 			UInt32 supPcmSizeRates, UInt32 supStreamFormats, UInt32 channels);

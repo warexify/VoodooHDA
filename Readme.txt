@@ -77,6 +77,10 @@ see license.txt for details and copyright notices
 
 changelog
 ---------
+v2.8.10d4, r130
+- Publish default channel layout for CoreAudio.
+- Set ClockIsStable property.
+
 v2.8.10d4, r129
 - Fix max number of formats (can be overrun by analog multichannel association.)
 - Fix channel->pin mapping for analog multichannel association (pins are arranged

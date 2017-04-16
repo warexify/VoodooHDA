@@ -236,6 +236,7 @@ bool VoodooHDAEngine::initHardware(IOService *provider)
 
 	setSampleOffset(SAMPLE_OFFSET);
 	setSampleLatency(SAMPLE_LATENCY);
+	setClockIsStable(true);
 
 	if (!createAudioStream()) {
 		errorMsg("error: createAudioStream failed\n");
@@ -309,6 +310,7 @@ bool VoodooHDAEngine::createAudioStream()
 		errorMsg("error: createAudioStream failed channels=%d\n", (int)channels);
 		goto done;
 	}
+	publishChannelLayout(direction, channels);
 	result = true;
 done:
 	return result;
@@ -450,6 +452,89 @@ done:
 	RELEASE(mStream);
 
 	return result;
+}
+
+__attribute__((visibility("hidden")))
+bool VoodooHDAEngine::publishChannelLayout(IOAudioStreamDirection direction, UInt32 channels)
+{
+	OSArray* layout;
+	OSNumber* n = NULL;
+
+	if (!channels || channels > 8U)
+		return false;
+	layout = OSArray::withCapacity(channels);
+	if (!layout)
+		return false;
+	if (channels >= 1U) {
+		n = OSNumber::withNumber(kIOAudioChannelLabel_Left, 32);
+		if (!n || !layout->setObject(n))
+			goto error;
+		n->release();
+	}
+	if (channels >= 2U) {
+		n = OSNumber::withNumber(kIOAudioChannelLabel_Right, 32);
+		if (!n || !layout->setObject(n))
+			goto error;
+		n->release();
+	}
+	if (channels >= 5U) {
+		n = OSNumber::withNumber(kIOAudioChannelLabel_Center, 32);
+		if (!n || !layout->setObject(n))
+			goto error;
+		n->release();
+		n = OSNumber::withNumber(kIOAudioChannelLabel_LFEScreen, 32);
+		if (!n || !layout->setObject(n))
+			goto error;
+		n->release();
+		n = OSNumber::withNumber(kIOAudioChannelLabel_LeftSurround, 32);
+		if (!n || !layout->setObject(n))
+			goto error;
+		n->release();
+		if (channels >= 6U) {
+			n = OSNumber::withNumber(kIOAudioChannelLabel_RightSurround, 32);
+			if (!n || !layout->setObject(n))
+				goto error;
+			n->release();
+		}
+		if (channels >= 7U) {
+			n = OSNumber::withNumber(kIOAudioChannelLabel_RearSurroundLeft, 32);
+			if (!n || !layout->setObject(n))
+				goto error;
+			n->release();
+		}
+		if (channels >= 8U) {
+			n = OSNumber::withNumber(kIOAudioChannelLabel_RearSurroundRight, 32);
+			if (!n || !layout->setObject(n))
+				goto error;
+			n->release();
+		}
+	} else {
+		if (channels >= 3U) {
+			n = OSNumber::withNumber(kIOAudioChannelLabel_LeftSurround, 32);
+			if (!n || !layout->setObject(n))
+				goto error;
+			n->release();
+		}
+		if (channels >= 4U) {
+			n = OSNumber::withNumber(kIOAudioChannelLabel_RightSurround, 32);
+			if (!n || !layout->setObject(n))
+				goto error;
+			n->release();
+		}
+	}
+	n = NULL;
+	if (!setProperty((direction == kIOAudioStreamDirectionInput ?
+					  kIOAudioEngineInputChannelLayoutKey :
+					  kIOAudioEngineOutputChannelLayoutKey),
+					 layout))
+		goto error;
+	return true;
+
+error:
+	if (n)
+		n->release();
+	layout->release();
+	return false;
 }
 
 __attribute__((visibility("hidden")))
