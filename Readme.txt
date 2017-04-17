@@ -77,6 +77,11 @@ see license.txt for details and copyright notices
 
 changelog
 ---------
+v2.8.10d5, r132
+- Support striping to maximize available output channel bandwidth.
+- Set InputSampleLatency, TerminalType on IOAudioEngine.
+- Use HDMI PortType for HDMI/DP instead of SPDIF.
+
 v2.8.10d4, r130
 - Publish default channel layout for CoreAudio.
 - Set ClockIsStable property.

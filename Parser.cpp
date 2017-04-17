@@ -2485,6 +2485,8 @@ void VoodooHDADevice::dumpAudioFormats(UInt32 fcap, UInt32 pcmcap)
 			dumpMsg(" 176");
 		if (HDA_PARAM_SUPP_PCM_SIZE_RATE_192KHZ(cap))
 			dumpMsg(" 192");
+		if (HDA_PARAM_SUPP_PCM_SIZE_RATE_384KHZ(cap))
+			dumpMsg(" 384");
 		dumpMsg(" KHz\n");
 	}
 }
@@ -2629,8 +2631,12 @@ void VoodooHDADevice::dumpNodes(FunctionGroup *funcGroup)
 		dumpMsg("            nid: %d%s\n", widget->nid, (widget->enable == 0) ? " [DISABLED]" : "");
 		dumpMsg("           Name: %s\n", widget->name);
 		dumpMsg("     Widget cap: 0x%08lx\n", (long unsigned int)widget->params.widgetCap);
-		if (widget->params.widgetCap & 0x0ee1) {
+		if (widget->params.widgetCap & 0x000ffeff) {
 			dumpMsg("                ");
+			if (HDA_PARAM_AUDIO_WIDGET_CAP_DELAY(widget->params.widgetCap))
+				dumpMsg(" %dDELAY", static_cast<int>(HDA_PARAM_AUDIO_WIDGET_CAP_DELAY(widget->params.widgetCap)));
+			if (HDA_PARAM_AUDIO_WIDGET_CAP_CP(widget->params.widgetCap))
+				dumpMsg(" CP");
 			if (HDA_PARAM_AUDIO_WIDGET_CAP_LR_SWAP(widget->params.widgetCap))
 				dumpMsg(" LRSWAP");
 			if (HDA_PARAM_AUDIO_WIDGET_CAP_POWER_CTRL(widget->params.widgetCap))
@@ -2642,7 +2648,15 @@ void VoodooHDADevice::dumpNodes(FunctionGroup *funcGroup)
 			if (HDA_PARAM_AUDIO_WIDGET_CAP_PROC_WIDGET(widget->params.widgetCap))
 				dumpMsg(" PROC");
 			if (HDA_PARAM_AUDIO_WIDGET_CAP_STRIPE(widget->params.widgetCap))
-				dumpMsg(" STRIPE");
+				dumpMsg(" STRIPE(x%d)", (widget->stripecap & 4) ? 4 : ((widget->stripecap & 2) ? 2 : 1));
+			if (HDA_PARAM_AUDIO_WIDGET_CAP_FORMAT_OVR(widget->params.widgetCap))
+				dumpMsg(" FORMAT_OVR");
+			if (HDA_PARAM_AUDIO_WIDGET_CAP_AMP_OVR(widget->params.widgetCap))
+				dumpMsg(" AMP_OVR");
+			if (HDA_PARAM_AUDIO_WIDGET_CAP_OUT_AMP(widget->params.widgetCap))
+				dumpMsg(" OUT_AMP");
+			if (HDA_PARAM_AUDIO_WIDGET_CAP_IN_AMP(widget->params.widgetCap))
+				dumpMsg(" IN_AMP");
 			//			if (HDA_PARAM_AUDIO_WIDGET_CAP_STEREO(widget->params.widgetCap))
 			int j = HDA_PARAM_AUDIO_WIDGET_CAP_CC(widget->params.widgetCap);
 			if (j == 1)
@@ -3817,6 +3831,7 @@ int VoodooHDADevice::pcmChannelSetup(Channel *channel)
 	channel->bit32 = 0;
 	channel->pcmRates[0] = 48000;
 	channel->pcmRates[1] = 0;
+	channel->stripecap = 0xff;
 
 	ret = 0;
 	channels = 0;
@@ -3867,6 +3882,7 @@ int VoodooHDADevice::pcmChannelSetup(Channel *channel)
 			pcmcap &= widget->params.supPcmSizeRates;
 		}
 		channel->io[ret++] = assocs[channel->assocNum].dacs[i];
+		channel->stripecap &= widget->stripecap;
 
 		/* Do not count redirection pin/dac channels. */
 		if ((i == assocs[channel->assocNum].jackPin) && (assocs[channel->assocNum].hpredir >= 0))  //Slice exclude (i==15)
@@ -3996,6 +4012,7 @@ int VoodooHDADevice::pcmChannelSetup(Channel *channel)
 	channel->bit32 = 0;
 	channel->pcmRates[0] = 48000;
 	channel->pcmRates[1] = 0;
+	channel->stripecap = 0xff;
 
 	ret = 0;
 	fmtcap = funcGroup->audio.supStreamFormats;
@@ -4041,6 +4058,7 @@ int VoodooHDADevice::pcmChannelSetup(Channel *channel)
 			pcmcap &= widget->params.supPcmSizeRates;
 		}
 		channel->io[ret++] = assocs[channel->assocNum].dacs[i];
+		channel->stripecap &= widget->stripecap;
 	}
 	channel->io[ret] = -1;
 
@@ -4682,8 +4700,12 @@ void VoodooHDADevice::extDumpNodes(FunctionGroup *funcGroup)
 		dumpExtMsg("            nid: %d%s\n", widget->nid, (widget->enable == 0) ? " [DISABLED]" : "");
 		dumpExtMsg("           Name: %s\n", widget->name);
 		dumpExtMsg("     Widget cap: 0x%08lx\n", (long unsigned int)widget->params.widgetCap);
-		if (widget->params.widgetCap & 0x0ee1) {
+		if (widget->params.widgetCap & 0x000ffeff) {
 			dumpExtMsg("                ");
+			if (HDA_PARAM_AUDIO_WIDGET_CAP_DELAY(widget->params.widgetCap))
+				dumpExtMsg(" %dDELAY", static_cast<int>(HDA_PARAM_AUDIO_WIDGET_CAP_DELAY(widget->params.widgetCap)));
+			if (HDA_PARAM_AUDIO_WIDGET_CAP_CP(widget->params.widgetCap))
+				dumpExtMsg(" CP");
 			if (HDA_PARAM_AUDIO_WIDGET_CAP_LR_SWAP(widget->params.widgetCap))
 				dumpExtMsg(" LRSWAP");
 			if (HDA_PARAM_AUDIO_WIDGET_CAP_POWER_CTRL(widget->params.widgetCap))
@@ -4695,9 +4717,20 @@ void VoodooHDADevice::extDumpNodes(FunctionGroup *funcGroup)
 			if (HDA_PARAM_AUDIO_WIDGET_CAP_PROC_WIDGET(widget->params.widgetCap))
 				dumpExtMsg(" PROC");
 			if (HDA_PARAM_AUDIO_WIDGET_CAP_STRIPE(widget->params.widgetCap))
-				dumpExtMsg(" STRIPE");
-			if (HDA_PARAM_AUDIO_WIDGET_CAP_STEREO(widget->params.widgetCap))
+				dumpExtMsg(" STRIPE(x%d)", (widget->stripecap & 4) ? 4 : ((widget->stripecap & 2) ? 2 : 1));
+			if (HDA_PARAM_AUDIO_WIDGET_CAP_FORMAT_OVR(widget->params.widgetCap))
+				dumpExtMsg(" FORMAT_OVR");
+			if (HDA_PARAM_AUDIO_WIDGET_CAP_AMP_OVR(widget->params.widgetCap))
+				dumpExtMsg(" AMP_OVR");
+			if (HDA_PARAM_AUDIO_WIDGET_CAP_OUT_AMP(widget->params.widgetCap))
+				dumpExtMsg(" OUT_AMP");
+			if (HDA_PARAM_AUDIO_WIDGET_CAP_IN_AMP(widget->params.widgetCap))
+				dumpExtMsg(" IN_AMP");
+			int j = HDA_PARAM_AUDIO_WIDGET_CAP_CC(widget->params.widgetCap);
+			if (j == 1)
 				dumpExtMsg(" STEREO");
+			else if (j > 1)
+				dumpExtMsg(" %dCH", j + 1);
 			dumpExtMsg("\n");
 		}
 		if (widget->bindAssoc != -1)
