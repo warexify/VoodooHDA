@@ -2535,6 +2535,55 @@ int VoodooHDADevice::channelGetPosition(Channel *channel)
 	return position;
 }
 
+static
+UInt8 calculateStripectl(UInt8 globalSDO, UInt8 stripecap, UInt16 format)
+{
+#define EXTRACT_CHAN(fmt) (fmt & 15)
+#define EXTRACT_BITS(fmt) ((fmt >> 4) & 7)
+#define EXTRACT_MULT(fmt) ((fmt >> 11) & 7)
+	switch (globalSDO) {
+		case 2:
+			/* Controller supports 4-stripe */
+			if (stripecap & 4) {
+				/* Codec audio output widget supports 4-stripe */
+				/* Need at least 32-bit per sample frame for 4-stripe */
+				if (EXTRACT_BITS(format) == 4)
+					return 2;	/* Have 32-bit samples, allow 4-stripe */
+				if (EXTRACT_BITS(format)) {
+					/* Using 16 to 24-bit samples, check if CHAN > 1 or MULT > 1 */
+					if (EXTRACT_CHAN(format))
+						return 2;	/* CHAN > 1 */
+					if (EXTRACT_MULT(format))
+						return 2;	/* MULT > 1 */
+				}
+				/* Using 8-bit samples, check if CHAN * MULT >= 4 */
+				if ((EXTRACT_CHAN(format) + 1) * (EXTRACT_MULT(format) + 1) >= 4)
+					return 2;
+				/* else can't do 4-stripe */
+			} /* else can't do 4-stripe */
+			/* fall through and try 2-stripe */
+		case 1:
+			/* Controller supports 2-stripe */
+			if (stripecap & 2) {
+				/* Codec audio output widget supports 2-stripe */
+				/* Need at least 16-bit per sample frame for 2-stripe */
+				if (EXTRACT_BITS(format))
+					return 1;	/* Have at least 16-bit samples, allow 2-stripe */
+				/* Using 8-bit samples, check if CHAN > 1 or MULT > 1 */
+				if (EXTRACT_CHAN(format))
+					return 1;	/* CHAN > 1 */
+				if (EXTRACT_MULT(format))
+					return 1;	/* MULT > 1 */
+				/* else can't do 2-stripe */
+			} /* else can't do 2-stripe */
+			break; /* revert to no-stripe */
+	} /* default: controller does not support striping */
+	return 0;
+#undef EXTRACT_MULT
+#undef EXTRACT_BITS
+#undef EXTRACT_CHAN
+}
+
 /*******************************************************************************************/
 /*******************************************************************************************/
 
@@ -2588,6 +2637,8 @@ void VoodooHDADevice::streamSetup(Channel *channel)
 	
 	writeData16(channel->off + HDAC_SDFMT, format);
     
+	channel->stripectl = calculateStripectl(static_cast<UInt8>(mSDO), channel->stripecap, format);
+
 	for (int i = 0, chn = 0; channel->io[i] != -1; i++) {
 		Widget *widget;
 		int c;
@@ -2613,9 +2664,9 @@ void VoodooHDADevice::streamSetup(Channel *channel)
 			}			
 		}		
 		if(mVerbose >= 2)
-			logMsg("PCMDIR_%s: Stream setup nid=%d format=%08lx speed=%ld , dfmt=0x%04x, chan=0x%04x\n",
+			logMsg("PCMDIR_%s: Stream setup nid=%d format=%08lx speed=%ld , dfmt=0x%04x, chan=0x%04x, stripe=%d\n",
 				   (channel->direction == PCMDIR_PLAY) ?"PLAY" : "REC", channel->io[i], 
-				   (long unsigned int)channel->format, (long int)channel->speed, digFormat, c);
+				   (long unsigned int)channel->format, (long int)channel->speed, digFormat, c, channel->stripectl);
 		
 		
 //		logMsg("PCMDIR_%s: Stream setup nid=%d: format=0x%04x, digFormat=0x%04x\n",
@@ -2624,6 +2675,8 @@ void VoodooHDADevice::streamSetup(Channel *channel)
 		if (HDA_PARAM_AUDIO_WIDGET_CAP_DIGITAL(widget->params.widgetCap))
 			sendCommand(HDA_CMD_SET_DIGITAL_CONV_FMT1(cad, channel->io[i], digFormat), cad);
 		sendCommand(HDA_CMD_SET_CONV_STREAM_CHAN(cad, channel->io[i], c), cad);
+		if (HDA_PARAM_AUDIO_WIDGET_CAP_STRIPE(widget->params.widgetCap))
+			sendCommand(HDA_CMD_SET_STRIPE_CONTROL(cad, channel->io[i], channel->stripectl), cad);
 		sendCommand(HDA_CMD_SET_CONV_CHAN_COUNT(cad, channel->io[i], 1), cad);
 #if 0
 		/*
@@ -2668,6 +2721,13 @@ void VoodooHDADevice::streamStart(Channel *channel)
 //  HDAC_WRITE_1(&sc->mem, off + HDAC_SDSTS, HDAC_SDSTS_DESE | HDAC_SDSTS_FIFOE | HDAC_SDSTS_BCIS);
   writeData8(channel->off + HDAC_SDSTS, HDAC_SDSTS_DESE | HDAC_SDSTS_FIFOE | HDAC_SDSTS_BCIS);
   //
+
+	if (channel->stripectl) {
+		ctl = readData8(channel->off + HDAC_SDCTL2);
+		ctl &= ~HDAC_SDCTL2_STRIPE_MASK;
+		ctl |= channel->stripectl << HDAC_SDCTL2_STRIPE_SHIFT;
+		writeData8(channel->off + HDAC_SDCTL2, ctl);
+	}
 
 	ctl = readData8(channel->off + HDAC_SDCTL0);
 	ctl |= HDAC_SDCTL_IOCE | HDAC_SDCTL_FEIE | HDAC_SDCTL_DEIE | HDAC_SDCTL_RUN;

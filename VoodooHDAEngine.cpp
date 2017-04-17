@@ -99,15 +99,38 @@ UInt32 pinConfigToSelection(UInt32 pinConfig)
 		case HDA_CONFIG_DEFAULTCONF_DEVICE_CD:
 			return kIOAudioSelectorControlSelectionValueCD;
 		case HDA_CONFIG_DEFAULTCONF_DEVICE_SPDIF_OUT:
-		case HDA_CONFIG_DEFAULTCONF_DEVICE_DIGITAL_OTHER_OUT:
 		case HDA_CONFIG_DEFAULTCONF_DEVICE_SPDIF_IN:
-		case HDA_CONFIG_DEFAULTCONF_DEVICE_DIGITAL_OTHER_IN:
 			return kIOAudioSelectorControlSelectionValueSPDIF;
+		case HDA_CONFIG_DEFAULTCONF_DEVICE_DIGITAL_OTHER_OUT:
+		case HDA_CONFIG_DEFAULTCONF_DEVICE_DIGITAL_OTHER_IN:
+			return kIOAudioDeviceTransportTypeHdmi;
 		case HDA_CONFIG_DEFAULTCONF_DEVICE_MIC_IN:
 			return kIOAudioSelectorControlSelectionValueExternalMicrophone;
 		default:
 			return kIOAudioSelectorControlSelectionValueNone;
 	}
+}
+
+static
+UInt32 selectionAndDirectionToTerminalType(UInt32 selection, IOAudioStreamDirection direction)
+{
+	switch (selection) {
+		case kIOAudioSelectorControlSelectionValueLine:
+			return EXTERNAL_LINE_CONNECTOR;
+		case kIOAudioSelectorControlSelectionValueExternalSpeaker:
+			return OUTPUT_DESKTOP_SPEAKER;
+		case kIOAudioSelectorControlSelectionValueHeadphones:
+			return OUTPUT_HEADPHONES;
+		case kIOAudioSelectorControlSelectionValueCD:
+			return EMBEDDED_CD_PLAYER;
+		case kIOAudioSelectorControlSelectionValueSPDIF:
+			return EXTERNAL_SPDIF_INTERFACE;
+		case kIOAudioSelectorControlSelectionValueExternalMicrophone:
+			return INPUT_DESKTOP_MICROPHONE;
+		case kIOAudioDeviceTransportTypeHdmi:
+			return EXTERNAL_DIGITAL_AUDIO_INTERFACE;
+	}
+	return direction == kIOAudioStreamDirectionInput ? INPUT_NULL : OUTPUT_NULL;
 }
 
 __attribute__((visibility("hidden")))
@@ -329,6 +352,7 @@ bool VoodooHDAEngine::initHardware(IOService *provider)
 	setDescription(mPortName);
 
 	setSampleOffset(SAMPLE_OFFSET);
+	setInputSampleOffset(SAMPLE_OFFSET);
 	setSampleLatency(SAMPLE_LATENCY);
 	setClockIsStable(true);
 
@@ -540,6 +564,8 @@ bool VoodooHDAEngine::createAudioStream(IOAudioStreamDirection direction, void *
 	addAudioStream(mStream);
 
 	mStream->setFormat(&format, &formatEx); // set widest format as default
+
+	mStream->setTerminalType(selectionAndDirectionToTerminalType(mPortType, direction));
 
 	result = true;
 done:

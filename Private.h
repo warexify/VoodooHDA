@@ -290,6 +290,8 @@ typedef struct _Channel {
 	int bit16, bit32;
 	int assocNum;
 	nid_t io[16]; // adc/dac nids
+	UInt8 stripecap;
+	UInt8 stripectl;
 	//Math
 	bool vectorize;
 	bool useStereo;
