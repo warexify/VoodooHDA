@@ -279,7 +279,7 @@ typedef struct _Channel {
 	FunctionGroup *funcGroup;
 	PcmDevice *pcmDevice;
 	UInt32 speed, format;
-	UInt32 formats[8], pcmRates[16];
+	UInt32 formats[12], pcmRates[16];
 	UInt32 supStreamFormats, supPcmSizeRates;
 	UInt32 numBlocks, blockSize;
 	UInt32 *dmaPos;

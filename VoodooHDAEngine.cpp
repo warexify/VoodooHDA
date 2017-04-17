@@ -330,6 +330,7 @@ bool VoodooHDAEngine::initHardware(IOService *provider)
 
 	setSampleOffset(SAMPLE_OFFSET);
 	setSampleLatency(SAMPLE_LATENCY);
+	setClockIsStable(true);
 
 	if (!createAudioStream()) {
 		errorMsg("error: createAudioStream failed\n");
@@ -403,6 +404,7 @@ bool VoodooHDAEngine::createAudioStream()
 		errorMsg("error: createAudioStream failed channels=%d\n", (int)channels);
 		goto done;
 	}
+	publishChannelLayout(direction, channels);
 	result = true;
 done:
 	return result;
@@ -414,6 +416,7 @@ bool VoodooHDAEngine::createAudioStream(IOAudioStreamDirection direction, void *
 		UInt32 supPcmSizeRates, UInt32 supStreamFormats, UInt32 channels)
 {
 	bool result = false;
+	bool isDigital;
 	UInt32 defaultSampleRate = 0U;
 
 	IOAudioStreamFormat format = {
@@ -452,12 +455,30 @@ bool VoodooHDAEngine::createAudioStream(IOAudioStreamDirection direction, void *
 	}
 
 	mStream->setSampleBuffer(sampleBuffer, sampleBufferSize); // also creates mix buffer
+	isDigital = (mChannel->funcGroup->audio.assocs[mChannel->assocNum].digital != 0);
 
     for(int i = 0; pcmRates[i]; i++) {
         sampleRate.whole = pcmRates[i];
 		if (sampleRate.whole <= 48000U && defaultSampleRate < sampleRate.whole)
 			defaultSampleRate = sampleRate.whole;
-        if(HDA_PARAM_SUPP_STREAM_FORMATS_AC3(supStreamFormats)) {
+		/*
+		 * Raw AC3 is packetized in 1536-sample-frame packets.
+		 *   - packets are made of 16-bit words, big endian.
+		 *   - allowed sample rate for target audio is 32 KHz, 44.1 KHz or 48 KHz.
+		 *   - supports multichannel.
+		 *   - packet size is bitrate and sample-rate dependent.  Varies from 128 bytes to 3840 bytes.
+		 * AC3 is encapsulated in S/PDIF based on IEC 61937 as follows
+		 *   - Uses 16-bit sample depth, little endian (byte order is reversed during encapsulation.)
+		 *   - Has an 8-byte header, followed by the raw AC3 packet, padded with zeros to a fill a
+		 *     pseudo linear-PCM span of 1536 sample-frames.
+		 *   - Using 16-bit sample depth, 2-channel gives 4 bytes/sample-frame, which allows up to
+		 *     6144 bytes - enough to fit in all sized AC3 packets.
+		 *   - The standard allows using twice or 4-times the audio sample rate, but we use the same
+		 *     sample rate, since it can fit all sized AC3 packets.
+		 *   - Client must deliver AC3 encapsulated in S/PDIF (encapsulation is not done in clipOutputSamples).
+		 */
+        if(HDA_PARAM_SUPP_STREAM_FORMATS_AC3(supStreamFormats) && sampleRate.whole >= 32000U && sampleRate.whole <= 48000U) {
+            format.fNumChannels = 2;
             format.fBitDepth = 16;
             format.fBitWidth = 16;
             format.fSampleFormat = kIOAudioStreamSampleFormat1937AC3;
@@ -465,6 +486,7 @@ bool VoodooHDAEngine::createAudioStream(IOAudioStreamDirection direction, void *
             formatEx.fBytesPerPacket = formatEx.fFramesPerPacket * format.fNumChannels * (format.fBitWidth / 8);
             format.fIsMixable = false;
             mStream->addAvailableFormat(&format, &formatEx, &sampleRate, &sampleRate);
+            format.fNumChannels = channels;
         }
         format.fSampleFormat = kIOAudioStreamSampleFormatLinearPCM;
         formatEx.fFramesPerPacket = 1;
@@ -479,18 +501,30 @@ bool VoodooHDAEngine::createAudioStream(IOAudioStreamDirection direction, void *
 		format.fBitDepth = 24;
 		format.fBitWidth = 32;
             formatEx.fBytesPerPacket = format.fNumChannels * (format.fBitWidth / 8);
-/*            format.fIsMixable = false;
             mStream->addAvailableFormat(&format, &formatEx, &sampleRate, &sampleRate);
-            format.fIsMixable = true; */
+	} else if (HDA_PARAM_SUPP_PCM_SIZE_RATE_20BIT(supPcmSizeRates)) {
+		format.fBitDepth = 20;
+		format.fBitWidth = 32;
+            formatEx.fBytesPerPacket = format.fNumChannels * (format.fBitWidth / 8);
             mStream->addAvailableFormat(&format, &formatEx, &sampleRate, &sampleRate);
 	}
-	if (HDA_PARAM_SUPP_PCM_SIZE_RATE_32BIT(supPcmSizeRates)) {
+		/*
+		 * S/PDIF supports 16 - 24 bit sample depths.  32-bit sample depth is used
+		 *   for "Software-formatted S/PDIF" as explained in the HDA specification
+		 *   section 7.3.3.9.  A 32-bit word in S/PDIF consists of
+		 *   - 4 bit preamble
+		 *   - 24 bit sample
+		 *   - 4 bits of valid/channel-status/user-defined/parity as explained in IEC 60958-3.
+		 * If a bit depth of 16 - 24 is chosen, the codec formats the S/PDIF overhead bits
+		 *   by itself ("Codec-Formatted S/PDIF").  If a 32-bit depth is used, software
+		 *   is expected to generate the overhead bits.  Since clipOutputSamples does not
+		 *   do this, but treats the whole 32 bits as an audio sample, don't support
+		 *   32-bit depth in digital channels.
+		 */
+	if (!isDigital && HDA_PARAM_SUPP_PCM_SIZE_RATE_32BIT(supPcmSizeRates)) {
 		format.fBitDepth = 32;
 		format.fBitWidth = 32;
             formatEx.fBytesPerPacket = format.fNumChannels * (format.fBitWidth / 8);
-/*            format.fIsMixable = false;
-            mStream->addAvailableFormat(&format, &formatEx, &sampleRate, &sampleRate);
-            format.fIsMixable = true; */
             mStream->addAvailableFormat(&format, &formatEx, &sampleRate, &sampleRate);
         }
 	}
@@ -505,13 +539,6 @@ bool VoodooHDAEngine::createAudioStream(IOAudioStreamDirection direction, void *
 
 	addAudioStream(mStream);
 
-	if (format.fBitDepth == 32 && HDA_PARAM_SUPP_PCM_SIZE_RATE_24BIT(supPcmSizeRates)) {
-		/*
-		 * Some HDMI/DP audio outputs support 32-bit depth, but digital displays support up to 24-bit depth,
-		 *   so don't use 32-bit depth by default if 24 is available.
-		 */
-		format.fBitDepth = 24;
-	}
 	mStream->setFormat(&format, &formatEx); // set widest format as default
 
 	result = true;
@@ -519,6 +546,89 @@ done:
 	RELEASE(mStream);
 
 	return result;
+}
+
+__attribute__((visibility("hidden")))
+bool VoodooHDAEngine::publishChannelLayout(IOAudioStreamDirection direction, UInt32 channels)
+{
+	OSArray* layout;
+	OSNumber* n = NULL;
+
+	if (!channels || channels > 8U)
+		return false;
+	layout = OSArray::withCapacity(channels);
+	if (!layout)
+		return false;
+	if (channels >= 1U) {
+		n = OSNumber::withNumber(kIOAudioChannelLabel_Left, 32);
+		if (!n || !layout->setObject(n))
+			goto error;
+		n->release();
+	}
+	if (channels >= 2U) {
+		n = OSNumber::withNumber(kIOAudioChannelLabel_Right, 32);
+		if (!n || !layout->setObject(n))
+			goto error;
+		n->release();
+	}
+	if (channels >= 5U) {
+		n = OSNumber::withNumber(kIOAudioChannelLabel_Center, 32);
+		if (!n || !layout->setObject(n))
+			goto error;
+		n->release();
+		n = OSNumber::withNumber(kIOAudioChannelLabel_LFEScreen, 32);
+		if (!n || !layout->setObject(n))
+			goto error;
+		n->release();
+		n = OSNumber::withNumber(kIOAudioChannelLabel_LeftSurround, 32);
+		if (!n || !layout->setObject(n))
+			goto error;
+		n->release();
+		if (channels >= 6U) {
+			n = OSNumber::withNumber(kIOAudioChannelLabel_RightSurround, 32);
+			if (!n || !layout->setObject(n))
+				goto error;
+			n->release();
+		}
+		if (channels >= 7U) {
+			n = OSNumber::withNumber(kIOAudioChannelLabel_RearSurroundLeft, 32);
+			if (!n || !layout->setObject(n))
+				goto error;
+			n->release();
+		}
+		if (channels >= 8U) {
+			n = OSNumber::withNumber(kIOAudioChannelLabel_RearSurroundRight, 32);
+			if (!n || !layout->setObject(n))
+				goto error;
+			n->release();
+		}
+	} else {
+		if (channels >= 3U) {
+			n = OSNumber::withNumber(kIOAudioChannelLabel_LeftSurround, 32);
+			if (!n || !layout->setObject(n))
+				goto error;
+			n->release();
+		}
+		if (channels >= 4U) {
+			n = OSNumber::withNumber(kIOAudioChannelLabel_RightSurround, 32);
+			if (!n || !layout->setObject(n))
+				goto error;
+			n->release();
+		}
+	}
+	n = NULL;
+	if (!setProperty((direction == kIOAudioStreamDirectionInput ?
+					  kIOAudioEngineInputChannelLayoutKey :
+					  kIOAudioEngineOutputChannelLayoutKey),
+					 layout))
+		goto error;
+	return true;
+
+error:
+	if (n)
+		n->release();
+	layout->release();
+	return false;
 }
 
 __attribute__((visibility("hidden")))
@@ -584,8 +694,6 @@ IOReturn VoodooHDAEngine::performFormatChange(IOAudioStream *audioStream,
 	IOReturn result = kIOReturnError;
 	int setResult;
 	UInt32 ossFormat;
-	//AC3 - test
-//	bool wasRunning = (getState() == kIOAudioEngineRunning);
 
 	// ASSERT(audioStream == mStream);
 
@@ -598,9 +706,6 @@ IOReturn VoodooHDAEngine::performFormatChange(IOAudioStream *audioStream,
 		errorMsg("warning: performFormatChange(%p) called with no effect\n", audioStream);
 		return kIOReturnSuccess;
 	}
-//AC3 -test
-//	if (wasRunning)
-//		stopAudioEngine();
 
 	if (newFormat) {
 	int channels = newFormat->fNumChannels;
@@ -679,9 +784,6 @@ IOReturn VoodooHDAEngine::performFormatChange(IOAudioStream *audioStream,
 			goto done;
 		}
 	}
-//AC3 - test 
-//	if (wasRunning)
-//		startAudioEngine();
 
 	result = kIOReturnSuccess;
 done:
@@ -705,10 +807,6 @@ bool VoodooHDAEngine::createAudioControls()
 	IOFixed			minDb,
 					maxDb;
 	int				initOssDev, initOssMask, idupper;
-//AC3 - test	
-//	if (mChannel->funcGroup->audio.assocs[mChannel->assocNum].digital) {   //digital has no control
-//		return true;
-//	}
 	direction = getEngineDirection();
 	if (direction == kIOAudioStreamDirectionOutput) {
 		usage = kIOAudioControlUsageOutput;
@@ -968,33 +1066,7 @@ IOReturn VoodooHDAEngine::muteChanged(IOAudioControl *muteControl, SInt32 oldVal
     
     return kIOReturnSuccess;
 }
-/*
-IOReturn VoodooHDAEngine::gainChangeHandler(IOService *target, IOAudioControl *gainControl, SInt32 oldValue, SInt32 newValue)
-{
-    IOReturn result = kIOReturnBadArgument;
-	VoodooHDAEngine *audioDevice = OSDynamicCast(VoodooHDAEngine, target);
-    
-//    audioDevice = (VoodooHDAEngine *)target;
-    if (audioDevice) {
-        result = audioDevice->gainChanged(gainControl, oldValue, newValue);
-    }
-    
-    return result;
-}
-
-IOReturn VoodooHDAEngine::gainChanged(IOAudioControl *gainControl, SInt32 oldValue, SInt32 newValue)
-{
-    IOLog("VoodooHDAEngine[%p]::gainChanged(%p, %ld, %ld)\n", this, gainControl, (long int)oldValue, (long int)newValue);
-    
-    if (gainControl) {
-       IOLog("\t-> Channel %ld\n", (long int)gainControl->getChannelID());
-    }
-    
-    // Add hardware gain change code here 
 	
-    return kIOReturnSuccess;
-}
-*/
 OSString *VoodooHDAEngine::getLocalUniqueID()
 {
 	if (!mDevice || !mDevice->mPciNub)
