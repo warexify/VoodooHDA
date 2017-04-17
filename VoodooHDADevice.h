@@ -355,6 +355,7 @@ public:
 	int channelGetPosition(Channel *channel);
 
 	void streamSetup(Channel *channel);
+	void streamHDMIorDPExtraSetup(FunctionGroup*, nid_t, AudioAssoc*, int);
 	void streamStop(Channel *channel);
 	void streamStart(Channel *channel);
 	void streamReset(Channel *channel);

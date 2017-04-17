@@ -2640,7 +2640,7 @@ void VoodooHDADevice::streamSetup(Channel *channel)
 
 	for (int i = 0, chn = 0; channel->io[i] != -1; i++) {
 		Widget *widget;
-		int c;
+		int c, cchn;
 
 		widget = widgetGet(channel->funcGroup, channel->io[i]);
 		if (!widget)
@@ -2649,9 +2649,10 @@ void VoodooHDADevice::streamSetup(Channel *channel)
 //		if ((assoc->hpredir >= 0) && (i == assoc->pincnt))
 //			chn = 0;
 		/* If HP redirection is enabled, but failed to use same DAC make last DAC one to duplicate first one. */
-		if (assoc->fakeredir && i == (assoc->pincnt - 1))
+		if (assoc->fakeredir && i == (assoc->pincnt - 1)) {
 			c = (channel->streamId << 4);
-		else {
+			chn = 0;
+		} else {
 			if (map >= 0) /* Map known speaker setups. */
 				chn = (((chmap[map][totalchn / 2] >> i * 4) &
 						0xf) - 1) * 2;
@@ -2674,20 +2675,134 @@ void VoodooHDADevice::streamSetup(Channel *channel)
 		if (HDA_PARAM_AUDIO_WIDGET_CAP_DIGITAL(widget->params.widgetCap))
 			sendCommand(HDA_CMD_SET_DIGITAL_CONV_FMT1(cad, channel->io[i], digFormat), cad);
 		sendCommand(HDA_CMD_SET_CONV_STREAM_CHAN(cad, channel->io[i], c), cad);
+		if (!c)
+			continue;
 		if (HDA_PARAM_AUDIO_WIDGET_CAP_STRIPE(widget->params.widgetCap))
 			sendCommand(HDA_CMD_SET_STRIPE_CONTROL(cad, channel->io[i], channel->stripectl), cad);
-		sendCommand(HDA_CMD_SET_CONV_CHAN_COUNT(cad, channel->io[i], 1), cad);
-#if 0
-		/*
-		 * This should be done on HDMI pin complex, not on HDMI audio output.
-		 * Default mapping is 0x00, 0x11, 0x23, 0x32, 0x44, 0x55, 0x66, 0x77
-		 *   so not necessary to change mapping for HDMI stereo.
-		 */
-		sendCommand(HDA_CMD_SET_HDMI_CHAN_SLOT(cad, channel->io[i], 0x00), cad);
-		sendCommand(HDA_CMD_SET_HDMI_CHAN_SLOT(cad, channel->io[i], 0x11), cad);
-#endif
+		cchn = HDA_PARAM_AUDIO_WIDGET_CAP_CC(widget->params.widgetCap);
+		if (cchn > 1) {
+			int full_cchn = cchn;
+			cchn = min(cchn, totalchn - chn - 1);
+			/*
+			 * For HDMI/DP, if more than 2 channels, program all 8
+			 */
+			sendCommand(HDA_CMD_SET_CONV_CHAN_COUNT(cad, channel->io[i], ((cchn > 1) ? full_cchn : cchn)), cad);
+		}
+		if (HDA_PARAM_AUDIO_WIDGET_CAP_DIGITAL(widget->params.widgetCap))
+			streamHDMIorDPExtraSetup(channel->funcGroup, channel->io[i], assoc, cchn + 1);
 
-		chn += HDA_PARAM_AUDIO_WIDGET_CAP_CC(widget->params.widgetCap) + 1;
+		chn += cchn + 1;
+	}
+}
+
+void VoodooHDADevice::streamHDMIorDPExtraSetup(FunctionGroup* funcGroup, nid_t dac, AudioAssoc *assoc, int hdmi_totalchn)
+{
+	UInt8 csum;
+	UInt16 AudioInfopacketBufferSize = 0xFFFFU;
+	nid_t cad = funcGroup->codec->cad;
+	nid_t nid_pin;
+	Widget *widget_pin;
+	/*
+	 * EIA-CEA 861-D speaker mappings (section 6.6.2)
+	 * ASP Channels 8-7-6-5-4-3-2-1
+	 */
+	const static
+	UInt8  hdmica[8] = {
+		0x00, /*  -   -   -  -  -  -  FR FL */
+		0x00, /*  -   -   -  -  -  -  FR FL */
+		0x04, /*  -   -   - RC  -  -  FR FL */
+		0x08, /*  -   -  RR RL  -  -  FR FL */
+		0x0A, /*  -   -  RR RL FC  -  FR FL */
+		0x0B, /*  -   -  RR RL FC LFE FR FL */
+		0x12, /* RRC RLC RR RL FC  -  FR FL */
+		0x13  /* RRC RLC RR RL FC LFE FR FL */
+	};
+	const static
+	UInt32 hdmich[8] = { 0xFFFFFF00, 0xFFFFFF10, 0xFFF4FF10, 0xFF54FF10, 0xFF542F10, 0xFF542310, 0x76542F10, 0x76542310 };
+
+	for (int j = 0; j < 16; j++) {
+		if (assoc->dacs[j] != dac)
+			continue;
+		nid_pin = assoc->pins[j];
+		widget_pin = widgetGet(funcGroup, nid_pin);
+		if (!widget_pin)
+			continue;
+		if (!HDA_PARAM_PIN_CAP_DP(widget_pin->pin.cap) &&
+			!HDA_PARAM_PIN_CAP_HDMI(widget_pin->pin.cap))
+			continue;
+
+		/*
+		 * The default mapping is 0x00, 0x11, 0x32, 0x23, 0x44, 0x55, 0x66, 0x77
+		 *   PC channel layout is
+		 *   ch 0 - FL, ch 1 - FR, ch 2 - FC, ch 3 - LFE, ch 4 - RL, ch 5 - RR, ch 6 - SL,  ch 7 - SR
+		 *   HDMI ASP channel layout is
+		 *   ch 1 - FL, ch 2 - FR, ch 3 - LFE, ch 4 - FC, ch 5 - RL, ch 6 - RR, ch 7 - RLC, ch 8 - RRC
+		 */
+
+		/* Set channel mapping. */
+		for (int k = 0; k < 8; k++)
+			sendCommand(HDA_CMD_SET_HDMI_CHAN_SLOT(cad, nid_pin,
+												   (((hdmich[hdmi_totalchn - 1] >> (k * 4)) & 0xf) << 4) | k), cad);
+
+		/*
+		 * Note on HBR (High Bit Rate)
+		 *   When sending encoded audio with bit rate > 6.144 mbps, HDMI requires using HBR.
+		 *   This corresponds to 96 or 192 KHz frame rate, 16 bits/sample, 8 channels in HDA.
+		 *   At present, VoodooHDA supportes AFMT_AC3 with
+		 *     frame rates 32 - 48 KHz, 16 bits/sample, 2 channels.  So HBR is not needed.
+		 */
+
+		/*
+		 * Find size of Audio Infoframe buffer to see if it can be used.
+		 * On some HDMI codecs, if HDMI is not connected by graphics card driver,
+		 *   the Infoframe buffer has zero length.
+		 */
+		if (AudioInfopacketBufferSize == 0xFFFFU) {
+			/* do this once */
+			AudioInfopacketBufferSize = static_cast<UInt16>(sendCommand(HDA_CMD_GET_HDMI_DIP_SIZE(cad, nid_pin, 0x00), cad)) + 1U;
+		}
+
+		if (AudioInfopacketBufferSize < 10U)
+			continue;
+
+		/*
+		 * Send Audio Infoframe
+		 */
+
+		/* Stop audio infoframe transmission. */
+		sendCommand(HDA_CMD_SET_HDMI_DIP_INDEX(cad, nid_pin, 0x00), cad);
+		sendCommand(HDA_CMD_SET_HDMI_DIP_XMIT(cad, nid_pin, 0x00), cad);
+
+		/* Clear audio infoframe buffer. */
+		sendCommand(HDA_CMD_SET_HDMI_DIP_INDEX(cad, nid_pin, 0x00), cad);
+		for (int k = 0; k < static_cast<int>(AudioInfopacketBufferSize); k++)
+			sendCommand(HDA_CMD_SET_HDMI_DIP_DATA(cad, nid_pin, 0x00), cad);
+
+		/* Write HDMI/DisplayPort audio infoframe. */
+		sendCommand(HDA_CMD_SET_HDMI_DIP_INDEX(cad, nid_pin, 0x00), cad);
+		/*
+		 * Need Valid ELD to tell between DP or HDMI
+		 */
+		if (0 /* eld != NULL && eld_len >= 6 && ((eld[5] >> 2) & 0x3) == 1 */) { /* DisplayPort */
+			sendCommand(HDA_CMD_SET_HDMI_DIP_DATA(cad, nid_pin, 0x84), cad);
+			sendCommand(HDA_CMD_SET_HDMI_DIP_DATA(cad, nid_pin, 0x1b), cad);
+			sendCommand(HDA_CMD_SET_HDMI_DIP_DATA(cad, nid_pin, 0x44), cad);
+		} else {	/* HDMI */
+			sendCommand(HDA_CMD_SET_HDMI_DIP_DATA(cad, nid_pin, 0x84), cad);
+			sendCommand(HDA_CMD_SET_HDMI_DIP_DATA(cad, nid_pin, 0x01), cad);
+			sendCommand(HDA_CMD_SET_HDMI_DIP_DATA(cad, nid_pin, 0x0a), cad);
+			csum = 0;
+			csum -= 0x84 + 0x01 + 0x0a + (hdmi_totalchn - 1) + hdmica[hdmi_totalchn - 1];
+			sendCommand(HDA_CMD_SET_HDMI_DIP_DATA(cad, nid_pin, csum), cad);
+		}
+		sendCommand(HDA_CMD_SET_HDMI_DIP_DATA(cad, nid_pin, hdmi_totalchn - 1), cad);
+		sendCommand(HDA_CMD_SET_HDMI_DIP_DATA(cad, nid_pin, 0x00), cad);
+		sendCommand(HDA_CMD_SET_HDMI_DIP_DATA(cad, nid_pin, 0x00), cad);
+		sendCommand(HDA_CMD_SET_HDMI_DIP_DATA(cad, nid_pin, hdmica[hdmi_totalchn - 1]), cad);
+
+		/* Start audio infoframe transmission. */
+		sendCommand(HDA_CMD_SET_HDMI_DIP_INDEX(cad, nid_pin, 0x00), cad);
+		sendCommand(HDA_CMD_SET_HDMI_DIP_XMIT(cad, nid_pin, 0xc0), cad);
 	}
 }
 
@@ -2768,7 +2883,7 @@ void VoodooHDADevice::streamSetId(Channel *channel)
 	UInt32 ctl;
 
 	ctl = readData8(channel->off + HDAC_SDCTL2);
-	ctl &= ~HDAC_SDCTL2_STRM_MASK;
+	ctl &= ~(HDAC_SDCTL2_STRM_MASK | HDAC_SDCTL2_STRIPE_MASK);
 	ctl |= channel->streamId << HDAC_SDCTL2_STRM_SHIFT;
 	writeData8(channel->off + HDAC_SDCTL2, ctl);
 }

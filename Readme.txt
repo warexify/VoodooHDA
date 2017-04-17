@@ -77,6 +77,10 @@ see license.txt for details and copyright notices
 
 changelog
 ---------
+v2.8.10d6, r133
+- Support multichannel on HDMI or DP.
+- Fix minor bug in stripe code.
+
 v2.8.10d5, r132
 - Support striping to maximize available output channel bandwidth.
 - Set InputSampleLatency, TerminalType on IOAudioEngine.
