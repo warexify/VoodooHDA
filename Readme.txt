@@ -77,6 +77,15 @@ see license.txt for details and copyright notices
 
 changelog
 ---------
+v2.9.0d7, r135
+- Version -> 2.9.0
+- Fix bug in DMA setup when sample-frame size is not a power of 2 (for 6-channel engine.)
+- Fix bug in HDMI multichannel ASP->codec channel mapping.
+
+v2.8.10d6, r133
+- Support multichannel on HDMI or DP.
+- Fix minor bug in stripe code.
+
 v2.8.10d5, r132
 - Support striping to maximize available output channel bandwidth.
 - Set InputSampleLatency, TerminalType on IOAudioEngine.

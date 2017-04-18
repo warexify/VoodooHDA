@@ -795,6 +795,7 @@ IOReturn VoodooHDAEngine::performFormatChange(IOAudioStream *audioStream,
 		ASSERT(mBufferSize);
 		mSampleSize = channels * (newFormat->fBitWidth / 8);
 		mNumSampleFrames = mBufferSize / mSampleSize;
+		mChannel->slack = static_cast<UInt16>(mBufferSize - mNumSampleFrames * mSampleSize);
 		setNumSampleFramesPerBuffer(mNumSampleFrames);
 
 		logMsg("buffer size: %ld, channels: %d, bit depth: %d, # samp. frames: %ld\n", (long int)mBufferSize,

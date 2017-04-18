@@ -298,6 +298,7 @@ typedef struct _Channel {
     UInt8 noiseLevel;	
 	UInt8 StereoBase;
 	
+	UInt16 slack;
 	DmaMemory *bdlMem;
 	DmaMemory *buffer;
 } Channel;
