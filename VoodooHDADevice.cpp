@@ -2528,8 +2528,11 @@ int VoodooHDADevice::channelGetPosition(Channel *channel)
 	UNLOCK();
 
 	/* Round to available space and force 128 bytes aligment. */
-	position %= channel->blockSize * channel->numBlocks;
+	position %= (channel->blockSize * channel->numBlocks - channel->slack);
+#if 0
+	/* Since mSampleSize may be non-power of 2 */
 	position &= HDA_BLK_ALIGN;
+#endif
 
 	return position;
 }
@@ -2646,8 +2649,6 @@ void VoodooHDADevice::streamSetup(Channel *channel)
 		if (!widget)
 			continue;
 
-//		if ((assoc->hpredir >= 0) && (i == assoc->pincnt))
-//			chn = 0;
 		/* If HP redirection is enabled, but failed to use same DAC make last DAC one to duplicate first one. */
 		if (assoc->fakeredir && i == (assoc->pincnt - 1)) {
 			c = (channel->streamId << 4);
@@ -2681,12 +2682,8 @@ void VoodooHDADevice::streamSetup(Channel *channel)
 			sendCommand(HDA_CMD_SET_STRIPE_CONTROL(cad, channel->io[i], channel->stripectl), cad);
 		cchn = HDA_PARAM_AUDIO_WIDGET_CAP_CC(widget->params.widgetCap);
 		if (cchn > 1) {
-			int full_cchn = cchn;
 			cchn = min(cchn, totalchn - chn - 1);
-			/*
-			 * For HDMI/DP, if more than 2 channels, program all 8
-			 */
-			sendCommand(HDA_CMD_SET_CONV_CHAN_COUNT(cad, channel->io[i], ((cchn > 1) ? full_cchn : cchn)), cad);
+			sendCommand(HDA_CMD_SET_CONV_CHAN_COUNT(cad, channel->io[i], cchn), cad);
 		}
 		if (HDA_PARAM_AUDIO_WIDGET_CAP_DIGITAL(widget->params.widgetCap))
 			streamHDMIorDPExtraSetup(channel->funcGroup, channel->io[i], assoc, cchn + 1);
@@ -2718,7 +2715,7 @@ void VoodooHDADevice::streamHDMIorDPExtraSetup(FunctionGroup* funcGroup, nid_t d
 		0x13  /* RRC RLC RR RL FC LFE FR FL */
 	};
 	const static
-	UInt32 hdmich[8] = { 0xFFFFFF00, 0xFFFFFF10, 0xFFF4FF10, 0xFF54FF10, 0xFF542F10, 0xFF542310, 0x76542F10, 0x76542310 };
+	UInt32 hdmich[8] = { 0xFFFFFF00, 0xFFFFFF10, 0xFFF2FF10, 0xFF32FF10, 0xFF432F10, 0xFF542310, 0x65432F10, 0x76542310 };
 
 	for (int j = 0; j < 16; j++) {
 		if (assoc->dacs[j] != dac)
@@ -2906,12 +2903,12 @@ void VoodooHDADevice::bdlSetup(Channel *channel)
 	for (UInt32 n = 1; n <= numBlocks; n++, bdlEntry++) {
 		bdlEntry->addrl = (UInt32) addr;
 		bdlEntry->addrh = (UInt32) (addr >> 32);
-		bdlEntry->len = blockSize;
+		bdlEntry->len = ((n == numBlocks) ? (blockSize - channel->slack) : blockSize);
 		bdlEntry->ioc = (n == numBlocks);
-		addr += blockSize;
+		addr += bdlEntry->len;
 	}
 
-	writeData32(channel->off + HDAC_SDCBL, blockSize * numBlocks);
+	writeData32(channel->off + HDAC_SDCBL, blockSize * numBlocks - channel->slack);
 	writeData16(channel->off + HDAC_SDLVI, numBlocks - 1);
 	addr = channel->bdlMem->physAddr;
 	writeData32(channel->off + HDAC_SDBDPL, (UInt32) addr);
