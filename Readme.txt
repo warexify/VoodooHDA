@@ -77,6 +77,9 @@ see license.txt for details and copyright notices
 
 changelog
 ---------
+v2.9.0d8, r138
+- sync from tranc@115
+
 v2.9.0d7, r135
 - Version -> 2.9.0
 - Fix bug in DMA setup when sample-frame size is not a power of 2 (for 6-channel engine.)

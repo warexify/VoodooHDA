@@ -614,9 +614,14 @@ void VoodooHDADevice::vendorPatchParse(FunctionGroup *funcGroup)
 		widget = widgetGet(funcGroup, i);
 		if (!widget || (widget->enable == 0)) // || !(widget->type == 4))
 			continue;
-		if ((funcGroup->codec->vendorId == REALTEK_VENDORID) && mDisableInputMonitor && (i == 11)) {
+		if (mDisableInputMonitor && (funcGroup->codec->vendorId == REALTEK_VENDORID) &&  (i == 11)) {
 			widget->enable = 0;
 			dumpMsg("VHDevice NID=11 disabled by user info.list\n");
+			continue;
+		}
+		if (mDisableInputMonitor && (funcGroup->codec->vendorId == IDT_VENDORID) &&  (i == 27)) {
+			widget->enable = 0;
+			dumpMsg("VHDevice NID=27 disabled by user info.list\n");
 			continue;
 		}
 
@@ -3444,6 +3449,8 @@ UInt32 VoodooHDADevice::widgetGetCaps(Widget *widget, int *waspin)
 	default:
 		if (HDA_PARAM_VENDOR_ID_VENDOR_ID(id) == REALTEK_VENDORID)
 			beeper = 29;
+		if (HDA_PARAM_VENDOR_ID_VENDOR_ID(id) == IDT_VENDORID)
+			beeper = 33;
 		break;
 	}
 	if (nid == beeper) {
