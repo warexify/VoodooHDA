@@ -354,8 +354,14 @@ bool VoodooHDAEngine::initHardware(IOService *provider)
 	setSampleOffset(SAMPLE_OFFSET);
 	setInputSampleOffset(SAMPLE_OFFSET);
 	setSampleLatency(SAMPLE_LATENCY);
-	setClockIsStable(true);
-
+#if 0
+  setClockIsStable(true);
+#else
+  /*
+   * Un...{censored}...believable
+   */
+  setProperty(kIOAudioEngineClockIsStableKey, 1ULL, 32U);
+#endif
 	if (!createAudioStream()) {
 		errorMsg("error: createAudioStream failed\n");
 		goto done;
