@@ -7,6 +7,7 @@
 #include "OssCompat.h"
 #include "Tables.h"
 
+#include <libkern/version.h>
 #include <IOKit/audio/IOAudioDefines.h>
 #include <IOKit/audio/IOAudioPort.h>
 #include <IOKit/audio/IOAudioSelectorControl.h>
@@ -260,7 +261,10 @@ bool VoodooHDAEngine::initHardware(IOService *provider)
 	setSampleOffset(SAMPLE_OFFSET);
 	setInputSampleOffset(SAMPLE_OFFSET);
 	setSampleLatency(SAMPLE_LATENCY);
-	setClockIsStable(true);
+	if (version_major > 10)			/* newer than SnowLeopard */
+		setClockIsStable(true);
+	else
+		setProperty(kIOAudioEngineClockIsStableKey, 1ULL, 32U);
 
 	if (!createAudioStream()) {
 		errorMsg("error: createAudioStream failed\n");
