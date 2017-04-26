@@ -77,6 +77,23 @@ see license.txt for details and copyright notices
 
 changelog
 ---------
+v2.9.0d10, r140
+- sync from tranc@139
+- Fix issues involving AudioControls
+  - audioCtlParse should be done early so amps on disabled widgets, connections or pin directions are muted.
+  - in audioCtlParse, reverse ndir only for pin.
+  - in audioCtlParse, mute amps disabled by vendorPatchParse prior to creating ctls.
+  - in audioDisableUseless, mute amps for disabled connections from non-disabled pins.
+  - in audioDisableUnassociated, exclude audio-input as well as pin
+    (they both have one input amp for multiple inputs.)
+  - in audioDisableCrossAssociations, disable connection from input monitor to output
+    pins other than the first (Green) pin.  Don't need to hear input monitor on all
+    channels of multichannel analog output, because input monitor is stereo.
+  - in dumpNodes, extDumpNodes, don't dump multiple input amps for widget that uses same one for multiple inputs.
+
+v2.9.0d8, r138
+- sync from tranc@137
+
 v2.9.0d7, r135
 - Version -> 2.9.0
 - Fix bug in DMA setup when sample-frame size is not a power of 2 (for 6-channel engine.)

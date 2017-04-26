@@ -185,9 +185,12 @@ void VoodooHDADevice::probeFunction(Codec *codec, nid_t nid)
 	funcGroup->audio.quirks |= mQuirksOn;
 	funcGroup->audio.quirks &= ~mQuirksOff;
 //Slice - move audioCtlParse after patch!!!
-//	dumpMsg("Parsing Ctls...\n");
-//	audioCtlParse(funcGroup);
-//
+	/*
+	 * AudioControls must be created before various audioDisable in order to mute
+	 *   amps for all disabled widgets, connections and pin directions!
+	 */
+	dumpMsg("Parsing Ctls...\n");
+	audioCtlParse(funcGroup);
 	dumpMsg("Disabling nonaudio...\n");
 	audioDisableNonAudio(funcGroup);
 	dumpMsg("Disabling useless...\n");
@@ -212,8 +215,8 @@ void VoodooHDADevice::probeFunction(Codec *codec, nid_t nid)
 	audioBindAssociation(funcGroup);
 	dumpMsg("Assigning names to signal sources...\n");
 	audioAssignNames(funcGroup);
-	dumpMsg("Parsing Ctls...\n");
-	audioCtlParse(funcGroup);
+//	dumpMsg("Parsing Ctls...\n");
+//	audioCtlParse(funcGroup);
 	dumpMsg("Assigning mixers to the tree...\n");
 	audioAssignMixers(funcGroup);
 	dumpMsg("Preparing pin controls...\n");
@@ -417,7 +420,6 @@ void VoodooHDADevice::audioCtlParse(FunctionGroup *funcGroup)
 			
 			//Определяем к входной или выходной цепочке принадлежит регулятор
 			if ((widget->type == HDA_PARAM_AUDIO_WIDGET_CAP_TYPE_PIN_COMPLEX) || //Если этот widget - разъем
-				(widget->type == HDA_PARAM_AUDIO_WIDGET_CAP_TYPE_AUDIO_MIXER) ||
 				widget->waspin) //???
 				controls[cnt].ndir = HDA_CTL_IN;
 			else 
@@ -441,13 +443,19 @@ void VoodooHDADevice::audioCtlParse(FunctionGroup *funcGroup)
 			case HDA_PARAM_AUDIO_WIDGET_CAP_TYPE_AUDIO_MIXER:
 				for (int j = 0; j < widget->nconns; j++) {
 					Widget *childWidget;
+					childWidget = widgetGet(funcGroup, widget->conns[j]);
+					if (!childWidget || (childWidget->enable == 0)) {
+						/*
+						 * Mute amps for connections from child widgets disabled by vendorPatchParse
+						 *   for which no AudioControl is created.
+						 */
+						audioCtlAmpSetInternal(funcGroup->codec->cad, widget->nid, j, 1, 1, 0, 0, 1);
+						continue;
+					}
 					if (cnt >= max) {
 						dumpMsg("Ctl overflow!\n");
 						break;
 					}
-					childWidget = widgetGet(funcGroup, widget->conns[j]);
-					if (!childWidget || (childWidget->enable == 0))
-						continue;
 					controls[cnt].enable = 1;
 					controls[cnt].widget = widget;
 					controls[cnt].childWidget = childWidget;
@@ -836,13 +844,13 @@ void VoodooHDADevice::audioDisableUseless(FunctionGroup *funcGroup)
 		for (int i = 0; (control = audioCtlEach(funcGroup, &i)); ) {
 			if (control->enable == 0)
 				continue;
-			if (control->widget->enable == 0 || (control->childWidget && (control->childWidget->enable == 0))) {
+			if (control->widget->enable == 0 || (control->childWidget && (control->childWidget->enable == 0 || !control->widget->connsenable[control->index]))) {
 				control->forcemute = 1;
 				control->muted = HDA_AMP_MUTE_ALL;
 				control->left = 0;
 				control->right = 0;
 				control->enable = 0;
-				if (control->ndir == HDA_CTL_IN &&
+				if (control->widget->enable &&
 					control->widget->connsenable[control->index]) {
 					control->widget->connsenable[control->index] = 0;
 					control->widget->connsenabled--;
@@ -1172,7 +1180,8 @@ void VoodooHDADevice::audioDisableUnassociated(FunctionGroup *funcGroup)
 						childWidget->connsenable[j] = 0;
 						childWidget->connsenabled--;
 //						dumpMsg(" Disabling connection from output pin nid %d conn %d cnid %d.\n", k, j, i);
-						if ((childWidget->type == HDA_PARAM_AUDIO_WIDGET_CAP_TYPE_PIN_COMPLEX) &&
+						if ((childWidget->type == HDA_PARAM_AUDIO_WIDGET_CAP_TYPE_PIN_COMPLEX ||
+							 childWidget->type == HDA_PARAM_AUDIO_WIDGET_CAP_TYPE_AUDIO_INPUT) &&
 						    	(childWidget->nconns > 1))
 							continue;
 						control = audioCtlAmpGet(funcGroup, k, HDA_CTL_IN, j, 1);
@@ -1220,6 +1229,24 @@ void VoodooHDADevice::audioDisableNonSelected(FunctionGroup *funcGroup)
 	}
 }
 
+static
+bool isFirstPin(int bindSeqMask, AudioAssoc* assoc)
+{
+	int j, first_pin;
+
+	if (assoc->hpredir >= 0 && (bindSeqMask & (1U << assoc->hpredir)))
+		return true;
+	if (!bindSeqMask)
+		return false;
+	first_pin = __builtin_ctz(static_cast<unsigned>(bindSeqMask));
+	if (assoc->pins[first_pin] <= 0)
+		return false;
+	for (j = 0; j < first_pin; ++j)
+		if (assoc->pins[j] > 0)
+			return false;
+	return true;
+}
+
 void VoodooHDADevice::audioDisableCrossAssociations(FunctionGroup *funcGroup)
 {
 	AudioControl *control;
@@ -1248,6 +1275,21 @@ void VoodooHDADevice::audioDisableCrossAssociations(FunctionGroup *funcGroup)
           widget->connsenabled--;
           dumpMsg(" Disabling connection input mixer nid %d conn %d to monitor %d.\n", i, j,
         					childWidget->nid);
+          continue;
+        }
+        /*
+         * In a multichannel analog output association, disable connection from input monitor
+         *   to all pins other than first.
+         */
+		if (((childWidget->pflags & HDA_ADC_MONITOR) &&
+             (widget->bindAssoc >= 0) &&
+             (assocs[widget->bindAssoc].dir == HDA_CTL_OUT) &&
+             (widget->bindAssoc != childWidget->bindAssoc) &&
+             (!isFirstPin(widget->bindSeqMask, &assocs[widget->bindAssoc])))) {
+          widget->connsenable[j] = 0;
+          widget->connsenabled--;
+          dumpMsg(" Disabling connection output mixer nid %d conn %d to monitor %d.\n", i, j,
+                            childWidget->nid);
         }
       }
 			continue;
@@ -1300,7 +1342,7 @@ void VoodooHDADevice::audioDisableCrossAssociations(FunctionGroup *funcGroup)
 			control->left = 0;
 			control->right = 0;
 			control->enable = 0;
-			if (control->ndir == HDA_CTL_IN &&
+			if (/* control->ndir == HDA_CTL_IN && */ /* (control->childWidget != NULL) implies (control->ndir == HDA_CTL_IN), see audioCtlParse */
 				control->widget->connsenable[control->index]) {
 				control->widget->connsenable[control->index] = 0;
 				control->widget->connsenabled--;
@@ -2691,7 +2733,7 @@ void VoodooHDADevice::dumpNodes(FunctionGroup *funcGroup)
 			
 			int left, right;
 			int lmute, rmute;
-			AudioControl *control = audioCtlAmpGet(funcGroup, widget->nid, HDA_CTL_OUT, 0, -1);
+			AudioControl *control = audioCtlAmpGet(funcGroup, widget->nid, HDA_CTL_OUT, -1, 1);
             if(control != 0 && control->forcemute) {
                 dumpMsg("     Output val: [forceMute forceMute]\n");             
             }else{
@@ -2704,9 +2746,12 @@ void VoodooHDADevice::dumpNodes(FunctionGroup *funcGroup)
 			int left, right;
 			int lmute, rmute;
 			
+
+			int last = (widget->type == HDA_PARAM_AUDIO_WIDGET_CAP_TYPE_AUDIO_MIXER ||
+						widget->type == HDA_PARAM_AUDIO_WIDGET_CAP_TYPE_AUDIO_SELECTOR) ? widget->nconns : 1;
             dumpMsg("      Input val: ");
-            for (int j = 0; j < widget->nconns; j++) {
-                AudioControl *control = audioCtlAmpGet(funcGroup, widget->nid, HDA_CTL_IN, j, -1);
+            for (int j = 0; j < last; j++) {
+                AudioControl *control = audioCtlAmpGet(funcGroup, widget->nid, HDA_CTL_IN, j, 1);
                 if(control != 0 && control->forcemute) {
                     dumpMsg("[forceMute forceMute] ");             
                 }else{
@@ -4772,8 +4817,10 @@ void VoodooHDADevice::extDumpNodes(FunctionGroup *funcGroup)
 			int left, right;
 			int lmute, rmute;
 		
+			int last = (widget->type == HDA_PARAM_AUDIO_WIDGET_CAP_TYPE_AUDIO_MIXER ||
+						widget->type == HDA_PARAM_AUDIO_WIDGET_CAP_TYPE_AUDIO_SELECTOR) ? widget->nconns : 1;
 			dumpExtMsg("      Input val: ");
-			for (int j = 0; j < widget->nconns; j++) {
+			for (int j = 0; j < last; j++) {
 				audioCtlAmpGetInternal(funcGroup->codec->cad, widget->nid, j, &lmute, &rmute, &left, &right, 1);
 				dumpExtMsg("[0x%02X 0x%02X] ", (lmute << 7) | left, (rmute << 7) | right);
 			}

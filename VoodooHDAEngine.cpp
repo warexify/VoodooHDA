@@ -7,6 +7,7 @@
 #include "OssCompat.h"
 #include "Tables.h"
 
+#include <libkern/version.h>
 #include <IOKit/audio/IOAudioDefines.h>
 #include <IOKit/audio/IOAudioPort.h>
 #include <IOKit/audio/IOAudioSelectorControl.h>
@@ -65,7 +66,6 @@ bool VoodooHDAEngine::initWithChannel(Channel *channel)
 		goto done;
 
 	mChannel = channel;
-//	mActiveOssDev = -1;
 
 	result = true;
 done:
@@ -354,14 +354,11 @@ bool VoodooHDAEngine::initHardware(IOService *provider)
 	setSampleOffset(SAMPLE_OFFSET);
 	setInputSampleOffset(SAMPLE_OFFSET);
 	setSampleLatency(SAMPLE_LATENCY);
-#if 0
-  setClockIsStable(true);
-#else
-  /*
-   * Un...{censored}...believable
-   */
-  setProperty(kIOAudioEngineClockIsStableKey, 1ULL, 32U);
-#endif
+	if (version_major > 10)			/* newer than SnowLeopard */
+ 	  setClockIsStable(true);
+	else
+	  setProperty(kIOAudioEngineClockIsStableKey, 1ULL, 32U);
+
 	if (!createAudioStream()) {
 		errorMsg("error: createAudioStream failed\n");
 		goto done;
