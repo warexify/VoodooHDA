@@ -782,7 +782,7 @@ IOReturn VoodooHDAEngine::performFormatChange(IOAudioStream *audioStream,
 				break;
 			default:
 				BUG("unsupported bit depth");
-				goto done;
+//				goto done;
 		}
         }
 		//IOLog("ossFormat=%08x\n", (unsigned int)ossFormat);
