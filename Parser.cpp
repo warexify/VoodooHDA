@@ -618,37 +618,48 @@ void VoodooHDADevice::vendorPatchParse(FunctionGroup *funcGroup)
 		}
 	}
 	// log after patch	
-	for (int i = funcGroup->startNode; i < funcGroup->endNode; i++) {
-		widget = widgetGet(funcGroup, i);
-		if (!widget || (widget->enable == 0)) // || !(widget->type == 4))
-			continue;
-		if (mDisableInputMonitor && (funcGroup->codec->vendorId == REALTEK_VENDORID) &&  (i == 11)) {
-      widget->enable = 0;
-      dumpMsg("VHDevice NID=11 disabled by user info.list\n");
+  for (int i = funcGroup->startNode; i < funcGroup->endNode; i++) {
+    widget = widgetGet(funcGroup, i);
+    if (!widget || (widget->enable == 0)) // || !(widget->type == 4))
       continue;
-    } 
-		if (mDisableInputMonitor && (funcGroup->codec->vendorId == IDT_VENDORID) &&  (i == 27)) {
-      widget->enable = 0;
-      dumpMsg("VHDevice NID=27 disabled by user info.list\n");
-      continue;
+    if (mDisableInputMonitor) {
+      if ((funcGroup->codec->vendorId == REALTEK_VENDORID) && (i == 11)) {
+        widget->enable = 0;
+        dumpMsg("VHDevice NID=11 disabled for Realtek by user info.list\n");
+        continue;
+      } else if ((funcGroup->codec->vendorId == IDT_VENDORID) &&  (i == 27)) {
+        widget->enable = 0;
+        dumpMsg("VHDevice NID=27 disabled for IDT by user info.list\n");
+        continue;
+      } else if ((funcGroup->codec->vendorId == ANALOGDEVICES_VENDORID) &&  (i == 33)) {
+        widget->enable = 0;
+        dumpMsg("VHDevice NID=33 disabled for AD by user info.list\n");
+        continue;
+      }
+      /* else if ((funcGroup->codec->vendorId == VIA_VENDORID) &&  (i == 22)) {
+        widget->enable = 0;
+        dumpMsg("VHDevice NID=22 disabled for VIA by user info.list\n");
+        continue;
+      } */
     }
-    
-		dumpMsg("VHDevice NID=%2d Config=%08lx (%-14s) Cap=%08lx Ctrl=%08lx", i, (long unsigned int)widget->pin.config,
-				&widget->name[0], (long unsigned int)widget->pin.cap, (long unsigned int)widget->pin.ctrl);
-		dumpMsg(" -- Conns:");
-		widget->connsenabled = 0;
-		for (int j = 0; j < widget->nconns; j++){
-			if (widget->connsenable[j] == 0)
-				continue;
-			widget->connsenabled++;
-			dumpMsg(" %d=%d", j, widget->conns[j]);
-			
-			if(widget->selconn == j)
-				dumpMsg( "(select)");
-		}
-		dumpMsg("\n");
-	}
-//	
+
+
+    dumpMsg("VHDevice NID=%2d Config=%08lx (%-14s) Cap=%08lx Ctrl=%08lx", i, (long unsigned int)widget->pin.config,
+            &widget->name[0], (long unsigned int)widget->pin.cap, (long unsigned int)widget->pin.ctrl);
+    dumpMsg(" -- Conns:");
+    widget->connsenabled = 0;
+    for (int j = 0; j < widget->nconns; j++){
+      if (widget->connsenable[j] == 0)
+        continue;
+      widget->connsenabled++;
+      dumpMsg(" %d=%d", j, widget->conns[j]);
+
+      if(widget->selconn == j)
+        dumpMsg( "(select)");
+    }
+    dumpMsg("\n");
+  }
+//
 //Slice - disable any predefined patches
 #if 0	
 	switch (id) {
@@ -3491,6 +3502,9 @@ UInt32 VoodooHDADevice::widgetGetCaps(Widget *widget, int *waspin)
 	case HDA_CODEC_STAC9228X:
 		beeper = 35;
 		break;
+  case HDA_CODEC_VT2020:
+    beeper = 34;
+    break;
 	default:
 		if (HDA_PARAM_VENDOR_ID_VENDOR_ID(id) == REALTEK_VENDORID)
       beeper = 29;
