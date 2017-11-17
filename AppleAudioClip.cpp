@@ -3763,7 +3763,7 @@ IOReturn VoodooHDAEngine::clipOutputSamples(const void *mixBuf, void *sampleBuf,
 	UInt8* theOutputBufferSInt24;
 	SInt32* theOutputBufferSInt32;
 	UInt32 noiseMask = (~0U) << mChannel->noiseLevel;
-#ifndef TIGER
+#if !defined(TIGER) && !defined(NO_SSE2)
 	bool SSE2 = mChannel->vectorize;
 	UInt8 *sourceBuf = (UInt8 *) sampleBuf;
 #endif
@@ -3841,7 +3841,7 @@ IOReturn VoodooHDAEngine::clipOutputSamples(const void *mixBuf, void *sampleBuf,
 				case 16:
 					theOutputBufferSInt16 = ((SInt16*)sampleBuf) + firstSample;
 					if (nativeEndianInts) {
-#ifndef TIGER
+#if !defined(TIGER) && !defined(NO_SSE2)
 						if (SSE2) {
 							Float32ToNativeInt16(floatMixBuf, theOutputBufferSInt16, numSamples);
 						} else
@@ -3854,7 +3854,7 @@ IOReturn VoodooHDAEngine::clipOutputSamples(const void *mixBuf, void *sampleBuf,
 								theOutputBufferSInt16[i] &= static_cast<SInt16>(noiseMask);
 							}
 					}
-#ifndef TIGER
+#if !defined(TIGER) && !defined(NO_SSE2)
 					else
 						Float32ToSwapInt16(floatMixBuf, theOutputBufferSInt16, numSamples);
 #endif
@@ -3865,7 +3865,7 @@ IOReturn VoodooHDAEngine::clipOutputSamples(const void *mixBuf, void *sampleBuf,
 
 					theOutputBufferSInt24 = ((UInt8*)sampleBuf) + (firstSample * 3);
 					if (nativeEndianInts) {
-#ifndef TIGER
+#if !defined(TIGER) && !defined(NO_SSE2)
 						if (SSE2) {
 							Float32ToNativeInt24(floatMixBuf, theOutputBufferSInt24, numSamples);
 						} else
@@ -3874,7 +3874,7 @@ IOReturn VoodooHDAEngine::clipOutputSamples(const void *mixBuf, void *sampleBuf,
 							ClipFloat32ToSInt24LE_8(floatMixBuf, (SInt32*)theOutputBufferSInt24, numSamples);
 						}
 					}
-#ifndef TIGER
+#if !defined(TIGER) && !defined(NO_SSE2)
 					else
 						Float32ToSwapInt24(floatMixBuf, theOutputBufferSInt24, numSamples);
 #endif
@@ -3883,7 +3883,7 @@ IOReturn VoodooHDAEngine::clipOutputSamples(const void *mixBuf, void *sampleBuf,
 				case 32:
 					theOutputBufferSInt32 = ((SInt32*)sampleBuf) + firstSample;
 					if (nativeEndianInts) {
-#ifndef TIGER
+#if !defined(TIGER) && !defined(NO_SSE2)
 						if (SSE2) {
 							Float32ToNativeInt32(floatMixBuf, theOutputBufferSInt32, numSamples);
 						} else
@@ -3896,7 +3896,7 @@ IOReturn VoodooHDAEngine::clipOutputSamples(const void *mixBuf, void *sampleBuf,
 								theOutputBufferSInt32[i] &= static_cast<SInt32>(noiseMask);
 							}
 					}
-#ifndef TIGER
+#if !defined(TIGER) && !defined(NO_SSE2)
 					else
 						Float32ToSwapInt32(floatMixBuf, (SInt32 *) &sourceBuf[4 * firstSample],
 										   numSamples);
@@ -3947,7 +3947,7 @@ IOReturn VoodooHDAEngine::convertInputSamples(const void *sampleBuf, void *destB
 	SInt16 *inputBuf16;
 	const UInt8 *inputBuf24;
 	SInt32 *inputBuf32;
-#ifndef TIGER
+#if !defined(TIGER) && !defined(NO_SSE2)
 	bool SSE2 = mChannel->vectorize;
 #endif
 
@@ -3976,7 +3976,7 @@ IOReturn VoodooHDAEngine::convertInputSamples(const void *sampleBuf, void *destB
 				case 16:
 					inputBuf16 = &(((SInt16 *)sampleBuf)[firstSample]);
 					if (nativeEndianInts) {
-#ifndef TIGER
+#if !defined(TIGER) && !defined(NO_SSE2)
 						if (SSE2) {
 							if ((noiseMask & 0xFFFFU) != 0xFFFFU)
 								for (int i=0; i<(int)numSamples; i++) {
@@ -3992,8 +3992,9 @@ IOReturn VoodooHDAEngine::convertInputSamples(const void *sampleBuf, void *destB
 							}
 
 						}
-#ifndef TIGER
-					} else
+					}
+#if !defined(TIGER) && !defined(NO_SSE2)
+					else
 						SwapInt16ToFloat32(inputBuf16, floatDestBuf, numSamples);
 #endif
 					break;
@@ -4002,7 +4003,7 @@ IOReturn VoodooHDAEngine::convertInputSamples(const void *sampleBuf, void *destB
 				case 24: //impossible for Intel chipset, dunno for other
 					inputBuf24 = &(((UInt8 *)sampleBuf)[firstSample * 3]);
 					if (nativeEndianInts){
-#ifndef TIGER
+#if !defined(TIGER) && !defined(NO_SSE2)
 						if (SSE2) {
 							NativeInt24ToFloat32(inputBuf24, floatDestBuf, numSamples);
 						} else
@@ -4029,7 +4030,7 @@ IOReturn VoodooHDAEngine::convertInputSamples(const void *sampleBuf, void *destB
 							*(floatDestBuf++) = (float)inputSample * kOneOverMaxSInt24Value;
 						}
 					}
-#ifndef TIGER
+#if !defined(TIGER) && !defined(NO_SSE2)
 					else
 						SwapInt24ToFloat32(inputBuf24, floatDestBuf, numSamples);
 #endif
@@ -4038,7 +4039,7 @@ IOReturn VoodooHDAEngine::convertInputSamples(const void *sampleBuf, void *destB
 				case 32:
 					inputBuf32 = &(((SInt32 *)sampleBuf)[firstSample]);
 					if (nativeEndianInts) {
-#ifndef TIGER
+#if !defined(TIGER) && !defined(NO_SSE2)
 						if (SSE2) {
 							if (noiseMask != ~0U)
 								for (int i=0; i<(int)numSamples; i++) {
@@ -4053,7 +4054,7 @@ IOReturn VoodooHDAEngine::convertInputSamples(const void *sampleBuf, void *destB
 							}
 						}
 					}
-#ifndef TIGER
+#if !defined(TIGER) && !defined(NO_SSE2)
 					else
 						SwapInt32ToFloat32(inputBuf32, floatDestBuf, numSamples);
 #endif

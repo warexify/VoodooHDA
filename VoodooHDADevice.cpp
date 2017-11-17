@@ -1162,6 +1162,7 @@ void VoodooHDADevice::dumpMsg(const char *format, ...)
 void VoodooHDADevice::messageHandler(UInt32 type, const char *format, va_list args)
 {
 	bool lockExists;
+	int length;
 
 	ASSERT(type);
 	ASSERT(format);
@@ -1172,7 +1173,7 @@ void VoodooHDADevice::messageHandler(UInt32 type, const char *format, va_list ar
 		lockMsgBuffer(); // utilize message buffer lock for console logging as well
 
 	switch (type) {
-		int length;
+
 	case kVoodooHDAMessageTypeGeneral:
 		if (mVerbose < 1)
 			break;
