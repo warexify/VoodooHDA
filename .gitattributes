@@ -32,4 +32,5 @@ VoodooHDA.xcodeproj/project.pbxproj -text
 /getdump.mak -text
 /helper.sh -text
 /iSubTypes.h -text
+/private_xmmintrin.h svn_keywords=Author+Date+Id+Rev+URL
 /version.plist -text

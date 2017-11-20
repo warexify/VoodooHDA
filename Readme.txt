@@ -77,6 +77,9 @@ see license.txt for details and copyright notices
 
 changelog
 ---------
+v2.9.1, r146
+- Eliminate use of Xcode's xmmintrin
+
 v2.9.1, r145
 - sync from tranc@144
 
