@@ -3765,8 +3765,9 @@ IOReturn VoodooHDAEngine::clipOutputSamples(const void *mixBuf, void *sampleBuf,
 	UInt32 noiseMask = (~0U) << mChannel->noiseLevel;
 #if !defined(TIGER) && !defined(NO_SSE2)
 	bool SSE2 = mChannel->vectorize;
+  UInt8 *sourceBuf = (UInt8 *) sampleBuf;
 #endif
-	UInt8 *sourceBuf = (UInt8 *) sampleBuf;
+
 
 	bool Stereo = mChannel->useStereo;
 	int base = mChannel->StereoBase; 

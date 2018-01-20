@@ -77,6 +77,9 @@ see license.txt for details and copyright notices
 
 changelog
 ---------
+v2.9.1, r148
+- Eliminate use of Xcode's xmmintrin
+
 v2.9.0d10, r140
 - sync from tranc@139
 - Fix issues involving AudioControls

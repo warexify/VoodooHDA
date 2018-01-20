@@ -52,4 +52,5 @@ VoodooHDA_old.xcodeproj/user.pbxuser -text
 /mm3dnow.h -text
 /mm_malloc.h -text
 /mmintrin.h -text
+/private_xmmintrin.h -text
 /version.plist -text

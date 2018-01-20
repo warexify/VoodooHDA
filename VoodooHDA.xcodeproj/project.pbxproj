@@ -46,6 +46,7 @@
 		CEF7C0A60EF74C2700A14C68 /* PCMBlitterLibDispatch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PCMBlitterLibDispatch.h; sourceTree = "<group>"; };
 		CEF7C0A70EF74C2700A14C68 /* PCMBlitterLibX86.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PCMBlitterLibX86.cpp; sourceTree = "<group>"; };
 		E51C926F166379C30054B6D1 /* iSubTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = iSubTypes.h; sourceTree = "<group>"; };
+		E567864F1FC21ACD000CC2CA /* private_xmmintrin.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = private_xmmintrin.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -115,6 +116,7 @@
 				CE6725A30EF078B100FAFBED /* VoodooHDAEngine.h */,
 				CE709B4E0EFF2AA400EE77FF /* VoodooHDAUserClient.cpp */,
 				CE709B4F0EFF2AA400EE77FF /* VoodooHDAUserClient.h */,
+				E567864F1FC21ACD000CC2CA /* private_xmmintrin.h */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -211,6 +213,8 @@
 				CE709B500EFF2AA400EE77FF /* VoodooHDAUserClient.cpp in Sources */,
 				12BDC90E12440B4E00B327AE /* TigerAdditionals.cpp in Sources */,
 				120156031244377E00611BC7 /* AppleAudioClip.cpp in Sources */,
+				12F24FCC12860D9600B294D6 /* PCMBlitterLib.cpp in Sources */,
+				E5A3BD951E7095C100F91F3D /* PCMBlitterLibX86.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
