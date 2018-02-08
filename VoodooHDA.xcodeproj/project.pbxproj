@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		120156031244377E00611BC7 /* AppleAudioClip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 12BDC91012440B5D00B327AE /* AppleAudioClip.cpp */; settings = {COMPILER_FLAGS = "-Wno-unused-function -fvisibility=hidden"; }; };
+		125546F82020CC1D00C73811 /* PCMBlitterLibX86.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEF7C0A70EF74C2700A14C68 /* PCMBlitterLibX86.cpp */; };
 		12BDC90E12440B4E00B327AE /* TigerAdditionals.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 12BDC90C12440B4E00B327AE /* TigerAdditionals.cpp */; };
 		CE5D398B0EF4784000140715 /* Parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE5D398A0EF4784000140715 /* Parser.cpp */; };
 		CE6725A40EF078B100FAFBED /* VoodooHDADevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6725A00EF078B100FAFBED /* VoodooHDADevice.cpp */; };
@@ -206,6 +207,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				125546F82020CC1D00C73811 /* PCMBlitterLibX86.cpp in Sources */,
 				CE6725A40EF078B100FAFBED /* VoodooHDADevice.cpp in Sources */,
 				CE6725A60EF078B100FAFBED /* VoodooHDAEngine.cpp in Sources */,
 				CE9337FE0EF226E000776BCD /* Tables.c in Sources */,
@@ -213,8 +215,6 @@
 				CE709B500EFF2AA400EE77FF /* VoodooHDAUserClient.cpp in Sources */,
 				12BDC90E12440B4E00B327AE /* TigerAdditionals.cpp in Sources */,
 				120156031244377E00611BC7 /* AppleAudioClip.cpp in Sources */,
-				12F24FCC12860D9600B294D6 /* PCMBlitterLib.cpp in Sources */,
-				E5A3BD951E7095C100F91F3D /* PCMBlitterLibX86.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -230,8 +230,13 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				MODULE_NAME = org.voodoo.driver.VoodooHDA;
 				MODULE_VERSION = "$(CURRENT_PROJECT_VERSION)";
+				OTHER_CFLAGS = (
+					"-fno-stack-protector",
+					"-DMULTICHANNEL",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.voodoo.driver.${PRODUCT_NAME:identifier}";
 				PRODUCT_NAME = VoodooHDA;
+				SDKROOT = macosx10.11;
 				STRIP_STYLE = "non-global";
 				WARNING_CFLAGS = (
 					"-Wall",

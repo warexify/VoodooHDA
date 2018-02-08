@@ -149,7 +149,7 @@ typedef struct _BdlEntry {
 } __attribute__((__packed__)) BdlEntry;
 
 #define HDA_MAX_CONNS	32
-#define HDA_MAX_NAMELEN	32
+#define HDA_MAX_NAMELEN	40
 
 #define TRACE_DIR_NONE	0
 #define TRACE_DIR_IN	1
