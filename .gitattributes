@@ -52,5 +52,6 @@ VoodooHDA_old.xcodeproj/user.pbxuser -text
 /mm3dnow.h -text
 /mm_malloc.h -text
 /mmintrin.h -text
+/patches_for_hdmi.txt -text
 /private_xmmintrin.h -text
 /version.plist -text

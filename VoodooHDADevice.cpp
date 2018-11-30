@@ -2784,18 +2784,23 @@ void VoodooHDADevice::streamHDMIorDPExtraSetup(FunctionGroup* funcGroup, nid_t d
 		/*
 		 * Need Valid ELD to tell between DP or HDMI
 		 */
-		if (0 /* eld != NULL && eld_len >= 6 && ((eld[5] >> 2) & 0x3) == 1 */) { /* DisplayPort */
+#if DP_AUDIO
+		if (eld != NULL && eld_len >= 6 && ((eld[5] >> 2) & 0x3) == 1) { /* DisplayPort */
 			sendCommand(HDA_CMD_SET_HDMI_DIP_DATA(cad, nid_pin, 0x84), cad);
 			sendCommand(HDA_CMD_SET_HDMI_DIP_DATA(cad, nid_pin, 0x1b), cad);
 			sendCommand(HDA_CMD_SET_HDMI_DIP_DATA(cad, nid_pin, 0x44), cad);
-		} else {	/* HDMI */
+		} else {
+#endif
+      /* HDMI */
 			sendCommand(HDA_CMD_SET_HDMI_DIP_DATA(cad, nid_pin, 0x84), cad);
 			sendCommand(HDA_CMD_SET_HDMI_DIP_DATA(cad, nid_pin, 0x01), cad);
 			sendCommand(HDA_CMD_SET_HDMI_DIP_DATA(cad, nid_pin, 0x0a), cad);
 			csum = 0;
 			csum -= 0x84 + 0x01 + 0x0a + (hdmi_totalchn - 1) + hdmica[hdmi_totalchn - 1];
 			sendCommand(HDA_CMD_SET_HDMI_DIP_DATA(cad, nid_pin, csum), cad);
+#if DP_AUDIO
 		}
+#endif
 		sendCommand(HDA_CMD_SET_HDMI_DIP_DATA(cad, nid_pin, hdmi_totalchn - 1), cad);
 		sendCommand(HDA_CMD_SET_HDMI_DIP_DATA(cad, nid_pin, 0x00), cad);
 		sendCommand(HDA_CMD_SET_HDMI_DIP_DATA(cad, nid_pin, 0x00), cad);

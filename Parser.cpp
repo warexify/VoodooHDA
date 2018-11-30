@@ -1736,9 +1736,11 @@ void VoodooHDADevice::audioTraceAssociationExtra(FunctionGroup *funcGroup)
 	/* Find mixer associated with input, but supplying signal
 	   for output associations. Hope it will be input monitor. */
 	dumpMsg("Tracing input monitor\n");
+  /*
   if (0 && mDisableInputMonitor) {
     dumpMsg(" disabled by Info.plist set\n");
   } else {
+   */
     for (int j = funcGroup->startNode; j < funcGroup->endNode; j++) {
       Widget *widget = widgetGet(funcGroup, j);
       if (!widget || (widget->enable == 0))
@@ -1751,13 +1753,15 @@ void VoodooHDADevice::audioTraceAssociationExtra(FunctionGroup *funcGroup)
       if (audioTraceToOut(funcGroup, widget->nid, 0)) {
         //if(mVerbose > 0)
 				dumpMsg(" nid %d is input monitor\n", widget->nid);
+        /*
         if (0 && mDisableInputMonitor) {
           audioUndoTrace(funcGroup, widget->bindAssoc, -1);
         } else {
+         */
           widget->pflags |= HDA_ADC_MONITOR;
           widget->ossdev = SOUND_MIXER_IGAIN; //SOUND_MIXER_IMIX;
-        }
-      }
+//        }
+//      }
     }
     /* Other inputs monitor */
     /* Find input pins supplying signal for output associations.
