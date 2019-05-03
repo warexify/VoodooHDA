@@ -150,36 +150,11 @@ bool VoodooHDADevice::init(OSDictionary *dict)
 		errorMsg("error: couldn't cast command gate action handler\n");
 		return false;
 	}
-/*
-	mMsgBufferEnabled = false;
-	mMsgBufferSize = MSG_BUFFER_SIZE;
-	mMsgBufferPos = 0;
-	
-	mSwitchCh = false;
-//TODO - allocMem at init??? May be better to move it into start?
-	mMsgBuffer = (char *) allocMem(mMsgBufferSize);
-	if (!mMsgBuffer) {
-		errorMsg("error: couldn't allocate message buffer (%ld bytes)\n", mMsgBufferSize);
-		return false;
-	}
-	
-	mExtMessageLock = IOLockAlloc();
-	mExtMsgBufferSize = MSG_BUFFER_SIZE;
-	mExtMsgBufferPos = 0;
-	
-	mExtMsgBuffer = (char *) allocMem(mExtMsgBufferSize);
-	if (!mExtMsgBuffer) {
-		errorMsg("error: couldn't allocate ext message buffer (%ld bytes)\n", mExtMsgBufferSize);
-		return false;
-	}
-*/	
+
 	nSliderTabsCount = 0;
 	mPrefPanelMemoryBufSize = 0;
 	mPrefPanelMemoryBuf = 0;
 
-//	if (!super::init(dict))
-//		return false;
-	
 	return true;
 }
 
@@ -1571,7 +1546,7 @@ __attribute__((visibility("hidden")))
 void *VoodooHDADevice::allocMem(size_t size)
 {
 	void *addr = kern_os_malloc(size);
-	ASSERT(addr);
+//	ASSERT(addr); //will check result
 	return addr;
 }
 
@@ -1579,7 +1554,7 @@ __attribute__((visibility("hidden")))
 void *VoodooHDADevice::reallocMem(void *addr, size_t size)
 {
 	void *newAddr = kern_os_realloc(addr, size);
-	ASSERT(newAddr);
+//	ASSERT(newAddr); //will check result
 	return newAddr;
 }
 
