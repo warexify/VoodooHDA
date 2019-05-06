@@ -150,35 +150,10 @@ bool VoodooHDADevice::init(OSDictionary *dict)
 		errorMsg("error: couldn't cast command gate action handler\n");
 		return false;
 	}
-/*
-	mMsgBufferEnabled = false;
-	mMsgBufferSize = MSG_BUFFER_SIZE;
-	mMsgBufferPos = 0;
 
-	mSwitchCh = false;
-//TODO - allocMem at init??? May be better to move it into start?
-	mMsgBuffer = (char *) allocMem(mMsgBufferSize);
-	if (!mMsgBuffer) {
-		errorMsg("error: couldn't allocate message buffer (%ld bytes)\n", mMsgBufferSize);
-		return false;
-	}
-
-	mExtMessageLock = IOLockAlloc();
-	mExtMsgBufferSize = MSG_BUFFER_SIZE;
-	mExtMsgBufferPos = 0;
-
-	mExtMsgBuffer = (char *) allocMem(mExtMsgBufferSize);
-	if (!mExtMsgBuffer) {
-		errorMsg("error: couldn't allocate ext message buffer (%ld bytes)\n", mExtMsgBufferSize);
-		return false;
-	}
-*/
 	nSliderTabsCount = 0;
 	mPrefPanelMemoryBufSize = 0;
 	mPrefPanelMemoryBuf = 0;
-
-//	if (!super::init(dict))
-//		return false;
 
 	return true;
 }
@@ -1571,7 +1546,7 @@ __attribute__((visibility("hidden")))
 void *VoodooHDADevice::allocMem(size_t size)
 {
 	void *addr = kern_os_malloc(size);
-	ASSERT(addr);
+//	ASSERT(addr); //will check result
 	return addr;
 }
 
@@ -1579,7 +1554,7 @@ __attribute__((visibility("hidden")))
 void *VoodooHDADevice::reallocMem(void *addr, size_t size)
 {
 	void *newAddr = kern_os_realloc(addr, size);
-	ASSERT(newAddr);
+//	ASSERT(newAddr); //will check result
 	return newAddr;
 }
 
@@ -2781,18 +2756,23 @@ void VoodooHDADevice::streamHDMIorDPExtraSetup(FunctionGroup* funcGroup, nid_t d
 		/*
 		 * Need Valid ELD to tell between DP or HDMI
 		 */
-		if (0 /* eld != NULL && eld_len >= 6 && ((eld[5] >> 2) & 0x3) == 1 */) { /* DisplayPort */
+#if DP_AUDIO
+		if (eld != NULL && eld_len >= 6 && ((eld[5] >> 2) & 0x3) == 1) { /* DisplayPort */
 			sendCommand(HDA_CMD_SET_HDMI_DIP_DATA(cad, nid_pin, 0x84), cad);
 			sendCommand(HDA_CMD_SET_HDMI_DIP_DATA(cad, nid_pin, 0x1b), cad);
 			sendCommand(HDA_CMD_SET_HDMI_DIP_DATA(cad, nid_pin, 0x44), cad);
-		} else {	/* HDMI */
+		} else {
+#endif
+			/* HDMI */
 			sendCommand(HDA_CMD_SET_HDMI_DIP_DATA(cad, nid_pin, 0x84), cad);
 			sendCommand(HDA_CMD_SET_HDMI_DIP_DATA(cad, nid_pin, 0x01), cad);
 			sendCommand(HDA_CMD_SET_HDMI_DIP_DATA(cad, nid_pin, 0x0a), cad);
 			csum = 0;
 			csum -= 0x84 + 0x01 + 0x0a + (hdmi_totalchn - 1) + hdmica[hdmi_totalchn - 1];
 			sendCommand(HDA_CMD_SET_HDMI_DIP_DATA(cad, nid_pin, csum), cad);
+#if DP_AUDIO
 		}
+#endif
 		sendCommand(HDA_CMD_SET_HDMI_DIP_DATA(cad, nid_pin, hdmi_totalchn - 1), cad);
 		sendCommand(HDA_CMD_SET_HDMI_DIP_DATA(cad, nid_pin, 0x00), cad);
 		sendCommand(HDA_CMD_SET_HDMI_DIP_DATA(cad, nid_pin, 0x00), cad);
